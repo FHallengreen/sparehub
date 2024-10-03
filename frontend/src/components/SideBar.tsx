@@ -26,19 +26,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
             {/* Navigation Links */}
             <NavLink to="/orders" className="mb-5">
-                <FaBox size={24} />
+                <FaBox size={32} />
             </NavLink>
             <NavLink to="/dispatches" className="mb-5">
-                <FaTruck size={24} />
+                <FaTruck size={32} />
             </NavLink>
             <NavLink to="/invoices" className="mb-5">
-                <FaFileInvoice size={24} />
+                <FaFileInvoice size={32} />
             </NavLink>
             <NavLink to="/settings" className="mb-5">
-                <FaCogs size={24} />
+                <FaCogs size={32} />
             </NavLink>
             <NavLink to="/database" className="mb-5">
-                <FaDatabase size={24} />
+                <FaDatabase size={32} />
             </NavLink>
         </div>
     );
