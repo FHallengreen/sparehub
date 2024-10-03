@@ -24,6 +24,7 @@ const columns: GridColDef[] = [
   },
 ];
 
+
 const OrderTable: React.FC = () => {
   // Sample data to use without a backend
   const initialRows = [
