@@ -1,5 +1,6 @@
 services:
   frontend:
+    container_name: frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -10,3 +11,16 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
+
+  server:
+    container_name: backend
+    build:
+      context: ./backend/SpareHub
+      dockerfile: Server/Dockerfile 
+    ports:
+    - '8080:8080'
+    volumes:
+    - ./backend/SpareHub:/app
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true

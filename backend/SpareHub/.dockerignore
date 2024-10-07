@@ -1,0 +1,11 @@
+﻿# Ignore build folders
+Server/bin
+Server/obj
+
+# Ignore IDE files
+.idea
+.vscode
+
+# Ignore Docker-related files
+Dockerfile
+docker-compose.yml
