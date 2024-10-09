@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Service;
+using Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 

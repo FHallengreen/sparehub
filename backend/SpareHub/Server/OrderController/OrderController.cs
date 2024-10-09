@@ -11,7 +11,6 @@ namespace Server.OrderController;
 public class OrderController(IOrderService orderService) : ControllerBase
 {
     
-    // GET: api/orders
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
     {
@@ -26,15 +25,14 @@ public class OrderController(IOrderService orderService) : ControllerBase
         }
     }
 
-    // POST: api/orders
     [HttpPost]
-    public async Task<ActionResult<Order>> PostOrder(OrderRequest order)
+    public async Task<ActionResult<Order>> PostOrder([FromBody] OrderRequest order)
     {
         try
         {
             await orderService.CreateOrder(order);
             return Ok(order);
-        } catch (ArgumentException e)
+        } catch (Exception e)
         {
             Console.WriteLine(e);
             return StatusCode(500, "Internal server error");
