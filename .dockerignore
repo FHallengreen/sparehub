@@ -1,0 +1,20 @@
+﻿# Ignore build artifacts
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore node_modules (for frontend)
+**/node_modules/
+
+# Ignore docker-compose artifacts
+.docker/
+.dockerignore
+
+# Ignore temp files
+*.log
+*.tmp

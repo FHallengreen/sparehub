@@ -1,6 +1,6 @@
 services:
   frontend:
-    container_name: frontend
+    container_name: frontend-sparehub
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -11,16 +11,64 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
+    networks:
+      - app_net
 
   server:
-    container_name: backend
+    container_name: backend-sparehub
     build:
       context: ./backend/SpareHub
       dockerfile: Server/Dockerfile 
     ports:
-    - '8080:8080'
-    volumes:
-    - ./backend/SpareHub:/app
+      - '8080:8080'
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_URLS=http://+:8080
       - DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ./backend/SpareHub:/app
+      - nuget_cache:/root/.nuget/packages
+      - /app/Server/bin
+      - /app/Server/obj
+      - /app/Domain/bin
+      - /app/Domain/obj
+      - /app/Persistence/bin
+      - /app/Persistence/obj
+      - /app/Service/bin
+      - /app/Service/obj
+      - /app/Shared/bin
+      - /app/Shared/obj
+     
+    depends_on:
+      - mysql
+    networks:
+      - app_net
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-sparehub
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+    networks:
+      - app_net
+
+volumes:
+  mysql_data:
+  nuget_cache:
+
+networks:
+  app_net:
