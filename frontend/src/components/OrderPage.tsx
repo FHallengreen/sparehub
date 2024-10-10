@@ -4,6 +4,15 @@ import { Chip, CircularProgress, Typography } from '@mui/material';
 import axios from 'axios';
 import { TextField, Button } from '@mui/material';
 
+interface Order {
+  id: number;
+  supplierName: string;
+  vesselName: string;
+  orderNumber: string;
+  warehouseName: string;
+  orderStatus: string;
+}
+
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'Order ID', flex: 0.4, headerAlign: 'center' },
   { field: 'owner', headerName: 'Owner', flex: 0.5, headerAlign: 'center' },
@@ -55,11 +64,11 @@ const OrderTable: React.FC = () => {
   // Fetch orders from the API with optional search term
   const fetchOrders = async (query: string = '') => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders`, {
-        params: { search: query },  // Send search term to backend
+      const response = await axios.get<Order[]>(`${import.meta.env.VITE_API_URL}/api/orders`, {
+        params: { search: query },
       });
 
-      const mappedRows = response.data.map(order => ({
+      const mappedRows = response.data.map((order: Order) => ({
         id: order.id,
         owner: order.supplierName,
         vessel: order.vesselName,
@@ -67,8 +76,9 @@ const OrderTable: React.FC = () => {
         pieces: 1,
         weight: 100,
         stockLocation: order.warehouseName,
-        status: order.orderStatus
+        status: order.orderStatus,
       }));
+      
 
       setRows(mappedRows);
     } catch (err) {
