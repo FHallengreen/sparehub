@@ -5,6 +5,7 @@ namespace Service;
 
 public interface IOrderService
 {
-    Task<IEnumerable<Order>> GetOrders();
+    Task<IEnumerable<OrderResponse>> GetOrders();
     Task CreateOrder(OrderRequest orderRequest);
+    Task<List<string>?> GetAllOrderStatusesAsync();
 }

@@ -1,25 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Domain;
 
 namespace Shared;
 
 public class OrderRequest
 {
-    [Required]
-    public string OrderNumber { get; set; }
+    public required string OrderNumber { get; set; }
 
     public string? SupplierOrderNumber { get; set; }
 
-    [Required]
-    public int SupplierId { get; set; }
+    public required int SupplierId { get; set; }
 
-    [Required]
-    public int VesselId { get; set; }
+    public required int VesselId { get; set; }
 
-    [Required]
-    public int WarehouseId { get; set; }
+    public required int WarehouseId { get; set; }
 
-    [Required]
-    public DateTime ExpectedReadiness { get; set; }
+    public required DateTime ExpectedReadiness { get; set; }
 
     public DateTime? ActualReadiness { get; set; }
 
@@ -27,6 +23,5 @@ public class OrderRequest
 
     public DateTime? ActualArrival { get; set; }
 
-    [Required]
-    public string OrderStatus { get; set; }
+    public required string OrderStatus { get; set; }
 }

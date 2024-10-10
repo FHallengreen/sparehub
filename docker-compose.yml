@@ -9,7 +9,10 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
+      - VITE_API_URL=${API_URL}
       - NODE_ENV=development
     networks:
       - app_net

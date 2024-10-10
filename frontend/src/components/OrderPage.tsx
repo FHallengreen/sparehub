@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
-import { Chip } from '@mui/material';
+import { Chip, CircularProgress, Typography } from '@mui/material';
+import axios from 'axios';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'Order ID', flex: 0.4, headerAlign: 'center' },
@@ -44,14 +45,40 @@ const columns: GridColDef[] = [
 ];
 
 const OrderTable: React.FC = () => {
-  const rows = [
-    { id: 1, owner: 'V.Ships USA LLC', vessel: 'CSL Metis', poNumber: '2271-04262', pieces: 1, weight: 100, stockLocation: 'Amsterdam Warehouse', status: 'Stock' },
-    { id: 2, owner: 'Flexco Ltd', vessel: 'Aurora', poNumber: '1345-673', pieces: 2, weight: 200, stockLocation: 'Amsterdam Warehouse', status: 'Inbound' },
-    { id: 3, owner: 'Shell', vessel: 'Oceanic', poNumber: '4567-ABC', pieces: 3, weight: 300, stockLocation: 'Korea Warehouse', status: 'Pending' },
-    { id: 4, owner: 'Maersk', vessel: 'Explorer', poNumber: '6789-XYZ', pieces: 4, weight: 400, stockLocation: 'Japan Warehouse', status: 'Stock' },
-  ];
-
+  const [rows, setRows] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [error, setError] = React.useState<string | null>(null);
   const [selectedRows, setSelectedRows] = React.useState<GridRowSelectionModel>([]);
+
+  // Fetch orders from the API
+  React.useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders`);
+        
+        // Map the response to the structure expected by the DataGrid
+        const mappedRows = response.data.map(order => ({
+          id: order.id,
+          owner: order.supplierName,
+          vessel: order.vesselName,   
+          poNumber: order.orderNumber,            
+          pieces: 1,                            
+          weight: 100,                            
+          stockLocation: order.warehouseName,
+          status: order.orderStatus               
+        }));
+  
+        setRows(mappedRows);
+      } catch (err) {
+        setError('Failed to fetch orders.');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchOrders();
+  }, []);
+  
 
   // Group rows by stockLocation
   const groupedRows = React.useMemo(() => {
@@ -79,12 +106,10 @@ const OrderTable: React.FC = () => {
 
   // Handle selection changes
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
-    // Check if a group header was selected
     const groupHeaders = groupedRows.filter((row) => row.isGroupHeader).map((row) => row.stockLocation);
     const selectedGroupHeader = newSelection.find((id) => groupHeaders.includes(id as string));
 
     if (selectedGroupHeader) {
-      // Select all rows for this group header
       const groupRows = groupedRows
         .filter((row) => row.stockLocation === selectedGroupHeader && !row.isGroupHeader)
         .map((row) => row.id);
@@ -93,6 +118,14 @@ const OrderTable: React.FC = () => {
       setSelectedRows(newSelection);
     }
   };
+
+  if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (error) {
+    return <Typography color="error">{error}</Typography>;
+  }
 
   return (
     <div style={{ width: '100%' }}>
@@ -133,11 +166,9 @@ const OrderTable: React.FC = () => {
           params.row.isGroupHeader ? 'bg-gray-100 font-bold' : ''
         }
         autoHeight
-        
       />
     </div>
   );
-  
 };
 
 export default OrderTable;

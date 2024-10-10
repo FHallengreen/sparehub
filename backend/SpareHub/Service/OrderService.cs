@@ -1,16 +1,39 @@
 using Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Persistence;
 using Shared;
 
 namespace Service;
 
-public class OrderService (SpareHubDbContext dbContext) : IOrderService
+public class OrderService (SpareHubDbContext dbContext, IMemoryCache memory) : IOrderService
 {
-    public async Task<IEnumerable<Order>> GetOrders()
+
+    private const string OrderStatusCacheKey = "OrderStatuses";
+    
+    public async Task<IEnumerable<OrderResponse>> GetOrders()
     {
-        return await dbContext.Orders.ToListAsync();
+        return await dbContext.Orders
+            .Include(o => o.Supplier)
+            .Include(o => o.Vessel)
+            .Include(o => o.Warehouse)
+            .Select(o => new OrderResponse
+            {
+                Id = o.Id,
+                OrderNumber = o.OrderNumber,
+                SupplierOrderNumber = o.SupplierOrderNumber,
+                ExpectedReadiness = o.ExpectedReadiness,
+                ActualReadiness = o.ActualReadiness,
+                ExpectedArrival = o.ExpectedArrival,
+                ActualArrival = o.ActualArrival,
+                SupplierName = o.Supplier.Name,   
+                VesselName = o.Vessel.Name,     
+                WarehouseName = o.Warehouse.Name,
+                OrderStatus = o.OrderStatus
+            })
+            .ToListAsync();
     }
+
 
     public async Task CreateOrder(OrderRequest orderRequest)
     {
@@ -30,4 +53,22 @@ public class OrderService (SpareHubDbContext dbContext) : IOrderService
         await dbContext.Orders.AddAsync(order);
         await dbContext.SaveChangesAsync();
     }
+    
+    public async Task<List<string>?> GetAllOrderStatusesAsync()
+    {
+        if (!memory.TryGetValue(OrderStatusCacheKey, out List<string>? cachedStatuses))
+        {
+            // Fetch just the status strings from the database
+            cachedStatuses = await dbContext.OrderStatus.Select(s => s.Status).ToListAsync();
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromHours(24));
+
+            memory.Set(OrderStatusCacheKey, cachedStatuses, cacheEntryOptions);
+        }
+
+        return cachedStatuses;
+    }
+
+
 }
