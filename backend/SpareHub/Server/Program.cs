@@ -14,14 +14,13 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddMemoryCache();
 
-var isRunningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-
 var connectionString = string.Format("server={0};port={1};database={2};user={3};password={4}",
-    isRunningInContainer ? "mysql-sparehub" : "localhost",   
-    isRunningInContainer ? "3306" : "3308",                 
+    builder.Configuration.GetValue<string>("MYSQL_HOST"),
+    builder.Configuration.GetValue<string>("MYSQL_PORT"),
     builder.Configuration.GetValue<string>("MYSQL_DATABASE"),
     builder.Configuration.GetValue<string>("MYSQL_USER"),
     builder.Configuration.GetValue<string>("MYSQL_PASSWORD"));
+
 
 builder.Services.AddDbContext<SpareHubDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
