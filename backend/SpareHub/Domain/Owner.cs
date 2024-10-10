@@ -8,5 +8,6 @@ public class Owner
     public int Id { get; init; }
     public required string Name { get; init; }
 
-    public ICollection<User> Users { get; set; } = new List<User>();
+    public ICollection<User> Users { get; init; } = new List<User>();
+    public ICollection<Vessel> Vessels { get; init; } = new List<Vessel>();
 }

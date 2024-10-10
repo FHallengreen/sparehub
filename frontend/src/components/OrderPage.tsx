@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
-import { Chip, CircularProgress, Typography } from '@mui/material';
+import { CircularProgress, Typography, Autocomplete, TextField, Chip } from '@mui/material';
 import axios from 'axios';
-import { TextField, Button } from '@mui/material';
+import qs from 'qs';
 
 interface Order {
   id: number;
@@ -11,20 +11,22 @@ interface Order {
   orderNumber: string;
   warehouseName: string;
   orderStatus: string;
+  ownerName: string;
 }
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'Order ID', flex: 0.4, headerAlign: 'center' },
   { field: 'owner', headerName: 'Owner', flex: 0.5, headerAlign: 'center' },
   { field: 'vessel', headerName: 'Vessel', flex: 0.6, headerAlign: 'center' },
-  { field: 'poNumber', headerName: 'Client Ref', flex: 1, headerAlign: 'center' },
+  { field: 'supplier', headerName: 'Supplier', flex: 0.6, headerAlign: 'center' },
+  { field: 'poNumber', headerName: 'Client Ref', flex: 0.7, headerAlign: 'center' },
   { field: 'pieces', headerName: 'Pcs', flex: 0.2, headerAlign: 'center' },
   { field: 'weight', headerName: 'Weight', flex: 0.25, headerAlign: 'center' },
   {
     field: 'stockLocation',
     headerName: 'Stock Location',
-    flex: 0.7,
-    headerAlign: 'center'
+    flex: 0.9,
+    headerAlign: 'center',
   },
   {
     field: 'status',
@@ -42,7 +44,9 @@ const columns: GridColDef[] = [
           color={
             params.value === 'Inbound' ? 'warning' :
               params.value === 'Stock' ? 'success' :
-                params.value === 'Pending' ? 'default' : 'error'
+                params.value === 'Pending' ? 'default' :
+                  params.value === 'Ready' ? 'primary' :
+                    params.value === 'Cancelled' ? 'error' : 'default'
           }
           sx={{
             minWidth: '100%',
@@ -58,27 +62,30 @@ const OrderTable: React.FC = () => {
   const [rows, setRows] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = React.useState<string>('');  // New state for search term
+  const [searchTags, setSearchTags] = React.useState<string[]>([]);
   const [selectedRows, setSelectedRows] = React.useState<GridRowSelectionModel>([]);
+  const [suggestions, setSuggestions] = React.useState<string[]>([]);
 
-  // Fetch orders from the API with optional search term
-  const fetchOrders = async (query: string = '') => {
+  const fetchOrders = async (tags: string[] = []) => {
     try {
       const response = await axios.get<Order[]>(`${import.meta.env.VITE_API_URL}/api/orders`, {
-        params: { search: query },
+        params: { searchTerms: tags },
+        paramsSerializer: (params) => {
+          return qs.stringify(params, { arrayFormat: 'repeat' });
+        },
       });
 
       const mappedRows = response.data.map((order: Order) => ({
         id: order.id,
-        owner: order.supplierName,
+        owner: order.ownerName,
         vessel: order.vesselName,
+        supplier: order.supplierName,
         poNumber: order.orderNumber,
         pieces: 1,
         weight: 100,
         stockLocation: order.warehouseName,
         status: order.orderStatus,
       }));
-      
 
       setRows(mappedRows);
     } catch (err) {
@@ -89,24 +96,37 @@ const OrderTable: React.FC = () => {
   };
 
   React.useEffect(() => {
-    fetchOrders();
-  }, []);
+    setLoading(true);
+    fetchOrders(searchTags);
+  }, [searchTags]);
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);  // Update the search term
-  };
+  React.useEffect(() => {
+    if (rows.length > 0) {
+      const warehouseNames = rows.map((row) => row.stockLocation);
+      const vesselNames = rows.map((row) => row.vessel);
+      const ownerNames = rows.map((row) => row.owner);
+      const orderNumbers = rows.map((row) => row.poNumber);
+      const statuses = rows.map((row) => row.status);
 
-  // Trigger search when the search button is clicked
-  const handleSearchClick = () => {
-    setLoading(true); // Set loading state while searching
-    fetchOrders(searchTerm);  // Query backend with search term
-  };
+      const allTerms = [
+        ...warehouseNames,
+        ...vesselNames,
+        ...ownerNames,
+        ...orderNumbers,
+        ...statuses,
+        "Cancelled"
+      ];
 
-  // Group rows by stockLocation
+      const uniqueTerms = Array.from(new Set(allTerms.filter(Boolean)));
+
+      setSuggestions(uniqueTerms);
+    }
+  }, [rows]);
+
   const groupedRows = React.useMemo(() => {
     const groupHeaders: any[] = [];
     const rowGroups: Record<string, any[]> = {};
-
+  
     rows.forEach((row) => {
       const location = row.stockLocation;
       if (!rowGroups[location]) {
@@ -114,11 +134,11 @@ const OrderTable: React.FC = () => {
       }
       rowGroups[location].push(row);
     });
-
+  
     Object.entries(rowGroups).forEach(([location, locationRows]) => {
       groupHeaders.push({
         stockLocation: location,
-        isGroupHeader: true,
+        isGroupHeader: true,    
       });
       groupHeaders.push(...locationRows);
     });
@@ -151,40 +171,47 @@ const OrderTable: React.FC = () => {
 
   return (
     <div style={{ width: '100%' }}>
-      <div style={{ display: 'flex', marginBottom: '20px' }}>
-        <TextField
-          label="Search Orders"
-          variant="outlined"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              handleSearchClick();
-            }
-          }}
-          style={{ marginRight: '10px' }}
-        />
-        <Button variant="contained" onClick={handleSearchClick}>
-          Search
-        </Button>
-      </div>
+      <Autocomplete
+        multiple
+        freeSolo
+        options={suggestions}
+        value={searchTags}
+        onChange={(_, newValue) => {
+          setSearchTags(newValue);
+        }}
+        renderTags={(value: string[], getTagProps) =>
+          value.map((option: string, index: number) => {
+            const { key, ...restTagProps } = getTagProps({ index });
 
+            return (
+              <Chip
+                key={index}
+                variant="outlined"
+                label={option}
+                {...restTagProps}
+              />
+            );
+          })
+        }
+        renderInput={(params) => (
+          <TextField {...params} variant="outlined" label="Search Orders" placeholder="Add a tag" />
+        )}
+        style={{ marginBottom: '20px', width: '100%' }}
+      />
 
       <DataGrid
-        rows={rows}
+        rows={groupedRows} 
         columns={columns}
-        getRowId={(row) => row.id || row.stockLocation}
-        pageSizeOptions={[50, 100, 250]}
+        getRowId={(row) => row.id || `header-${row.stockLocation}`}
+        pageSizeOptions={[100, 250, 500]}
         pagination
         checkboxSelection
         disableColumnResize
-        disableColumnSorting
-        disableColumnMenu
         disableRowSelectionOnClick
         showCellVerticalBorder
         initialState={{
           pagination: {
-            paginationModel: { pageSize: 50 },
+            paginationModel: { pageSize: 100 },
           },
         }}
         rowSelectionModel={selectedRows}

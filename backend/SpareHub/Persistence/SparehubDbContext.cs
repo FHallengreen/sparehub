@@ -124,7 +124,6 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
         // Dispatch Configuration
-        // Dispatch Configuration
         modelBuilder.Entity<Dispatch>(entity =>
         {
             entity.ToTable("dispatch");
@@ -177,6 +176,32 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
+        // Owner Configuration
+        modelBuilder.Entity<Owner>(entity =>
+        {
+            entity.ToTable("owner");
+
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasColumnName("name")
+                .HasMaxLength(45);
+
+            // Define the relationship: Owner has many Vessels
+            entity.HasMany(o => o.Vessels)
+                .WithOne(v => v.Owner)
+                .HasForeignKey(v => v.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade) // Delete behavior should be set according to your requirements
+                .HasConstraintName("fk_vessel_owner");  // Make sure the foreign key matches
+        });
+
+
+        
         // Supplier Configuration
         modelBuilder.Entity<Supplier>(entity =>
         {
@@ -201,13 +226,13 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasConstraintName("fk_Supplier_Address1")
                 .OnDelete(DeleteBehavior.NoAction);
         });
-
         // Vessel Configuration
         modelBuilder.Entity<Vessel>(entity =>
         {
             entity.ToTable("vessel");
 
             entity.HasKey(e => e.Id);
+    
             entity.Property(e => e.Id)
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
@@ -218,7 +243,8 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .IsRequired();
 
             entity.Property(e => e.OwnerId)
-                .HasColumnName("owner_id");
+                .HasColumnName("owner_id")  // Ensure this matches the column name in your database
+                .IsRequired();
 
             entity.Property(e => e.ImoNumber)
                 .HasColumnName("imo_number")
@@ -228,12 +254,16 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("flag")
                 .HasMaxLength(3);
 
-            entity.HasOne<Owner>()
-                .WithMany()
-                .HasForeignKey(e => e.OwnerId)
-                .HasConstraintName("fk_Vessel_Owner1")
-                .OnDelete(DeleteBehavior.NoAction);
+            // Define the foreign key relationship with Owner
+            entity.HasOne(v => v.Owner)  // Ensure the navigation property 'Owner' is correctly used
+                .WithMany(o => o.Vessels)
+                .HasForeignKey(v => v.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade) // Adjust the delete behavior based on your needs
+                .HasConstraintName("fk_vessel_owner");  // Ensure this constraint name matches the actual database constraint
         });
+
+
+
         // Agent Configuration
         modelBuilder.Entity<Agent>(entity =>
         {

@@ -6,45 +6,66 @@ using Shared;
 
 namespace Service;
 
-public class OrderService (SpareHubDbContext dbContext, IMemoryCache memory) : IOrderService
+public class OrderService(SpareHubDbContext dbContext, IMemoryCache memory) : IOrderService
 {
-
     private const string OrderStatusCacheKey = "OrderStatuses";
-    
-    public async Task<IEnumerable<OrderResponse>> GetOrders(string? search = null)  // Accept search term as parameter
-    {
-        var query = dbContext.Orders
-            .Include(o => o.Supplier)
-            .Include(o => o.Vessel)
-            .Include(o => o.Warehouse)
-            .Select(o => new OrderResponse
-            {
-                Id = o.Id,
-                OrderNumber = o.OrderNumber,
-                SupplierOrderNumber = o.SupplierOrderNumber,
-                ExpectedReadiness = o.ExpectedReadiness,
-                ActualReadiness = o.ActualReadiness,
-                ExpectedArrival = o.ExpectedArrival,
-                ActualArrival = o.ActualArrival,
-                SupplierName = o.Supplier.Name,   
-                VesselName = o.Vessel.Name,     
-                WarehouseName = o.Warehouse.Name,
-                OrderStatus = o.OrderStatus
-            });
 
-        if (!string.IsNullOrEmpty(search))
+    public async Task<IEnumerable<OrderResponse>> GetOrders(List<string>? searchTerms = null)
+{
+    var query = dbContext.Orders
+        .Include(o => o.Supplier)
+        .Include(o => o.Vessel)
+        .ThenInclude(v => v.Owner) 
+        .Include(o => o.Warehouse)
+        .Select(o => new OrderResponse
         {
-            query = query.Where(o => 
-                o.OrderNumber.Contains(search) ||
-                o.SupplierName.Contains(search) ||
-                o.VesselName.Contains(search) ||
-                o.WarehouseName.Contains(search) ||
-                o.OrderStatus.Contains(search)
-            );
-        }
+            Id = o.Id,
+            OrderNumber = o.OrderNumber,
+            SupplierOrderNumber = o.SupplierOrderNumber,
+            ExpectedReadiness = o.ExpectedReadiness,
+            ActualReadiness = o.ActualReadiness,
+            ExpectedArrival = o.ExpectedArrival,
+            ActualArrival = o.ActualArrival,
+            SupplierName = o.Supplier.Name,
+            OwnerName = o.Vessel.Owner.Name,
+            VesselName = o.Vessel.Name,
+            WarehouseName = o.Warehouse.Name,
+            OrderStatus = o.OrderStatus
+        });
 
-        return await query.ToListAsync();
+    var orderStatusFilter = searchTerms?
+        .FirstOrDefault(term => term.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) ||
+                                term.Equals("Ready", StringComparison.OrdinalIgnoreCase) ||
+                                term.Equals("Inbound", StringComparison.OrdinalIgnoreCase) ||
+                                term.Equals("Stock", StringComparison.OrdinalIgnoreCase));
+
+    if (orderStatusFilter != null)
+    {
+        query = query.Where(o => o.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase));
     }
+    else
+    {
+        query = query.Where(o => !o.OrderStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
+    }
+
+    var result = await query.ToListAsync();
+
+    if (searchTerms is not { Count: > 0 }) return result;
+    {
+        var otherTerms = searchTerms.Where(t => t != orderStatusFilter).ToList();
+
+        result = result.Where(o => otherTerms.Any(term =>
+            o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+            o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+            o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+            o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase)
+        )).ToList();
+    }
+
+    return result;
+}
+
+
 
 
 
@@ -66,22 +87,18 @@ public class OrderService (SpareHubDbContext dbContext, IMemoryCache memory) : I
         await dbContext.Orders.AddAsync(order);
         await dbContext.SaveChangesAsync();
     }
-    
+
     public async Task<List<string>?> GetAllOrderStatusesAsync()
     {
-        if (!memory.TryGetValue(OrderStatusCacheKey, out List<string>? cachedStatuses))
-        {
-            // Fetch just the status strings from the database
-            cachedStatuses = await dbContext.OrderStatus.Select(s => s.Status).ToListAsync();
+        if (memory.TryGetValue(OrderStatusCacheKey, out List<string>? cachedStatuses)) return cachedStatuses;
+        // Fetch just the status strings from the database
+        cachedStatuses = await dbContext.OrderStatus.Select(s => s.Status).ToListAsync();
 
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromHours(24));
+        var cacheEntryOptions = new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromHours(24));
 
-            memory.Set(OrderStatusCacheKey, cachedStatuses, cacheEntryOptions);
-        }
+        memory.Set(OrderStatusCacheKey, cachedStatuses, cacheEntryOptions);
 
         return cachedStatuses;
     }
-
-
 }

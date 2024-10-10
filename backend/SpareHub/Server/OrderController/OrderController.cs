@@ -12,11 +12,11 @@ public class OrderController(IOrderService orderService) : ControllerBase
 {
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OrderResponse>>> GetOrders([FromQuery] string? search = null) 
+    public async Task<ActionResult<IEnumerable<OrderResponse>>> GetOrders([FromQuery] List<string>? searchTerms) 
     {
         try
         {
-            var list = await orderService.GetOrders(search); 
+            var list = await orderService.GetOrders(searchTerms); 
             return Ok(list);
         }
         catch (Exception e)
@@ -27,7 +27,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     
-    [HttpGet("/statuses")]
+    [HttpGet("statuses")]
     public async Task<ActionResult<OrderStatus>> GetOrderStatuses()
     {
         try

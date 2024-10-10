@@ -9,9 +9,9 @@ builder.Services.Configure<AzureFileLoggerOptions>(builder.Configuration.GetSect
 
 // Configure logging providers
 builder.Logging.ClearProviders();
-builder.Logging.AddConsole();    
-builder.Logging.AddDebug();    
-builder.Logging.AddAzureWebAppDiagnostics(); 
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.AddAzureWebAppDiagnostics();
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 builder.Services.AddControllers();
@@ -20,10 +20,11 @@ builder.Services.AddSwaggerGen();
 builder.Configuration.AddUserSecrets<Program>();
 
 // Add memory caching
-builder.Services.AddMemoryCache();  // Add this line
+builder.Services.AddMemoryCache();
 
 // Add OrderService
 builder.Services.AddScoped<IOrderService, OrderService>();
+
 
 // Configure the database connection string with SSL enabled
 var connectionString = string.Format("server={0};port={1};database={2};user={3};password={4};SslMode=Required",
@@ -35,14 +36,18 @@ var connectionString = string.Format("server={0};port={1};database={2};user={3};
 
 // Register the DbContext with MySQL configuration
 builder.Services.AddDbContext<SpareHubDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+            mySqlOptions => mySqlOptions.EnableStringComparisonTranslations())
+            /*.EnableSensitiveDataLogging()
+            .LogTo(Console.WriteLine, LogLevel.Information)*/ // Enable for debugging
+    );
 
 var app = builder.Build();
 
 // Configure CORS policy
 app.UseCors(corsPolicyBuilder =>
     corsPolicyBuilder.WithOrigins(
-            "http://localhost:5173", 
+            "http://localhost:5173",
             "https://sparehub.fhallengreen.com"
         )
         .AllowAnyMethod()
