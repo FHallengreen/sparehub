@@ -1,12 +1,11 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Backend deployment
 
 on:
   push:
     branches:
       - master
+    paths:
+      - 'backend/SpareHub/**'
   workflow_dispatch:
 
 jobs:
@@ -15,7 +14,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+          
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
