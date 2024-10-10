@@ -11,5 +11,5 @@ public class Vessel
     public string? ImoNumber { get; init; }
     public string? Flag { get; init; }
 
-    public Owner Owner { get; set; }  // Navigation property for Owner
+    public required Owner Owner { get; init; }
 }

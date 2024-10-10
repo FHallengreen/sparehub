@@ -9,5 +9,5 @@ public class Warehouse
     public required string Name { get; init; }
     public int AgentId { get; init; }
 
-    public Agent Agent { get; set; } 
+    public required Agent  Agent { get; init; } 
 }

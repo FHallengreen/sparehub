@@ -8,5 +8,5 @@ public class Invoice
     public int Id { get; init; }
     public int DispatchId { get; init; }
 
-    public Dispatch Dispatch { get; set; }
+    public required Dispatch Dispatch { get; init; }
 }

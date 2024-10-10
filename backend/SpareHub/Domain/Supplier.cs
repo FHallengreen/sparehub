@@ -10,5 +10,5 @@ public class Supplier
     public required string Name { get; init; }
     public int AddressId { get; init; }
 
-    public Address Address { get; set; }
+    public required Address Address { get; init; }
 }

@@ -426,23 +426,26 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.CurrencyId)
                 .HasColumnName("currency_id");
 
-            entity.HasOne<Invoice>()
-                .WithMany()
+            entity.HasOne(e => e.Invoice)
+                .WithMany() 
                 .HasForeignKey(e => e.InvoiceId)
                 .HasConstraintName("fk_financial_invoice1")
                 .OnDelete(DeleteBehavior.NoAction);
 
-            entity.HasOne<CostType>()
-                .WithMany()
-                .HasForeignKey(e => e.CostTypeId)
+          
+            entity.HasOne(e => e.CostType)
+                .WithMany()  
+                .HasForeignKey(e => e.CostTypeId) 
                 .HasConstraintName("fk_financial_cost_type1")
                 .OnDelete(DeleteBehavior.NoAction);
 
-            entity.HasOne<Currency>()
-                .WithMany()
-                .HasForeignKey(e => e.CurrencyId)
+
+            entity.HasOne(e => e.Currency)
+                .WithMany()  
+                .HasForeignKey(e => e.CurrencyId) 
                 .HasConstraintName("fk_financial_currency1")
                 .OnDelete(DeleteBehavior.NoAction);
         });
+
     }
 }
