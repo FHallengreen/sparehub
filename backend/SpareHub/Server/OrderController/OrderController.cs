@@ -12,18 +12,20 @@ public class OrderController(IOrderService orderService) : ControllerBase
 {
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OrderResponse>>> GetOrders()
+    public async Task<ActionResult<IEnumerable<OrderResponse>>> GetOrders([FromQuery] string? search = null) 
     {
         try
         {
-            var list = await orderService.GetOrders();
+            var list = await orderService.GetOrders(search); 
             return Ok(list);
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             Console.WriteLine(e);
             return StatusCode(500, "Internal server error");
         }
     }
+
     
     [HttpGet("/statuses")]
     public async Task<ActionResult<OrderStatus>> GetOrderStatuses()

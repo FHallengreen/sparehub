@@ -11,9 +11,9 @@ public class OrderService (SpareHubDbContext dbContext, IMemoryCache memory) : I
 
     private const string OrderStatusCacheKey = "OrderStatuses";
     
-    public async Task<IEnumerable<OrderResponse>> GetOrders()
+    public async Task<IEnumerable<OrderResponse>> GetOrders(string? search = null)  // Accept search term as parameter
     {
-        return await dbContext.Orders
+        var query = dbContext.Orders
             .Include(o => o.Supplier)
             .Include(o => o.Vessel)
             .Include(o => o.Warehouse)
@@ -30,9 +30,22 @@ public class OrderService (SpareHubDbContext dbContext, IMemoryCache memory) : I
                 VesselName = o.Vessel.Name,     
                 WarehouseName = o.Warehouse.Name,
                 OrderStatus = o.OrderStatus
-            })
-            .ToListAsync();
+            });
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(o => 
+                o.OrderNumber.Contains(search) ||
+                o.SupplierName.Contains(search) ||
+                o.VesselName.Contains(search) ||
+                o.WarehouseName.Contains(search) ||
+                o.OrderStatus.Contains(search)
+            );
+        }
+
+        return await query.ToListAsync();
     }
+
 
 
     public async Task CreateOrder(OrderRequest orderRequest)

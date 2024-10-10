@@ -2,14 +2,15 @@ import * as React from 'react';
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import { Chip, CircularProgress, Typography } from '@mui/material';
 import axios from 'axios';
+import { TextField, Button } from '@mui/material';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'Order ID', flex: 0.4, headerAlign: 'center' },
-  { field: 'owner', headerName: 'Owner', flex: 0.5 , headerAlign: 'center'},
+  { field: 'owner', headerName: 'Owner', flex: 0.5, headerAlign: 'center' },
   { field: 'vessel', headerName: 'Vessel', flex: 0.6, headerAlign: 'center' },
   { field: 'poNumber', headerName: 'Client Ref', flex: 1, headerAlign: 'center' },
-  { field: 'pieces', headerName: 'Pcs', flex: 0.2 , headerAlign: 'center'},
-  { field: 'weight', headerName: 'Weight', flex: 0.25 ,headerAlign: 'center' },
+  { field: 'pieces', headerName: 'Pcs', flex: 0.2, headerAlign: 'center' },
+  { field: 'weight', headerName: 'Weight', flex: 0.25, headerAlign: 'center' },
   {
     field: 'stockLocation',
     headerName: 'Stock Location',
@@ -31,11 +32,11 @@ const columns: GridColDef[] = [
           variant="outlined"
           color={
             params.value === 'Inbound' ? 'warning' :
-            params.value === 'Stock' ? 'success' :
-            params.value === 'Pending' ? 'default' : 'error'
+              params.value === 'Stock' ? 'success' :
+                params.value === 'Pending' ? 'default' : 'error'
           }
           sx={{
-            minWidth: '100%', 
+            minWidth: '100%',
             justifyContent: 'center',
           }}
         />
@@ -48,37 +49,48 @@ const OrderTable: React.FC = () => {
   const [rows, setRows] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = React.useState<string>('');  // New state for search term
   const [selectedRows, setSelectedRows] = React.useState<GridRowSelectionModel>([]);
 
-  // Fetch orders from the API
+  // Fetch orders from the API with optional search term
+  const fetchOrders = async (query: string = '') => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders`, {
+        params: { search: query },  // Send search term to backend
+      });
+
+      const mappedRows = response.data.map(order => ({
+        id: order.id,
+        owner: order.supplierName,
+        vessel: order.vesselName,
+        poNumber: order.orderNumber,
+        pieces: 1,
+        weight: 100,
+        stockLocation: order.warehouseName,
+        status: order.orderStatus
+      }));
+
+      setRows(mappedRows);
+    } catch (err) {
+      setError('Failed to fetch orders.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   React.useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders`);
-        
-        // Map the response to the structure expected by the DataGrid
-        const mappedRows = response.data.map(order => ({
-          id: order.id,
-          owner: order.supplierName,
-          vessel: order.vesselName,   
-          poNumber: order.orderNumber,            
-          pieces: 1,                            
-          weight: 100,                            
-          stockLocation: order.warehouseName,
-          status: order.orderStatus               
-        }));
-  
-        setRows(mappedRows);
-      } catch (err) {
-        setError('Failed to fetch orders.');
-      } finally {
-        setLoading(false);
-      }
-    };
-  
     fetchOrders();
   }, []);
-  
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);  // Update the search term
+  };
+
+  // Trigger search when the search button is clicked
+  const handleSearchClick = () => {
+    setLoading(true); // Set loading state while searching
+    fetchOrders(searchTerm);  // Query backend with search term
+  };
 
   // Group rows by stockLocation
   const groupedRows = React.useMemo(() => {
@@ -129,22 +141,27 @@ const OrderTable: React.FC = () => {
 
   return (
     <div style={{ width: '100%' }}>
+      <div style={{ display: 'flex', marginBottom: '20px' }}>
+        <TextField
+          label="Search Orders"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              handleSearchClick();
+            }
+          }}
+          style={{ marginRight: '10px' }}
+        />
+        <Button variant="contained" onClick={handleSearchClick}>
+          Search
+        </Button>
+      </div>
+
+
       <DataGrid
-        rows={groupedRows}
-        sx={{
-          '& .MuiDataGrid-columnHeaders': {
-            fontSize: '0.8rem', 
-            textAlign: 'center',
-          },
-          '& .MuiDataGrid-cell': {
-            fontSize: '0.8rem', 
-            textAlign: 'center',
-          },
-          '& .MuiTablePagination-root': {
-            fontSize: '0.875rem', 
-            textAlign: 'center',
-          },
-        }}
+        rows={rows}
         columns={columns}
         getRowId={(row) => row.id || row.stockLocation}
         pageSizeOptions={[50, 100, 250]}
