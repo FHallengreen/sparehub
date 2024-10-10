@@ -11,62 +11,50 @@ public class OrderService(SpareHubDbContext dbContext, IMemoryCache memory) : IO
     private const string OrderStatusCacheKey = "OrderStatuses";
 
     public async Task<IEnumerable<OrderResponse>> GetOrders(List<string>? searchTerms = null)
-{
-    var query = dbContext.Orders
-        .Include(o => o.Supplier)
-        .Include(o => o.Vessel)
-        .ThenInclude(v => v.Owner) 
-        .Include(o => o.Warehouse)
-        .Select(o => new OrderResponse
+    {
+        var query = dbContext.Orders
+            .Include(o => o.Supplier)
+            .Include(o => o.Vessel)
+            .ThenInclude(v => v.Owner)
+            .Include(o => o.Warehouse)
+            .Select(o => new OrderResponse
+            {
+                Id = o.Id,
+                OrderNumber = o.OrderNumber,
+                SupplierOrderNumber = o.SupplierOrderNumber,
+                ExpectedReadiness = o.ExpectedReadiness,
+                ActualReadiness = o.ActualReadiness,
+                ExpectedArrival = o.ExpectedArrival,
+                ActualArrival = o.ActualArrival,
+                SupplierName = o.Supplier.Name,
+                OwnerName = o.Vessel.Owner.Name,
+                VesselName = o.Vessel.Name,
+                WarehouseName = o.Warehouse.Name,
+                OrderStatus = o.OrderStatus
+            });
+
+        var orderStatusFilter = searchTerms?
+            .FirstOrDefault(term => term.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) ||
+                                    term.Equals("Ready", StringComparison.OrdinalIgnoreCase) ||
+                                    term.Equals("Inbound", StringComparison.OrdinalIgnoreCase) ||
+                                    term.Equals("Stock", StringComparison.OrdinalIgnoreCase));
+
+        query = orderStatusFilter != null
+            ? query.Where(o => o.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase))
+            : query.Where(o => !o.OrderStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
+
+        var result = await query.ToListAsync();
+
+        if (searchTerms is not { Count: > 0 }) return result;
         {
-            Id = o.Id,
-            OrderNumber = o.OrderNumber,
-            SupplierOrderNumber = o.SupplierOrderNumber,
-            ExpectedReadiness = o.ExpectedReadiness,
-            ActualReadiness = o.ActualReadiness,
-            ExpectedArrival = o.ExpectedArrival,
-            ActualArrival = o.ActualArrival,
-            SupplierName = o.Supplier.Name,
-            OwnerName = o.Vessel.Owner.Name,
-            VesselName = o.Vessel.Name,
-            WarehouseName = o.Warehouse.Name,
-            OrderStatus = o.OrderStatus
-        });
-
-    var orderStatusFilter = searchTerms?
-        .FirstOrDefault(term => term.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) ||
-                                term.Equals("Ready", StringComparison.OrdinalIgnoreCase) ||
-                                term.Equals("Inbound", StringComparison.OrdinalIgnoreCase) ||
-                                term.Equals("Stock", StringComparison.OrdinalIgnoreCase));
-
-    if (orderStatusFilter != null)
-    {
-        query = query.Where(o => o.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase));
+            var nonStatusTerms = searchTerms.Where(t => t != orderStatusFilter).ToList();
+            return nonStatusTerms.Aggregate(result, (current, term) => current.Where(o =>
+                o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
+        }
     }
-    else
-    {
-        query = query.Where(o => !o.OrderStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
-    }
-
-    var result = await query.ToListAsync();
-
-    if (searchTerms is not { Count: > 0 }) return result;
-    {
-        var otherTerms = searchTerms.Where(t => t != orderStatusFilter).ToList();
-
-        result = result.Where(o => otherTerms.Any(term =>
-            o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-            o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-            o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-            o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase)
-        )).ToList();
-    }
-
-    return result;
-}
-
-
-
 
 
     public async Task CreateOrder(OrderRequest orderRequest)

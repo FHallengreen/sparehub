@@ -71,7 +71,7 @@ const OrderTable: React.FC = () => {
       const response = await axios.get<Order[]>(`${import.meta.env.VITE_API_URL}/api/orders`, {
         params: { searchTerms: tags },
         paramsSerializer: (params) => {
-          return qs.stringify(params, { arrayFormat: 'repeat' });
+          return qs.stringify(params, { arrayFormat: 'repeat' });  // Keep the tags array format
         },
       });
 
@@ -94,6 +94,7 @@ const OrderTable: React.FC = () => {
       setLoading(false);
     }
   };
+
 
   React.useEffect(() => {
     setLoading(true);
@@ -126,7 +127,7 @@ const OrderTable: React.FC = () => {
   const groupedRows = React.useMemo(() => {
     const groupHeaders: any[] = [];
     const rowGroups: Record<string, any[]> = {};
-  
+
     rows.forEach((row) => {
       const location = row.stockLocation;
       if (!rowGroups[location]) {
@@ -134,11 +135,11 @@ const OrderTable: React.FC = () => {
       }
       rowGroups[location].push(row);
     });
-  
+
     Object.entries(rowGroups).forEach(([location, locationRows]) => {
       groupHeaders.push({
         stockLocation: location,
-        isGroupHeader: true,    
+        isGroupHeader: true,
       });
       groupHeaders.push(...locationRows);
     });
@@ -200,7 +201,7 @@ const OrderTable: React.FC = () => {
       />
 
       <DataGrid
-        rows={groupedRows} 
+        rows={groupedRows}
         columns={columns}
         getRowId={(row) => row.id || `header-${row.stockLocation}`}
         pageSizeOptions={[100, 250, 500]}
