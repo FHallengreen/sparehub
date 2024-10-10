@@ -65,6 +65,7 @@ const OrderTable: React.FC = () => {
   const [searchTags, setSearchTags] = React.useState<string[]>([]);
   const [selectedRows, setSelectedRows] = React.useState<GridRowSelectionModel>([]);
   const [suggestions, setSuggestions] = React.useState<string[]>([]);
+  const searchBoxRef = React.useRef<HTMLInputElement>(null);
 
   const fetchOrders = async (tags: string[] = []) => {
     try {
@@ -95,7 +96,12 @@ const OrderTable: React.FC = () => {
     }
   };
 
-
+  React.useEffect(() => {
+    if (searchBoxRef.current) {
+      searchBoxRef.current.focus();
+    }
+  }, []);
+  
   React.useEffect(() => {
     setLoading(true);
     fetchOrders(searchTags);
@@ -195,7 +201,14 @@ const OrderTable: React.FC = () => {
           })
         }
         renderInput={(params) => (
-          <TextField {...params} variant="outlined" label="Search Orders" placeholder="Add a tag" />
+          <TextField
+            {...params}
+            inputRef={searchBoxRef}
+            autoFocus
+            variant="outlined"
+            label="Search Orders"
+            placeholder="Add a tag"
+          />
         )}
         style={{ marginBottom: '20px', width: '100%' }}
       />

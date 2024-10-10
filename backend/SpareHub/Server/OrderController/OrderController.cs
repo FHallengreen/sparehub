@@ -25,7 +25,6 @@ public class OrderController(IOrderService orderService) : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
-
     
     [HttpGet("statuses")]
     public async Task<ActionResult<OrderStatus>> GetOrderStatuses()
