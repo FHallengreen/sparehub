@@ -34,6 +34,9 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_HOST=${MYSQL_HOST}
       - MYSQL_PORT=${MYSQL_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
     volumes:
       - ./backend/SpareHub:/app
       - nuget_cache:/root/.nuget/packages
@@ -50,6 +53,8 @@ services:
      
     depends_on:
       - mysql
+      - mongodb
+
     networks:
       - app_net
 
@@ -71,9 +76,25 @@ services:
     networks:
       - app_net
 
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-sparehub
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./database/MongoDB:/docker-entrypoint-initdb.d
+    networks:
+      - app_net
+
 volumes:
   mysql_data:
   nuget_cache:
+  mongo_data:
 
 networks:
   app_net:

@@ -1,5 +1,7 @@
+using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.AzureAppServices;
+using MongoDB.Driver;
 using Persistence;
 using Service;
 
@@ -24,6 +26,7 @@ builder.Services.AddMemoryCache();
 
 // Add OrderService
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IBoxService, BoxService>();
 
 
 // Configure the database connection string with SSL enabled
@@ -41,6 +44,26 @@ builder.Services.AddDbContext<SpareHubDbContext>(options =>
             /*.EnableSensitiveDataLogging()
             .LogTo(Console.WriteLine, LogLevel.Information)*/ // Enable for debugging
     );
+
+
+// Mongo DB configuration
+var mongoConnectionString = builder.Configuration.GetValue<string>("MONGODB_URI");
+
+Console.WriteLine();
+builder.Services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(mongoConnectionString));
+
+builder.Services.AddScoped(sp =>
+{
+    var mongoClient = sp.GetRequiredService<IMongoClient>();
+    return mongoClient.GetDatabase(builder.Configuration.GetValue<string>("MONGO_INITDB_DATABASE"));
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var database = sp.GetRequiredService<IMongoDatabase>();
+    return database.GetCollection<OrderBoxCollection>("OrderBoxCollection");
+});
+
 
 var app = builder.Build();
 

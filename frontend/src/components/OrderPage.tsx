@@ -12,6 +12,8 @@ interface Order {
   warehouseName: string;
   orderStatus: string;
   ownerName: string;
+  totalWeight: number;
+  boxes: number;
 }
 
 const columns: GridColDef[] = [
@@ -20,8 +22,24 @@ const columns: GridColDef[] = [
   { field: 'vessel', headerName: 'Vessel', flex: 0.6, headerAlign: 'center' },
   { field: 'supplier', headerName: 'Supplier', flex: 0.6, headerAlign: 'center' },
   { field: 'poNumber', headerName: 'Client Ref', flex: 0.7, headerAlign: 'center' },
-  { field: 'pieces', headerName: 'Pcs', flex: 0.2, headerAlign: 'center' },
-  { field: 'weight', headerName: 'Weight', flex: 0.25, headerAlign: 'center' },
+  {
+    field: 'pieces',
+    headerName: 'Pcs',
+    flex: 0.2,
+    headerAlign: 'center',
+    renderCell: (params) => {
+      return params.value !== null ? params.value : '';
+    },
+  },
+  {
+    field: 'weight',
+    headerName: 'Weight',
+    flex: 0.25,
+    headerAlign: 'center',
+    renderCell: (params) => {
+      return params.value !== null ? params.value : '';
+    },
+  },
   {
     field: 'stockLocation',
     headerName: 'Stock Location',
@@ -72,7 +90,7 @@ const OrderTable: React.FC = () => {
       const response = await axios.get<Order[]>(`${import.meta.env.VITE_API_URL}/api/orders`, {
         params: { searchTerms: tags },
         paramsSerializer: (params) => {
-          return qs.stringify(params, { arrayFormat: 'repeat' });  // Keep the tags array format
+          return qs.stringify(params, { arrayFormat: 'repeat' });
         },
       });
 
@@ -82,8 +100,8 @@ const OrderTable: React.FC = () => {
         vessel: order.vesselName,
         supplier: order.supplierName,
         poNumber: order.orderNumber,
-        pieces: 1,
-        weight: 100,
+        pieces: order.boxes ?? null,
+        weight: order.totalWeight ?? null,
         stockLocation: order.warehouseName,
         status: order.orderStatus,
       }));
@@ -101,7 +119,7 @@ const OrderTable: React.FC = () => {
       searchBoxRef.current.focus();
     }
   }, []);
-  
+
   React.useEffect(() => {
     setLoading(true);
     fetchOrders(searchTags);

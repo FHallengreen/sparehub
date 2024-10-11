@@ -1,60 +1,75 @@
 using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using MongoDB.Driver;
 using Persistence;
 using Shared;
 
 namespace Service;
 
-public class OrderService(SpareHubDbContext dbContext, IMemoryCache memory) : IOrderService
+public class OrderService(SpareHubDbContext dbContext, IMemoryCache memory, IMongoCollection<OrderBoxCollection> collection) : IOrderService
 {
     private const string OrderStatusCacheKey = "OrderStatuses";
 
-    public async Task<IEnumerable<OrderResponse>> GetOrders(List<string>? searchTerms = null)
-    {
-        var query = dbContext.Orders
-            .Include(o => o.Supplier)
-            .Include(o => o.Vessel)
-            .ThenInclude(v => v.Owner)
-            .Include(o => o.Warehouse)
-            .Select(o => new OrderResponse
-            {
-                Id = o.Id,
-                OrderNumber = o.OrderNumber,
-                SupplierOrderNumber = o.SupplierOrderNumber,
-                ExpectedReadiness = o.ExpectedReadiness,
-                ActualReadiness = o.ActualReadiness,
-                ExpectedArrival = o.ExpectedArrival,
-                ActualArrival = o.ActualArrival,
-                SupplierName = o.Supplier.Name,
-                OwnerName = o.Vessel.Owner.Name,
-                VesselName = o.Vessel.Name,
-                WarehouseName = o.Warehouse.Name,
-                OrderStatus = o.OrderStatus
-            });
+   public async Task<IEnumerable<OrderResponse>> GetOrders(List<string>? searchTerms = null)
+{
+    var query = dbContext.Orders
+        .Include(o => o.Supplier)
+        .Include(o => o.Vessel)
+        .ThenInclude(v => v.Owner)
+        .Include(o => o.Warehouse)
+        .Select(o => new OrderResponse
+        {
+            Id = o.Id,
+            OrderNumber = o.OrderNumber,
+            SupplierOrderNumber = o.SupplierOrderNumber,
+            ExpectedReadiness = o.ExpectedReadiness,
+            ActualReadiness = o.ActualReadiness,
+            ExpectedArrival = o.ExpectedArrival,
+            ActualArrival = o.ActualArrival,
+            SupplierName = o.Supplier.Name,
+            OwnerName = o.Vessel.Owner.Name,
+            VesselName = o.Vessel.Name,
+            WarehouseName = o.Warehouse.Name,
+            OrderStatus = o.OrderStatus
+        });
 
-        var orderStatusFilter = searchTerms?
-            .FirstOrDefault(term => term.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) ||
+    var orderStatusFilter = searchTerms?.FirstOrDefault(term => term.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) ||
                                     term.Equals("Ready", StringComparison.OrdinalIgnoreCase) ||
                                     term.Equals("Inbound", StringComparison.OrdinalIgnoreCase) ||
                                     term.Equals("Stock", StringComparison.OrdinalIgnoreCase));
 
-        query = orderStatusFilter != null
-            ? query.Where(o => o.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase))
-            : query.Where(o => !o.OrderStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
+    query = orderStatusFilter != null
+        ? query.Where(o => o.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase))
+        : query.Where(o => !o.OrderStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
 
-        var result = await query.ToListAsync();
+    var orders = await query.ToListAsync();
 
-        if (searchTerms is not { Count: > 0 }) return result;
+    foreach (var order in orders)
+    {
+        var orderBox = await collection.Find(o => o.OrderId == order.Id).FirstOrDefaultAsync();
+
+        if (orderBox != null)
         {
-            var nonStatusTerms = searchTerms.Where(t => t != orderStatusFilter).ToList();
-            return nonStatusTerms.Aggregate(result, (current, term) => current.Where(o =>
-                o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
+            order.Boxes = orderBox.Boxes.Count;
+            order.TotalWeight = orderBox.Boxes.Sum(p => p.Weight);
+        }
+        else
+        {
+            order.Boxes = null;
+            order.TotalWeight = null;
         }
     }
+
+    if (searchTerms is not { Count: > 0 }) return orders;
+    var nonStatusTerms = searchTerms.Where(t => t != orderStatusFilter).ToList();
+    return nonStatusTerms.Aggregate(orders, (current, term) => current.Where(o =>
+        o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+        o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+        o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+        o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
+}
+
 
 
     public async Task CreateOrder(OrderRequest orderRequest)
