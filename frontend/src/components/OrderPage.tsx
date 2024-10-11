@@ -80,7 +80,10 @@ const OrderTable: React.FC = () => {
   const [rows, setRows] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [searchTags, setSearchTags] = React.useState<string[]>([]);
+  const [searchTags, setSearchTags] = React.useState<string[]>(() => {
+    const savedFilters = localStorage.getItem('savedSearchTags');
+    return savedFilters ? JSON.parse(savedFilters) : [];
+  });
   const [selectedRows, setSelectedRows] = React.useState<GridRowSelectionModel>([]);
   const [suggestions, setSuggestions] = React.useState<string[]>([]);
   const searchBoxRef = React.useRef<HTMLInputElement>(null);
@@ -125,6 +128,10 @@ const OrderTable: React.FC = () => {
     fetchOrders(searchTags);
   }, [searchTags]);
 
+  React.useEffect(() => {
+    localStorage.setItem('savedSearchTags', JSON.stringify(searchTags));
+  }, [searchTags]);
+  
   React.useEffect(() => {
     if (rows.length > 0) {
       const warehouseNames = rows.map((row) => row.stockLocation);
@@ -238,6 +245,8 @@ const OrderTable: React.FC = () => {
         pageSizeOptions={[100, 250, 500]}
         pagination
         checkboxSelection
+        disableColumnFilter
+        disableColumnSorting
         disableColumnResize
         disableRowSelectionOnClick
         showCellVerticalBorder

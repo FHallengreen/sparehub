@@ -13,6 +13,8 @@ public class OrderService(SpareHubDbContext dbContext, IMemoryCache memory, IMon
 
    public async Task<IEnumerable<OrderResponse>> GetOrders(List<string>? searchTerms = null)
 {
+    var availableStatuses = await GetAllOrderStatusesAsync();
+
     var query = dbContext.Orders
         .Include(o => o.Supplier)
         .Include(o => o.Vessel)
@@ -34,10 +36,8 @@ public class OrderService(SpareHubDbContext dbContext, IMemoryCache memory, IMon
             OrderStatus = o.OrderStatus
         });
 
-    var orderStatusFilter = searchTerms?.FirstOrDefault(term => term.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) ||
-                                    term.Equals("Ready", StringComparison.OrdinalIgnoreCase) ||
-                                    term.Equals("Inbound", StringComparison.OrdinalIgnoreCase) ||
-                                    term.Equals("Stock", StringComparison.OrdinalIgnoreCase));
+    var orderStatusFilter = searchTerms?.FirstOrDefault(term => 
+        availableStatuses != null && availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase));
 
     query = orderStatusFilter != null
         ? query.Where(o => o.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase))
@@ -62,16 +62,14 @@ public class OrderService(SpareHubDbContext dbContext, IMemoryCache memory, IMon
     }
 
     if (searchTerms is not { Count: > 0 }) return orders;
-    var nonStatusTerms = searchTerms.Where(t => t != orderStatusFilter).ToList();
+
+    var nonStatusTerms = searchTerms.Where(t => availableStatuses != null && !availableStatuses.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList();
     return nonStatusTerms.Aggregate(orders, (current, term) => current.Where(o =>
         o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
         o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
         o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
         o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
 }
-
-
-
     public async Task CreateOrder(OrderRequest orderRequest)
     {
         var order = new Order
@@ -94,7 +92,6 @@ public class OrderService(SpareHubDbContext dbContext, IMemoryCache memory, IMon
     public async Task<List<string>?> GetAllOrderStatusesAsync()
     {
         if (memory.TryGetValue(OrderStatusCacheKey, out List<string>? cachedStatuses)) return cachedStatuses;
-        // Fetch just the status strings from the database
         cachedStatuses = await dbContext.OrderStatus.Select(s => s.Status).ToListAsync();
 
         var cacheEntryOptions = new MemoryCacheEntryOptions()
