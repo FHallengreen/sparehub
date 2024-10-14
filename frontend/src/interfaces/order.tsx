@@ -59,3 +59,15 @@ export interface Box {
     name: string;
   }
   
+  export interface OrderRow {
+    id: string;
+    stockLocation: string;
+    pieces: number;
+    weight: number;
+  }
+  
+  export interface StockLocationSummary {
+    orders: number;
+    pieces: number;
+    weight: number;
+  }

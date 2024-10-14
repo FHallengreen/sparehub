@@ -1,10 +1,22 @@
 import * as React from 'react';
-import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
-import { CircularProgress, Typography, Autocomplete, TextField, Chip } from '@mui/material';
+import {
+  DataGrid,
+  GridColDef,
+  GridRowSelectionModel,
+} from '@mui/x-data-grid';
+import {
+  CircularProgress,
+  Typography,
+  Autocomplete,
+  TextField,
+  Chip,
+  Button,
+} from '@mui/material';
 import axios from 'axios';
 import qs from 'qs';
 import { useNavigate } from 'react-router-dom';
-import { Order} from '../interfaces/order';
+import { Order } from '../interfaces/order';
+import SummaryPanel from './SummaryPanel';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'Order ID', flex: 0.4, headerAlign: 'center' },
@@ -13,12 +25,15 @@ const columns: GridColDef[] = [
   { field: 'supplier', headerName: 'Supplier', flex: 0.6, headerAlign: 'center' },
   { field: 'poNumber', headerName: 'Client Ref', flex: 0.7, headerAlign: 'center' },
   {
-    field: 'pieces',
-    headerName: 'Pcs',
-    flex: 0.2,
+    field: 'id',
+    headerName: 'Order ID',
+    flex: 0.4,
     headerAlign: 'center',
     renderCell: (params) => {
-      return params.value !== null ? params.value : '';
+      if (params.row.isGroupHeader) {
+        return ''; 
+      }
+      return params.value;
     },
   },
   {
@@ -27,6 +42,9 @@ const columns: GridColDef[] = [
     flex: 0.25,
     headerAlign: 'center',
     renderCell: (params) => {
+      if (params.row.isGroupHeader) {
+        return null;
+      }
       return params.value !== null ? params.value : '';
     },
   },
@@ -66,6 +84,7 @@ const columns: GridColDef[] = [
   },
 ];
 
+// Main component
 const OrderTable: React.FC = () => {
   const [rows, setRows] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -74,33 +93,35 @@ const OrderTable: React.FC = () => {
     const savedFilters = localStorage.getItem('savedSearchTags');
     return savedFilters ? JSON.parse(savedFilters) : [];
   });
-  const [selectedRows, setSelectedRows] = React.useState<GridRowSelectionModel>([]);
+
+  const [selectionModel, setSelectionModel] = React.useState<GridRowSelectionModel>([]);
+  const [selectedDataRowIds, setSelectedDataRowIds] = React.useState<Set<string>>(new Set());
+
   const [suggestions, setSuggestions] = React.useState<string[]>([]);
   const searchBoxRef = React.useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   const fetchOrders = async (tags: string[] = []) => {
     try {
-  
       const response = await axios.get<Order[]>(`${import.meta.env.VITE_API_URL}/api/orders`, {
         params: { searchTerms: tags },
         paramsSerializer: (params) => {
           return qs.stringify(params, { arrayFormat: 'repeat' });
         },
       });
-  
+
       const mappedRows = response.data.map((order: Order) => ({
         id: order.id,
         owner: order.ownerName,
         vessel: order.vesselName,
         supplier: order.supplierName,
-        poNumber: order.orderNumber, 
-        pieces: order.boxes ?? null, 
-        weight: order.totalWeight ?? null, 
+        poNumber: order.orderNumber,
+        pieces: order.boxes ?? null,
+        weight: order.totalWeight ?? null,
         stockLocation: order.warehouseName,
         status: order.orderStatus,
       }));
-  
+
       setRows(mappedRows);
     } catch (err) {
       console.error('Error fetching orders:', err);
@@ -109,10 +130,8 @@ const OrderTable: React.FC = () => {
       setLoading(false);
     }
   };
-  
-  
-  
 
+  // Effects
   React.useEffect(() => {
     if (searchBoxRef.current) {
       searchBoxRef.current.focus();
@@ -127,7 +146,7 @@ const OrderTable: React.FC = () => {
   React.useEffect(() => {
     localStorage.setItem('savedSearchTags', JSON.stringify(searchTags));
   }, [searchTags]);
-  
+
   React.useEffect(() => {
     if (rows.length > 0) {
       const warehouseNames = rows.map((row) => row.stockLocation);
@@ -165,6 +184,7 @@ const OrderTable: React.FC = () => {
 
     Object.entries(rowGroups).forEach(([location, locationRows]) => {
       groupHeaders.push({
+        id: `header-${location}`,
         stockLocation: location,
         isGroupHeader: true,
       });
@@ -175,18 +195,40 @@ const OrderTable: React.FC = () => {
   }, [rows]);
 
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
-    const groupHeaders = groupedRows.filter((row) => row.isGroupHeader).map((row) => row.stockLocation);
-    const selectedGroupHeader = newSelection.find((id) => groupHeaders.includes(id as string));
-
-    if (selectedGroupHeader) {
-      const groupRows = groupedRows
-        .filter((row) => row.stockLocation === selectedGroupHeader && !row.isGroupHeader)
-        .map((row) => row.id);
-      setSelectedRows(groupRows);
-    } else {
-      setSelectedRows(newSelection);
-    }
+    const groupHeaderIds = groupedRows
+      .filter((row) => row.isGroupHeader)
+      .map((row) => row.id);
+  
+    const newSelectionSet = new Set<string>();
+  
+    newSelection.forEach((id) => {
+      if (groupHeaderIds.includes(id as string)) {
+        const stockLocation = (id as string).replace('header-', '');
+        const childRowIds = groupedRows
+          .filter(
+            (row) =>
+              row.stockLocation === stockLocation && !row.isGroupHeader
+          )
+          .map((row) => row.id);
+        childRowIds.forEach((childId) => {
+          newSelectionSet.add(childId);
+        });
+        newSelectionSet.add(id as string);
+      } else {
+        newSelectionSet.add(id as string);
+      }
+    });
+  
+    setSelectionModel(Array.from(newSelectionSet));
+  
+    const selectedDataRowIds = new Set(
+      Array.from(newSelectionSet).filter(
+        (id) => !groupHeaderIds.includes(id as string)
+      )
+    );
+    setSelectedDataRowIds(selectedDataRowIds);
   };
+  
 
   if (loading) {
     return <CircularProgress />;
@@ -197,7 +239,7 @@ const OrderTable: React.FC = () => {
   }
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className="w-full">
       <Autocomplete
         multiple
         freeSolo
@@ -232,12 +274,16 @@ const OrderTable: React.FC = () => {
         )}
         style={{ marginBottom: '20px', width: '100%' }}
       />
-
+      {selectedDataRowIds.size > 0 && (
+        <div className="mt-5">
+          <SummaryPanel selectedRows={selectedDataRowIds} allRows={rows} />
+        </div>
+      )}
       <DataGrid
         rows={groupedRows}
         columns={columns}
         onRowDoubleClick={(params) => navigate(`/orders/${params.id}`)}
-        getRowId={(row) => row.id || `header-${row.stockLocation}`}
+        getRowId={(row) => row.id}
         pageSizeOptions={[100, 250, 500]}
         pagination
         checkboxSelection
@@ -251,13 +297,15 @@ const OrderTable: React.FC = () => {
             paginationModel: { pageSize: 100 },
           },
         }}
-        rowSelectionModel={selectedRows}
+        rowSelectionModel={selectionModel}
         onRowSelectionModelChange={handleSelectionChange}
         getRowClassName={(params) =>
           params.row.isGroupHeader ? 'bg-gray-100 font-bold' : ''
         }
         autoHeight
       />
+
+
     </div>
   );
 };
