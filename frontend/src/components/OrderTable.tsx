@@ -10,7 +10,6 @@ import {
   Autocomplete,
   TextField,
   Chip,
-  Button,
 } from '@mui/material';
 import axios from 'axios';
 import qs from 'qs';
@@ -19,28 +18,36 @@ import { Order } from '../interfaces/order';
 import SummaryPanel from './SummaryPanel';
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'Order ID', flex: 0.4, headerAlign: 'center' },
-  { field: 'owner', headerName: 'Owner', flex: 0.5, headerAlign: 'center' },
-  { field: 'vessel', headerName: 'Vessel', flex: 0.6, headerAlign: 'center' },
-  { field: 'supplier', headerName: 'Supplier', flex: 0.6, headerAlign: 'center' },
-  { field: 'poNumber', headerName: 'Client Ref', flex: 0.7, headerAlign: 'center' },
   {
     field: 'id',
-    headerName: 'Order ID',
-    flex: 0.4,
+    headerName: 'Id',
+    flex: 0.1,
     headerAlign: 'center',
+    align: 'center',
     renderCell: (params) => {
       if (params.row.isGroupHeader) {
-        return ''; 
+        return '';
       }
       return params.value;
     },
+  },
+  { field: 'owner', headerName: 'Owner', flex: 0.5, headerAlign: 'center', align: 'center', },
+  { field: 'vessel', headerName: 'Vessel', flex: 0.6, headerAlign: 'center', align: 'center', },
+  { field: 'supplier', headerName: 'Supplier', flex: 0.6, headerAlign: 'center', align: 'center', },
+  { field: 'poNumber', headerName: 'Client Ref', flex: 0.7, headerAlign: 'center', align: 'center', },
+  {
+    field: 'pieces',
+    headerName: 'Pieces',
+    flex: 0.25,
+    headerAlign: 'center',
+    align: 'center',
   },
   {
     field: 'weight',
     headerName: 'Weight',
     flex: 0.25,
     headerAlign: 'center',
+    align: 'center',
     renderCell: (params) => {
       if (params.row.isGroupHeader) {
         return null;
@@ -53,12 +60,14 @@ const columns: GridColDef[] = [
     headerName: 'Stock Location',
     flex: 0.9,
     headerAlign: 'center',
+    align: 'center',
   },
   {
     field: 'status',
     headerName: 'Status',
     flex: 0.5,
     headerAlign: 'center',
+    align: 'center',
     renderCell: (params) => {
       if (params.row.isGroupHeader) {
         return null;
@@ -198,9 +207,9 @@ const OrderTable: React.FC = () => {
     const groupHeaderIds = groupedRows
       .filter((row) => row.isGroupHeader)
       .map((row) => row.id);
-  
+
     const newSelectionSet = new Set<string>();
-  
+
     newSelection.forEach((id) => {
       if (groupHeaderIds.includes(id as string)) {
         const stockLocation = (id as string).replace('header-', '');
@@ -218,9 +227,9 @@ const OrderTable: React.FC = () => {
         newSelectionSet.add(id as string);
       }
     });
-  
+
     setSelectionModel(Array.from(newSelectionSet));
-  
+
     const selectedDataRowIds = new Set(
       Array.from(newSelectionSet).filter(
         (id) => !groupHeaderIds.includes(id as string)
@@ -228,7 +237,7 @@ const OrderTable: React.FC = () => {
     );
     setSelectedDataRowIds(selectedDataRowIds);
   };
-  
+
 
   if (loading) {
     return <CircularProgress />;
