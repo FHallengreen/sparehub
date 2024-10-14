@@ -51,14 +51,36 @@ public class BoxService (IMongoCollection<OrderBoxCollection> collection) : IBox
         return boxes;
     }
 
-    public Task<OrderBoxCollection> UpdateBoxes(BoxRequest boxRequest, int orderId)
+    public async Task UpdateOrderBoxes(int orderId, List<BoxRequest> boxes)
     {
-        throw new NotImplementedException();
-    }
+        var existingOrderBoxes = await collection.Find(b => b.OrderId == orderId).FirstOrDefaultAsync();
 
-    public Task<OrderBoxCollection> UpdateBox(BoxRequest boxRequest, int orderId)
-    {
-        throw new NotImplementedException();
+        if (existingOrderBoxes != null)
+        {
+             existingOrderBoxes.Boxes = boxes.Select(box => new Box
+            {
+                Length = box.Length,
+                Width = box.Width,
+                Height = box.Height,
+                Weight = box.Weight
+            }).ToList();
+
+            await collection.ReplaceOneAsync(b => b.OrderId == orderId, existingOrderBoxes);
+        }
+        else
+        {
+            await collection.InsertOneAsync(new OrderBoxCollection
+            {
+                OrderId = orderId,
+                Boxes = boxes.Select(box => new Box
+                {
+                    Length = box.Length,
+                    Width = box.Width,
+                    Height = box.Height,
+                    Weight = box.Weight
+                }).ToList()
+            });
+        }
     }
 
     public void DeleteBox(int orderId)

@@ -24,12 +24,12 @@ export interface Box {
   
   export interface Order {
     id: number;
-    supplier: Supplier;
-    vessel: Vessel;
+    supplierName: Supplier;
+    vesselName: Vessel;
     orderNumber: string;
-    warehouse: Warehouse;
+    warehouseName: Warehouse;
     orderStatus: string;
-    owner: Owner;
+    ownerName: Owner;
     totalWeight: number;
     boxes: number;
   }

@@ -26,6 +26,21 @@ public class OrderController(IOrderService orderService) : ControllerBase
         }
     }
     
+    [HttpPut("{orderId:int}")]
+    public async Task<IActionResult> UpdateOrder(int orderId, [FromBody] OrderRequest orderRequest)
+    {
+        try
+        {
+            await orderService.UpdateOrder(orderId, orderRequest);
+            return NoContent();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    
     [HttpGet("statuses")]
     public async Task<ActionResult<OrderStatus>> GetOrderStatuses()
     {
@@ -58,7 +73,6 @@ public class OrderController(IOrderService orderService) : ControllerBase
         }
     }
     
-
     [HttpPost]
     public async Task<ActionResult<Order>> PostOrder([FromBody] OrderRequest orderTable)
     {

@@ -81,32 +81,37 @@ const OrderTable: React.FC = () => {
 
   const fetchOrders = async (tags: string[] = []) => {
     try {
+  
       const response = await axios.get<Order[]>(`${import.meta.env.VITE_API_URL}/api/orders`, {
         params: { searchTerms: tags },
         paramsSerializer: (params) => {
           return qs.stringify(params, { arrayFormat: 'repeat' });
         },
       });
-
+  
       const mappedRows = response.data.map((order: Order) => ({
         id: order.id,
-        owner: order.owner.name,
-        vessel: order.vessel.name,
-        supplier: order.supplier.name,
-        poNumber: order.orderNumber,
-        pieces: order.boxes ?? null,
-        weight: order.totalWeight ?? null,
-        stockLocation: order.warehouse.name,
+        owner: order.ownerName,
+        vessel: order.vesselName,
+        supplier: order.supplierName,
+        poNumber: order.orderNumber, 
+        pieces: order.boxes ?? null, 
+        weight: order.totalWeight ?? null, 
+        stockLocation: order.warehouseName,
         status: order.orderStatus,
       }));
-
+  
       setRows(mappedRows);
     } catch (err) {
+      console.error('Error fetching orders:', err);
       setError('Failed to fetch orders.');
     } finally {
       setLoading(false);
     }
   };
+  
+  
+  
 
   React.useEffect(() => {
     if (searchBoxRef.current) {

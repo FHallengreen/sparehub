@@ -1,9 +1,10 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Sidebar from './components/SideBar';
+import { GiHamburgerMenu } from 'react-icons/gi';
 import OrderPage from './components/OrderTable';
 import OrderDetailPage from './components/OrderDetailPage';
-import { GiHamburgerMenu } from 'react-icons/gi';
+import Sidebar from './components/SideBar';
+import { SnackbarProvider } from './components/SnackbarContext'; 
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -17,26 +18,28 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="flex h-screen">
-        <button
-          onClick={toggleSidebar}
-          className="fixed top-3 left-4 z-50 md:hidden bg-white text-black w-9 h-9 p-1 rounded text-4xl shadow-lg"
-        >
-          <GiHamburgerMenu size={26} />
-        </button>
+    <SnackbarProvider>
+      <Router>
+        <div className="flex h-screen">
+          <button
+            onClick={toggleSidebar}
+            className="fixed top-3 left-4 z-50 md:hidden bg-white text-black w-9 h-9 p-1 rounded text-4xl shadow-lg"
+          >
+            <GiHamburgerMenu size={26} />
+          </button>
 
-        <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+          <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
-        <div className="flex-1 p-4 ml-0 md:ml-16 transition-all duration-300">
-          <Routes>
-            <Route path="/orders" element={<OrderPage />} />
-            <Route path="/" element={<OrderPage />} />
-            <Route path="/orders/:id" element={<OrderDetailPage />} />
-          </Routes>
+          <div className="flex-1 p-4 ml-0 md:ml-16 transition-all duration-300">
+            <Routes>
+              <Route path="/orders" element={<OrderPage />} />
+              <Route path="/" element={<OrderPage />} />
+              <Route path="/orders/:id" element={<OrderDetailPage />} />
+            </Routes>
+          </div>
         </div>
-      </div>
-    </Router>
+      </Router>
+    </SnackbarProvider>
   );
 }
 

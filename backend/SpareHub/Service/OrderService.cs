@@ -90,7 +90,7 @@ public class OrderService(
         await dbContext.SaveChangesAsync();
     }
 
-    public Task UpdateOrder(int orderId, OrderRequest orderRequest)
+    public async Task UpdateOrder(int orderId, OrderRequest orderRequest)
     {
         if (!dbContext.Orders.Any(o => o.Id == orderId))
         {
@@ -112,72 +112,104 @@ public class OrderService(
             throw new KeyNotFoundException("Warehouse not found");
         }
 
-        return null;
+        var order = await dbContext.Orders.FindAsync(orderId);
+
+        if (order == null)
+        {
+            throw new KeyNotFoundException("Order not found");
+        }
+
+        order.OrderNumber = orderRequest.OrderNumber;
+        order.SupplierOrderNumber = orderRequest.SupplierOrderNumber;
+        order.SupplierId = orderRequest.SupplierId;
+        order.VesselId = orderRequest.VesselId;
+        order.WarehouseId = orderRequest.WarehouseId;
+        order.ExpectedReadiness = orderRequest.ExpectedReadiness;
+        order.ActualReadiness = orderRequest.ActualReadiness;
+        order.ExpectedArrival = orderRequest.ExpectedArrival;
+        order.ActualArrival = orderRequest.ActualArrival;
+        order.OrderStatus = orderRequest.OrderStatus;
+
+        dbContext.Orders.Update(order);
+        await dbContext.SaveChangesAsync();
+
+        if (orderRequest.Boxes != null && orderRequest.Boxes.Count != 0)
+        {
+            var boxRequests = orderRequest.Boxes.Select(box => new BoxRequest
+            {
+                Length = box.Length,
+                Width = box.Width,
+                Height = box.Height,
+                Weight = box.Weight
+            }).ToList();
+
+            await boxService.UpdateOrderBoxes(orderId, boxRequests);
+        }
     }
 
     public async Task<List<string>?> GetAllOrderStatusesAsync()
-    {
-        if (memory.TryGetValue(OrderStatusCacheKey, out List<string>? cachedStatuses)) return cachedStatuses;
-        cachedStatuses = await dbContext.OrderStatus.Select(s => s.Status).ToListAsync();
-
-        var cacheEntryOptions = new MemoryCacheEntryOptions()
-            .SetAbsoluteExpiration(TimeSpan.FromHours(24));
-
-        memory.Set(OrderStatusCacheKey, cachedStatuses, cacheEntryOptions);
-
-        return cachedStatuses;
-    }
-
-    public async Task<OrderResponse> GetOrderById(int orderId)
-    {
-        var order = await dbContext.Orders
-            .Include(o => o.Supplier)
-            .Include(o => o.Vessel)
-            .ThenInclude(v => v.Owner)
-            .Include(o => o.Warehouse)
-            .ThenInclude(a => a.Agent)
-            .FirstOrDefaultAsync(o => o.Id == orderId) ?? throw new KeyNotFoundException("Order not found");
-
-        var orderBoxes = await boxService.GetBoxes(orderId);
-
-        return new OrderResponse
         {
-            Id = order.Id,
-            OrderNumber = order.OrderNumber,
-            SupplierOrderNumber = order.SupplierOrderNumber,
-            ExpectedReadiness = order.ExpectedReadiness,
-            ActualReadiness = order.ActualReadiness,
-            ExpectedArrival = order.ExpectedArrival,
-            ActualArrival = order.ActualArrival,
-            Supplier = new SupplierResponse
+            if (memory.TryGetValue(OrderStatusCacheKey, out List<string>? cachedStatuses)) return cachedStatuses;
+            cachedStatuses = await dbContext.OrderStatus.Select(s => s.Status).ToListAsync();
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromHours(24));
+
+            memory.Set(OrderStatusCacheKey, cachedStatuses, cacheEntryOptions);
+
+            return cachedStatuses;
+        }
+
+        public async Task<OrderResponse> GetOrderById(int orderId)
+        {
+            var order = await dbContext.Orders
+                .Include(o => o.Supplier)
+                .Include(o => o.Vessel)
+                .ThenInclude(v => v.Owner)
+                .Include(o => o.Warehouse)
+                .ThenInclude(a => a.Agent)
+                .FirstOrDefaultAsync(o => o.Id == orderId) ?? throw new KeyNotFoundException("Order not found");
+
+            var orderBoxes = await boxService.GetBoxes(orderId);
+
+            return new OrderResponse
             {
-                Id = order.Supplier.Id,
-                Name = order.Supplier.Name
-            },
-            Owner = new OwnerResponse
-            {
-                Id = order.Vessel.Owner.Id,
-                Name = order.Vessel.Owner.Name
-            },
-            Vessel = new VesselResponse
-            {
-                Id = order.Vessel.Id,
-                Name = order.Vessel.Name,
-                ImoNumber = order.Vessel.ImoNumber,
-                Flag = order.Vessel.Flag
-            },
-            Agent = new AgentResponse
-            {
-                Id = order.Warehouse.Agent.Id,
-                Name = order.Warehouse.Agent.Name
-            },
-            Warehouse = new WarehouseResponse
-            {
-                Id = order.Warehouse.Id,
-                Name = order.Warehouse.Name
-            },
-            OrderStatus = order.OrderStatus,
-            Boxes = orderBoxes.FirstOrDefault()?.Boxes
-        };
+                Id = order.Id,
+                OrderNumber = order.OrderNumber,
+                SupplierOrderNumber = order.SupplierOrderNumber,
+                ExpectedReadiness = order.ExpectedReadiness,
+                ActualReadiness = order.ActualReadiness,
+                ExpectedArrival = order.ExpectedArrival,
+                ActualArrival = order.ActualArrival,
+                Supplier = new SupplierResponse
+                {
+                    Id = order.Supplier.Id,
+                    Name = order.Supplier.Name
+                },
+                Owner = new OwnerResponse
+                {
+                    Id = order.Vessel.Owner.Id,
+                    Name = order.Vessel.Owner.Name
+                },
+                Vessel = new VesselResponse
+                {
+                    Id = order.Vessel.Id,
+                    Name = order.Vessel.Name,
+                    ImoNumber = order.Vessel.ImoNumber,
+                    Flag = order.Vessel.Flag
+                },
+                Agent = new AgentResponse
+                {
+                    Id = order.Warehouse.Agent.Id,
+                    Name = order.Warehouse.Agent.Name
+                },
+                Warehouse = new WarehouseResponse
+                {
+                    Id = order.Warehouse.Id,
+                    Name = order.Warehouse.Name
+                },
+                OrderStatus = order.OrderStatus,
+                Boxes = orderBoxes.FirstOrDefault()?.Boxes
+            };
+        }
     }
-}

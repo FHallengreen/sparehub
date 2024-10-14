@@ -4,6 +4,7 @@ import { CircularProgress, Typography, Button, TextField, IconButton } from '@mu
 import axios from 'axios';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { OrderDetail, Box as OrderBox } from '../interfaces/order';
+import { useSnackbar } from './SnackbarContext';
 
 const OrderDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -13,13 +14,14 @@ const OrderDetailPage: React.FC = () => {
     const [error, setError] = React.useState<string | null>(null);
     const [editableBoxes, setEditableBoxes] = React.useState<boolean[]>([]);
     const [statuses, setStatuses] = React.useState<string[]>([]);
+    const showSnackbar = useSnackbar();
 
     React.useEffect(() => {
         const fetchOrder = async () => {
             try {
                 const orderResponse = await axios.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/orders/${id}`);
                 const statusResponse = await axios.get<string[]>(`${import.meta.env.VITE_API_URL}/api/orders/statuses`);
-    
+
                 const orderData = orderResponse.data;
                 setOrder({
                     ...orderData,
@@ -35,7 +37,16 @@ const OrderDetailPage: React.FC = () => {
         };
         fetchOrder();
     }, [id]);
-    
+
+    const sanitizeInput = (value: string) => {
+        return value.replace(/[^a-zA-Z0-9\s]/g, '');
+    };
+
+    const handleInputChange = (field: keyof OrderDetail, value: string) => {
+        if (order) {
+            setOrder({ ...order, [field]: sanitizeInput(value) });
+        }
+    };
 
     const handleAddBox = () => {
         const newBox: OrderBox = { length: 0, width: 0, height: 0, weight: 0 };
@@ -69,13 +80,39 @@ const OrderDetailPage: React.FC = () => {
     };
 
     const handleSave = async () => {
-        try {
-            await axios.put(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, order);
-            navigate('/orders');
-        } catch (err) {
-            setError('Failed to save order.');
+        if (order) {
+            const sanitizedOrder = {
+                orderNumber: sanitizeInput(order.orderNumber),
+                supplierOrderNumber: sanitizeInput(order.supplierOrderNumber || ""),
+                expectedReadiness: order.expectedReadiness,
+                actualReadiness: order.actualReadiness || null,
+                expectedArrival: order.expectedArrival || null,
+                actualArrival: order.actualArrival || null,
+                supplierId: order.supplier.id,
+                vesselId: order.vessel.id,
+                warehouseId: order.warehouse.id,
+                orderStatus: sanitizeInput(order.orderStatus),
+                boxes: order.boxes?.map((box) => ({
+                    length: box.length,
+                    width: box.width,
+                    height: box.height,
+                    weight: box.weight
+                })) || []
+            };
+
+            try {
+                await axios.put(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, sanitizedOrder);
+                showSnackbar('Order saved successfully!', 'success');
+                navigate('/orders');
+            } catch (err) {
+                showSnackbar('Failed to save order.', 'error');
+            }
         }
     };
+
+
+
+
 
     if (loading) {
         return <CircularProgress />;
@@ -101,7 +138,7 @@ const OrderDetailPage: React.FC = () => {
                                     label="Vessel Name"
                                     value={order.vessel.name}
                                     className="w-full"
-                                    onChange={(e) => setOrder({ ...order, vessel: { ...order.vessel, name: e.target.value } })}
+                                    onChange={(e) => handleInputChange('vessel', e.target.value)}
                                 />
                                 <TextField label="Owner Name" value={order.owner.name} className="w-full" disabled />
                             </div>
@@ -114,13 +151,13 @@ const OrderDetailPage: React.FC = () => {
                                     label="Supplier Name"
                                     value={order.supplier.name}
                                     className="w-full"
-                                    onChange={(e) => setOrder({ ...order, supplier: { ...order.supplier, name: e.target.value } })}
+                                    onChange={(e) => handleInputChange('supplier', e.target.value)}
                                 />
                                 <TextField
                                     label="Supplier Order Number"
                                     value={order.supplierOrderNumber}
                                     className="w-full"
-                                    onChange={(e) => setOrder({ ...order, supplierOrderNumber: e.target.value })}
+                                    onChange={(e) => handleInputChange('supplierOrderNumber', e.target.value)}
                                 />
                             </div>
                         </div>
@@ -134,26 +171,26 @@ const OrderDetailPage: React.FC = () => {
                                     label="Order Number"
                                     value={order.orderNumber}
                                     className="w-full"
-                                    onChange={(e) => setOrder({ ...order, orderNumber: e.target.value })}
+                                    onChange={(e) => handleInputChange('orderNumber', e.target.value)}
                                 />
                                 <TextField
                                     label="Warehouse Name"
                                     value={order.warehouse.name}
                                     className="w-full"
-                                    onChange={(e) => setOrder({ ...order, warehouse: { ...order.warehouse, name: e.target.value } })}
+                                    onChange={(e) => handleInputChange('warehouse', e.target.value)}
                                 />
                                 <TextField
                                     label="Agent Name"
                                     value={order.agent.name}
                                     className="w-full"
-                                    onChange={(e) => setOrder({ ...order, agent: { ...order.agent, name: e.target.value } })}
+                                    onChange={(e) => handleInputChange('agent', e.target.value)}
                                 />
 
                                 <div className="w-full">
                                     <label className="block text-gray-700 text-sm font-bold mb-2">Order Status</label>
                                     <select
                                         value={order.orderStatus}
-                                        onChange={(e) => setOrder({ ...order, orderStatus: e.target.value })}
+                                        onChange={(e) => handleInputChange('orderStatus', e.target.value)}
                                         className="w-full px-3 py-2 border rounded-md text-gray-700"
                                     >
                                         {statuses.map((status) => (
@@ -191,11 +228,13 @@ const OrderDetailPage: React.FC = () => {
                         <Button onClick={handleSave} variant="contained" color="primary" className="mr-2 pr-5">Save</Button>
                         <Button onClick={() => navigate('/orders')} variant="outlined">Cancel</Button>
                     </div>
-
                 </>
             )}
         </div>
+
+
     );
 };
+
 
 export default OrderDetailPage;

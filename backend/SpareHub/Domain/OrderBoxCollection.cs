@@ -8,5 +8,5 @@ public class OrderBoxCollection
         [BsonId]
         public ObjectId Id { get; set; } 
         public int OrderId { get; init; }
-        public List<Box> Boxes { get; init; } = [];
+        public List<Box> Boxes { get; set; } = [];
 }
