@@ -1,27 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
 using Domain;
 
 namespace Shared;
 
 public class OrderRequest
 {
-    public required string OrderNumber { get; set; }
-
-    public string? SupplierOrderNumber { get; set; }
-
-    public required int SupplierId { get; set; }
-
-    public required int VesselId { get; set; }
-
-    public required int WarehouseId { get; set; }
-
-    public required DateTime ExpectedReadiness { get; set; }
-
-    public DateTime? ActualReadiness { get; set; }
-
-    public DateTime? ExpectedArrival { get; set; }
-
-    public DateTime? ActualArrival { get; set; }
-
-    public required string OrderStatus { get; set; }
+    public required string OrderNumber { get; init; }
+    public string? SupplierOrderNumber { get; init; }
+    public DateTime ExpectedReadiness { get; init; }
+    public DateTime? ActualReadiness { get; init; }
+    public DateTime? ExpectedArrival { get; init; }
+    public DateTime? ActualArrival { get; init; }
+    public required int SupplierId { get; init; }
+    public required int VesselId { get; init; }
+    public required int WarehouseId { get; init; }
+    public string OrderStatus { get; init; } = null!;
+    public List<Box>? Boxes { get; set; }
 }

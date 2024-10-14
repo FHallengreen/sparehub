@@ -1,20 +1,23 @@
+using Domain;
+
 namespace Shared;
 
 public class OrderResponse
 {
-    public int Id { get; init; }
-    public required string OrderNumber { get; init; }
-    public string? SupplierOrderNumber { get; init; }
-    public DateTime ExpectedReadiness { get; init; }
-    public DateTime? ActualReadiness { get; init; }
-    public DateTime? ExpectedArrival { get; init; }
-    public DateTime? ActualArrival { get; init; }
-    public required string SupplierName { get; init; }
-    public required string OwnerName { get; init; }
-    public required string VesselName { get; init; }
-    public required string WarehouseName { get; init; }
-    public string OrderStatus { get; init; } = null!;
+    public int Id { get; set; }
+    public required string OrderNumber { get; set; }
+    public string? SupplierOrderNumber { get; set; }
+    public DateTime ExpectedReadiness { get; set; }
+    public DateTime? ActualReadiness { get; set; }
+    public DateTime? ExpectedArrival { get; set; }
+    public DateTime? ActualArrival { get; set; }
+    public required SupplierResponse Supplier { get; set; }
+    public required OwnerResponse Owner { get; set; }
+    public required VesselResponse Vessel { get; set; }
+    public required WarehouseResponse Warehouse { get; set; }
+    public required AgentResponse Agent { get; set; }
+    public required string OrderStatus { get; set; }
+
+    public List<Box>? Boxes { get; set; }
     
-    public int? Boxes { get; set; }
-    public double? TotalWeight { get; set; }
 }

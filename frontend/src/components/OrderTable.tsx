@@ -3,18 +3,8 @@ import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import { CircularProgress, Typography, Autocomplete, TextField, Chip } from '@mui/material';
 import axios from 'axios';
 import qs from 'qs';
-
-interface Order {
-  id: number;
-  supplierName: string;
-  vesselName: string;
-  orderNumber: string;
-  warehouseName: string;
-  orderStatus: string;
-  ownerName: string;
-  totalWeight: number;
-  boxes: number;
-}
+import { useNavigate } from 'react-router-dom';
+import { Order} from '../interfaces/order';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'Order ID', flex: 0.4, headerAlign: 'center' },
@@ -87,6 +77,7 @@ const OrderTable: React.FC = () => {
   const [selectedRows, setSelectedRows] = React.useState<GridRowSelectionModel>([]);
   const [suggestions, setSuggestions] = React.useState<string[]>([]);
   const searchBoxRef = React.useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const fetchOrders = async (tags: string[] = []) => {
     try {
@@ -99,13 +90,13 @@ const OrderTable: React.FC = () => {
 
       const mappedRows = response.data.map((order: Order) => ({
         id: order.id,
-        owner: order.ownerName,
-        vessel: order.vesselName,
-        supplier: order.supplierName,
+        owner: order.owner.name,
+        vessel: order.vessel.name,
+        supplier: order.supplier.name,
         poNumber: order.orderNumber,
         pieces: order.boxes ?? null,
         weight: order.totalWeight ?? null,
-        stockLocation: order.warehouseName,
+        stockLocation: order.warehouse.name,
         status: order.orderStatus,
       }));
 
@@ -178,7 +169,6 @@ const OrderTable: React.FC = () => {
     return groupHeaders;
   }, [rows]);
 
-  // Handle selection changes
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
     const groupHeaders = groupedRows.filter((row) => row.isGroupHeader).map((row) => row.stockLocation);
     const selectedGroupHeader = newSelection.find((id) => groupHeaders.includes(id as string));
@@ -241,6 +231,7 @@ const OrderTable: React.FC = () => {
       <DataGrid
         rows={groupedRows}
         columns={columns}
+        onRowDoubleClick={(params) => navigate(`/orders/${params.id}`)}
         getRowId={(row) => row.id || `header-${row.stockLocation}`}
         pageSizeOptions={[100, 250, 500]}
         pagination

@@ -61,7 +61,7 @@ public class BoxService (IMongoCollection<OrderBoxCollection> collection) : IBox
         throw new NotImplementedException();
     }
 
-    public void DeleteBox(string orderId)
+    public void DeleteBox(int orderId)
     {
         throw new NotImplementedException();
     }

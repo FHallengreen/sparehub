@@ -12,7 +12,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
 {
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OrderResponse>>> GetOrders([FromQuery] List<string>? searchTerms) 
+    public async Task<ActionResult<IEnumerable<OrderTableResponse>>> GetOrders([FromQuery] List<string>? searchTerms) 
     {
         try
         {
@@ -39,15 +39,33 @@ public class OrderController(IOrderService orderService) : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
-    
 
-    [HttpPost]
-    public async Task<ActionResult<Order>> PostOrder([FromBody] OrderRequest order)
+    [HttpGet("{orderId:int}")]
+    public async Task<ActionResult<OrderResponse>> GetOrderById(int orderId)
     {
         try
         {
-            await orderService.CreateOrder(order);
+            var order = await orderService.GetOrderById(orderId);
             return Ok(order);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound($"Order with ID '{orderId}' not found");
+        } 
+        catch (Exception)
+        {
+            return StatusCode(500, "Internal server error");
+        }
+    }
+    
+
+    [HttpPost]
+    public async Task<ActionResult<Order>> PostOrder([FromBody] OrderRequest orderTable)
+    {
+        try
+        {
+            await orderService.CreateOrder(orderTable);
+            return Ok(orderTable);
         } catch (Exception e)
         {
             Console.WriteLine(e);

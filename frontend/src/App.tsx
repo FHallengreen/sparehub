@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Sidebar from './components/SideBar';
-import OrderPage from './components/OrderPage';
+import OrderPage from './components/OrderTable';
+import OrderDetailPage from './components/OrderDetailPage';
 import { GiHamburgerMenu } from 'react-icons/gi';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Routes>
             <Route path="/orders" element={<OrderPage />} />
             <Route path="/" element={<OrderPage />} />
+            <Route path="/orders/:id" element={<OrderDetailPage />} />
           </Routes>
         </div>
       </div>

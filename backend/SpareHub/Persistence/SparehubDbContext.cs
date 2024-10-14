@@ -192,22 +192,21 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("name")
                 .HasMaxLength(45);
 
-            // Define the relationship: Owner has many Vessels
             entity.HasMany(o => o.Vessels)
                 .WithOne(v => v.Owner)
                 .HasForeignKey(v => v.OwnerId)
-                .OnDelete(DeleteBehavior.Cascade) // Delete behavior should be set according to your requirements
-                .HasConstraintName("fk_vessel_owner");  // Make sure the foreign key matches
+                .OnDelete(DeleteBehavior.Cascade) 
+                .HasConstraintName("fk_vessel_owner"); 
         });
 
 
         
-        // Supplier Configuration
         modelBuilder.Entity<Supplier>(entity =>
         {
             entity.ToTable("supplier");
 
             entity.HasKey(e => e.Id);
+
             entity.Property(e => e.Id)
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
@@ -218,14 +217,42 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .IsRequired();
 
             entity.Property(e => e.AddressId)
-                .HasColumnName("address_id");
+                .HasColumnName("address_id"); 
 
-            entity.HasOne<Address>()
-                .WithMany()
+            entity.HasOne(e => e.Address)  
+                .WithMany()               
                 .HasForeignKey(e => e.AddressId)
                 .HasConstraintName("fk_Supplier_Address1")
                 .OnDelete(DeleteBehavior.NoAction);
         });
+
+        // Address Configuration
+        modelBuilder.Entity<Address>(entity =>
+        {
+            entity.ToTable("address");
+
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.AddressLine)
+                .HasColumnName("address")
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(e => e.PostalCode)
+                .HasColumnName("postal_code")
+                .HasMaxLength(10)
+                .IsRequired();
+
+            entity.Property(e => e.Country)
+                .HasColumnName("country")
+                .HasMaxLength(45)
+                .IsRequired();
+        });
+
         // Vessel Configuration
         modelBuilder.Entity<Vessel>(entity =>
         {
@@ -279,12 +306,13 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasMaxLength(45)
                 .IsRequired();
         });
-// Warehouse Configuration
+        // Warehouse Configuration
         modelBuilder.Entity<Warehouse>(entity =>
         {
             entity.ToTable("warehouse");
 
             entity.HasKey(e => e.Id);
+
             entity.Property(e => e.Id)
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
@@ -297,12 +325,13 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.AgentId)
                 .HasColumnName("agent_id");
 
-            entity.HasOne<Agent>()
+            entity.HasOne(e => e.Agent)
                 .WithMany()
                 .HasForeignKey(e => e.AgentId)
-                .HasConstraintName("fk_Warehouse_Agent1")
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("fk_Warehouse_Agent1");
         });
+
         // DispatchStatus Configuration
         modelBuilder.Entity<DispatchStatus>(entity =>
         {

@@ -7,86 +7,112 @@ using Shared;
 
 namespace Service;
 
-public class OrderService(SpareHubDbContext dbContext, IMemoryCache memory, IMongoCollection<OrderBoxCollection> collection) : IOrderService
+public class OrderService(
+    SpareHubDbContext dbContext,
+    IMemoryCache memory,
+    IMongoCollection<OrderBoxCollection> collection,
+    IBoxService boxService) : IOrderService
 {
     private const string OrderStatusCacheKey = "OrderStatuses";
 
-   public async Task<IEnumerable<OrderResponse>> GetOrders(List<string>? searchTerms = null)
-{
-    var availableStatuses = await GetAllOrderStatusesAsync();
-
-    var query = dbContext.Orders
-        .Include(o => o.Supplier)
-        .Include(o => o.Vessel)
-        .ThenInclude(v => v.Owner)
-        .Include(o => o.Warehouse)
-        .Select(o => new OrderResponse
-        {
-            Id = o.Id,
-            OrderNumber = o.OrderNumber,
-            SupplierOrderNumber = o.SupplierOrderNumber,
-            ExpectedReadiness = o.ExpectedReadiness,
-            ActualReadiness = o.ActualReadiness,
-            ExpectedArrival = o.ExpectedArrival,
-            ActualArrival = o.ActualArrival,
-            SupplierName = o.Supplier.Name,
-            OwnerName = o.Vessel.Owner.Name,
-            VesselName = o.Vessel.Name,
-            WarehouseName = o.Warehouse.Name,
-            OrderStatus = o.OrderStatus
-        });
-
-    var orderStatusFilter = searchTerms?.FirstOrDefault(term => 
-        availableStatuses != null && availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase));
-
-    query = orderStatusFilter != null
-        ? query.Where(o => o.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase))
-        : query.Where(o => !o.OrderStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
-
-    var orders = await query.ToListAsync();
-
-    foreach (var order in orders)
+    public async Task<IEnumerable<OrderTableResponse>> GetOrders(List<string>? searchTerms = null)
     {
-        var orderBox = await collection.Find(o => o.OrderId == order.Id).FirstOrDefaultAsync();
+        var availableStatuses = await GetAllOrderStatusesAsync();
 
-        if (orderBox != null)
+        var query = dbContext.Orders
+            .Include(o => o.Supplier)
+            .Include(o => o.Vessel)
+            .ThenInclude(v => v.Owner)
+            .Include(o => o.Warehouse)
+            .Select(o => new OrderTableResponse
+            {
+                Id = o.Id,
+                OrderNumber = o.OrderNumber,
+                SupplierName = o.Supplier.Name,
+                OwnerName = o.Vessel.Owner.Name,
+                VesselName = o.Vessel.Name,
+                WarehouseName = o.Warehouse.Name,
+                OrderStatus = o.OrderStatus
+            });
+
+        var orderStatusFilter = searchTerms?.FirstOrDefault(term =>
+            availableStatuses != null && availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase));
+
+        query = orderStatusFilter != null
+            ? query.Where(o => o.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase))
+            : query.Where(o => !o.OrderStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
+
+        var orders = await query.ToListAsync();
+
+        foreach (var order in orders)
         {
-            order.Boxes = orderBox.Boxes.Count;
-            order.TotalWeight = orderBox.Boxes.Sum(p => p.Weight);
+            var orderBox = await collection.Find(o => o.OrderId == order.Id).FirstOrDefaultAsync();
+
+            if (orderBox != null)
+            {
+                order.Boxes = orderBox.Boxes.Count;
+                order.TotalWeight = orderBox.Boxes.Sum(p => p.Weight);
+            }
+            else
+            {
+                order.Boxes = null;
+                order.TotalWeight = null;
+            }
         }
-        else
-        {
-            order.Boxes = null;
-            order.TotalWeight = null;
-        }
+
+        if (searchTerms is not { Count: > 0 }) return orders;
+
+        var nonStatusTerms = searchTerms.Where(t =>
+            availableStatuses != null && !availableStatuses.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList();
+        return nonStatusTerms.Aggregate(orders, (current, term) => current.Where(o =>
+            o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+            o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+            o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+            o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
     }
 
-    if (searchTerms is not { Count: > 0 }) return orders;
-
-    var nonStatusTerms = searchTerms.Where(t => availableStatuses != null && !availableStatuses.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList();
-    return nonStatusTerms.Aggregate(orders, (current, term) => current.Where(o =>
-        o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-        o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-        o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-        o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
-}
-    public async Task CreateOrder(OrderRequest orderRequest)
+    public async Task CreateOrder(OrderRequest orderTableRequest)
     {
         var order = new Order
         {
-            OrderNumber = orderRequest.OrderNumber,
-            SupplierOrderNumber = orderRequest.SupplierOrderNumber,
-            SupplierId = orderRequest.SupplierId,
-            VesselId = orderRequest.VesselId,
-            WarehouseId = orderRequest.WarehouseId,
-            ExpectedReadiness = orderRequest.ExpectedReadiness,
-            ActualReadiness = orderRequest.ActualReadiness,
-            ExpectedArrival = orderRequest.ExpectedArrival,
-            ActualArrival = orderRequest.ActualArrival,
-            OrderStatus = orderRequest.OrderStatus
+            OrderNumber = orderTableRequest.OrderNumber,
+            SupplierOrderNumber = orderTableRequest.SupplierOrderNumber,
+            SupplierId = orderTableRequest.SupplierId,
+            VesselId = orderTableRequest.VesselId,
+            WarehouseId = orderTableRequest.WarehouseId,
+            ExpectedReadiness = orderTableRequest.ExpectedReadiness,
+            ActualReadiness = orderTableRequest.ActualReadiness,
+            ExpectedArrival = orderTableRequest.ExpectedArrival,
+            ActualArrival = orderTableRequest.ActualArrival,
+            OrderStatus = orderTableRequest.OrderStatus
         };
         await dbContext.Orders.AddAsync(order);
         await dbContext.SaveChangesAsync();
+    }
+
+    public Task UpdateOrder(int orderId, OrderRequest orderRequest)
+    {
+        if (!dbContext.Orders.Any(o => o.Id == orderId))
+        {
+            throw new KeyNotFoundException("Order not found");
+        }
+
+        if (!dbContext.Suppliers.Any(s => s.Id == orderRequest.SupplierId))
+        {
+            throw new KeyNotFoundException("Supplier not found");
+        }
+
+        if (!dbContext.Vessels.Any(v => v.Id == orderRequest.VesselId))
+        {
+            throw new KeyNotFoundException("Vessel not found");
+        }
+
+        if (!dbContext.Warehouses.Any(w => w.Id == orderRequest.WarehouseId))
+        {
+            throw new KeyNotFoundException("Warehouse not found");
+        }
+
+        return null;
     }
 
     public async Task<List<string>?> GetAllOrderStatusesAsync()
@@ -100,5 +126,58 @@ public class OrderService(SpareHubDbContext dbContext, IMemoryCache memory, IMon
         memory.Set(OrderStatusCacheKey, cachedStatuses, cacheEntryOptions);
 
         return cachedStatuses;
+    }
+
+    public async Task<OrderResponse> GetOrderById(int orderId)
+    {
+        var order = await dbContext.Orders
+            .Include(o => o.Supplier)
+            .Include(o => o.Vessel)
+            .ThenInclude(v => v.Owner)
+            .Include(o => o.Warehouse)
+            .ThenInclude(a => a.Agent)
+            .FirstOrDefaultAsync(o => o.Id == orderId) ?? throw new KeyNotFoundException("Order not found");
+
+        var orderBoxes = await boxService.GetBoxes(orderId);
+
+        return new OrderResponse
+        {
+            Id = order.Id,
+            OrderNumber = order.OrderNumber,
+            SupplierOrderNumber = order.SupplierOrderNumber,
+            ExpectedReadiness = order.ExpectedReadiness,
+            ActualReadiness = order.ActualReadiness,
+            ExpectedArrival = order.ExpectedArrival,
+            ActualArrival = order.ActualArrival,
+            Supplier = new SupplierResponse
+            {
+                Id = order.Supplier.Id,
+                Name = order.Supplier.Name
+            },
+            Owner = new OwnerResponse
+            {
+                Id = order.Vessel.Owner.Id,
+                Name = order.Vessel.Owner.Name
+            },
+            Vessel = new VesselResponse
+            {
+                Id = order.Vessel.Id,
+                Name = order.Vessel.Name,
+                ImoNumber = order.Vessel.ImoNumber,
+                Flag = order.Vessel.Flag
+            },
+            Agent = new AgentResponse
+            {
+                Id = order.Warehouse.Agent.Id,
+                Name = order.Warehouse.Agent.Name
+            },
+            Warehouse = new WarehouseResponse
+            {
+                Id = order.Warehouse.Id,
+                Name = order.Warehouse.Name
+            },
+            OrderStatus = order.OrderStatus,
+            Boxes = orderBoxes.FirstOrDefault()?.Boxes
+        };
     }
 }

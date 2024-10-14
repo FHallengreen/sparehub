@@ -6,20 +6,20 @@ public class Order
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; init; }
-    public required string OrderNumber { get; init; }
-    public string? SupplierOrderNumber { get; init; }
-    public int SupplierId { get; init; }
-    public int VesselId { get; init; }
-    public int WarehouseId { get; init; }
-    public DateTime ExpectedReadiness { get; init; }
-    public DateTime? ActualReadiness { get; init; }
-    public DateTime? ExpectedArrival { get; init; }
-    public DateTime? ActualArrival { get; init; }
-    public string OrderStatus { get; init; } = null!;
+    public required string OrderNumber { get; set; }
+    public string? SupplierOrderNumber { get; set; }
+    public int SupplierId { get; set; }
+    public int VesselId { get; set; }
+    public int WarehouseId { get; set; }
+    public DateTime ExpectedReadiness { get; set; }
+    public DateTime? ActualReadiness { get; set; }
+    public DateTime? ExpectedArrival { get; set; }
+    public DateTime? ActualArrival { get; set; }
+    public string OrderStatus { get; set; } = null!;
 
     public Supplier Supplier { get; init; } = null!;
     public Vessel Vessel { get; init; } = null!;
     public Warehouse Warehouse { get; init; } = null!;
 
-    public ICollection<Dispatch> Dispatches { get; set; } = new List<Dispatch>();
+    public ICollection<Dispatch> Dispatches { get; init; } = new List<Dispatch>();
 }
