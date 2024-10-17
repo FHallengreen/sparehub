@@ -21,7 +21,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine(e.Message);
             return StatusCode(500, "Internal server error");
         }
     }
@@ -36,6 +36,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
         }
         catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return StatusCode(500, "Internal server error");
         }
     }

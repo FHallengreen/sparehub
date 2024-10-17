@@ -282,14 +282,12 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasMaxLength(3);
 
             // Define the foreign key relationship with Owner
-            entity.HasOne(v => v.Owner)  // Ensure the navigation property 'Owner' is correctly used
+            entity.HasOne(v => v.Owner)
                 .WithMany(o => o.Vessels)
                 .HasForeignKey(v => v.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade) // Adjust the delete behavior based on your needs
                 .HasConstraintName("fk_vessel_owner");  // Ensure this constraint name matches the actual database constraint
         });
-
-
 
         // Agent Configuration
         modelBuilder.Entity<Agent>(entity =>

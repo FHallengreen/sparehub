@@ -2,7 +2,9 @@ using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.AzureAppServices;
 using MongoDB.Driver;
+using Neo4j.Driver;
 using Persistence;
+using Server;
 using Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +29,8 @@ builder.Services.AddMemoryCache();
 // Add OrderService
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IBoxService, BoxService>();
+builder.Services.AddScoped<IPortVesselService, PortVesselService>();
+builder.Services.AddScoped<IVesselService, VesselService>();
 
 // Configure the database connection string with SSL enabled
 var connectionString = string.Format("server={0};port={1};database={2};user={3};password={4};SslMode=Required",
@@ -63,6 +67,23 @@ builder.Services.AddScoped(sp =>
     return database.GetCollection<OrderBoxCollection>("OrderBoxCollection");
 });
 
+
+// Neo4j configuration
+var neo4JUrl = builder.Configuration.GetValue<string>("NEO4J_URL");
+var neo4JUsername = builder.Configuration.GetValue<string>("NEO4J_USERNAME");
+var neo4JPassword = builder.Configuration.GetValue<string>("NEO4J_PASSWORD");
+
+builder.Services.AddSingleton(GraphDatabase.Driver(
+    neo4JUrl,
+    AuthTokens.Basic(neo4JUsername, neo4JPassword)
+));
+
+// Add Neo4j session service for scoped use
+builder.Services.AddScoped(sp =>
+{
+    var driver = sp.GetRequiredService<IDriver>();
+    return driver.AsyncSession();
+});
 
 var app = builder.Build();
 

@@ -12,4 +12,5 @@ public class Vessel
     public string? Flag { get; init; }
 
     public required Owner Owner { get; init; }
+    
 }
