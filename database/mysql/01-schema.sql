@@ -399,6 +399,76 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`financial` (
 ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Table `sparehub`.`box`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sparehub`.`box` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `length` INT NOT NULL,
+  `width` INT NOT NULL,
+  `height` INT NOT NULL,
+  `weight` DOUBLE NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `sparehub`.`box_has_order`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sparehub`.`box_has_order` (
+  `box_id` INT NOT NULL,
+  `order_id` INT NOT NULL,
+  PRIMARY KEY (`box_id`, `order_id`),
+  INDEX `fk_box_has_order_order1_idx` (`order_id` ASC) VISIBLE,
+  INDEX `fk_box_has_order_box1_idx` (`box_id` ASC) VISIBLE,
+  CONSTRAINT `fk_box_has_order_box1`
+    FOREIGN KEY (`box_id`)
+    REFERENCES `sparehub`.`box` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_box_has_order_order1`
+    FOREIGN KEY (`order_id`)
+    REFERENCES `sparehub`.`order` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `sparehub`.`port`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sparehub`.`port` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `sparehub`.`vessel_at_port`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sparehub`.`vessel_at_port` (
+  `vessel_id` INT NOT NULL,
+  `port_id` INT NOT NULL,
+  `arrival_date` DATETIME NULL,
+  `departure_date` DATETIME NULL,
+  PRIMARY KEY (`vessel_id`, `port_id`),
+  INDEX `fk_vessel_has_port_port1_idx` (`port_id` ASC) VISIBLE,
+  INDEX `fk_vessel_has_port_vessel1_idx` (`vessel_id` ASC) VISIBLE,
+  INDEX `arrival_departure_dates_idx` (`arrival_date` ASC, `departure_date` ASC) VISIBLE,
+  CONSTRAINT `fk_vessel_has_port_vessel1`
+    FOREIGN KEY (`vessel_id`)
+    REFERENCES `sparehub`.`vessel` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_vessel_has_port_port1`
+    FOREIGN KEY (`port_id`)
+    REFERENCES `sparehub`.`port` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

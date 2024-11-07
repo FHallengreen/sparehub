@@ -5,7 +5,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - '5173:5173'
+      - "5173:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -21,9 +21,9 @@ services:
     container_name: backend-sparehub
     build:
       context: ./backend/SpareHub
-      dockerfile: Server/Dockerfile 
+      dockerfile: Server/Dockerfile
     ports:
-      - '8080:8080'
+      - "8080:8080"
     env_file:
       - .env
     environment:
@@ -37,6 +37,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
       - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+      - NEO4J_URL=${NEO4J_URL}
+      - NEO4J_USERNAME=${NEO4J_USERNAME}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
     volumes:
       - ./backend/SpareHub:/app
       - nuget_cache:/root/.nuget/packages
@@ -50,10 +53,11 @@ services:
       - /app/Service/obj
       - /app/Shared/bin
       - /app/Shared/obj
-     
+
     depends_on:
       - mysql
       - mongodb
+      - neo4j
 
     networks:
       - app_net
@@ -91,10 +95,25 @@ services:
     networks:
       - app_net
 
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j-sparehub
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+      - ./database/neo4j:/var/lib/neo4j/import
+    networks:
+      - app_net
+
 volumes:
   mysql_data:
   nuget_cache:
   mongo_data:
+  neo4j_data:
 
 networks:
   app_net:

@@ -43,10 +43,10 @@ MONGO_INITDB_DATABASE=sparehub
 
 MONGODB_URI=mongodb://root:example@localhost:27017/sparehub
 
-# Neo4j
-NEO4J_URL=neo4j+s://XXXXXXXX.databases.neo4j.io
+## Neo4j
+NEO4J_URL=bolt://neo4j:7687
 NEO4J_USERNAME=neo4j
-NEO4J_PASSWORD=example
+NEO4J_PASSWORD=password
 ```
 
 ## Running with Docker Compose
