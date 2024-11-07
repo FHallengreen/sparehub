@@ -57,7 +57,10 @@ NEO4J_PASSWORD=password
 
 2. **Build and run the containers** using Docker Compose:
 
-   ```bash
+This script will also create user privileges for the MySQL database. Run the following commands in the project root directory:
+
+   ```
+   ./database/generate_user_privileges.sh
    docker compose up --build -d
    ```
 
@@ -66,6 +69,7 @@ NEO4J_PASSWORD=password
    - **backend**: Running on [http://localhost:8080](http://localhost:8080)
    - **MySQL**: Exposed on port `3308` (container uses port `3306`)
    - **MongoDB**: Exposed on port `27017`
+   - **Neo4j**: Exposed on port `7687`
 
 3. **Access the frontend** at [http://localhost:5173](http://localhost:5173).
 
@@ -99,6 +103,7 @@ You can also run the frontend and backend locally without Docker. Ensure you hav
 
 1. **MySQL**:
    - Start MySQL on your system with the credentials specified in the `.env` file.
+   - run creation script `./database/generate_user_privileges.sh` to create user privileges for the MySQL database.
    - Create a new database named `sparehub` in MySQL.
    - Optionally, use the SQL scripts in `./database/mysql/` to initialize the database schema.
 
