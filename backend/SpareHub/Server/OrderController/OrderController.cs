@@ -75,12 +75,13 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Order>> CreateOrder([FromBody] OrderRequest orderTable)
+    public async Task<IActionResult> CreateOrder([FromBody] OrderRequest orderTable)
     {
         try
         {
-            await orderService.CreateOrder(orderTable);
-            return Ok(orderTable);
+            var createdOrder = await orderService.CreateOrder(orderTable);
+
+            return CreatedAtAction(nameof(GetOrderById), new { orderId = createdOrder.Id }, createdOrder);
         }
         catch (Exception e)
         {

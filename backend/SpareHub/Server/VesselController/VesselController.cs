@@ -8,11 +8,18 @@ namespace Server;
 [Route("api/vessels")]
 public class VesselController(IVesselService vesselService) : ControllerBase
 {
-    
     [HttpGet]
     public async Task<IActionResult> GetVessels(string? searchQuery = null)
     {
-        var vessels = await vesselService.GetVesselsBySearchQuery(searchQuery);
-        return Ok(vessels);
+        try
+        {
+            var vessels = await vesselService.GetVesselsBySearchQuery(searchQuery);
+
+            return Ok(vessels);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
 }

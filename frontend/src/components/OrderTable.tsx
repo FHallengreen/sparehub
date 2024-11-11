@@ -282,7 +282,7 @@ const OrderTable: React.FC = () => {
               placeholder="Add a tag"
             />
           )}
-          style={{ width: "30vw" }}
+          style={{ width: "40vw" }}
         />
         <Button onClick={() => navigate(`/orders/new`)} variant="contained" color="primary" className="pr-5">
           New Order

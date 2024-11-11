@@ -71,7 +71,7 @@ public class OrderService(
             o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
     }
 
-    public async Task CreateOrder(OrderRequest orderTableRequest)
+    public async Task<Order> CreateOrder(OrderRequest orderTableRequest)
     {
         var order = new Order
         {
@@ -86,9 +86,13 @@ public class OrderService(
             ActualArrival = orderTableRequest.ActualArrival,
             OrderStatus = orderTableRequest.OrderStatus
         };
+
         await dbContext.Orders.AddAsync(order);
         await dbContext.SaveChangesAsync();
+
+        return order;
     }
+
 
     public async Task UpdateOrder(int orderId, OrderRequest orderRequest)
     {

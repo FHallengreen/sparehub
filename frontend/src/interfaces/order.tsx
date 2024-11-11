@@ -1,25 +1,25 @@
 export interface Box {
-    length: number;
-    width: number;
-    height: number;
-    weight: number;
-  }
-  
-  export interface OrderDetail {
-    id: number;
-    orderNumber: string;
-    supplierOrderNumber: string;
-    supplier: Supplier;
-    vessel: Vessel;
-    warehouse: Warehouse;
-    agent: Agent;
-    orderStatus: string;
-    owner: Owner;
-    expectedReadiness?: Date | null;
-    actualReadiness?: Date | null;
-    expectedArrival?: Date | null;
-    actualArrival?: Date | null;
-    boxes: Box[] | null;
+  length: number;
+  width: number;
+  height: number;
+  weight: number;
+}
+
+export interface OrderDetail {
+  id: number;
+  orderNumber: string;
+  supplierOrderNumber: string;
+  supplier: Supplier;
+  vessel: Vessel;
+  warehouse: Warehouse;
+  agent: Agent;
+  orderStatus: string;
+  owner: Owner;
+  expectedReadiness?: Date | null;
+  actualReadiness?: Date | null;
+  expectedArrival?: Date | null;
+  actualArrival?: Date | null;
+  boxes: Box[] | null;
 }
 
 export interface OrderRequest {
@@ -36,60 +36,66 @@ export interface OrderRequest {
   boxes?: Box[];
 }
 
-  
-  export interface Order {
-    id: number;
-    supplierName: Supplier;
-    vesselName: Vessel;
-    orderNumber: string;
-    warehouseName: Warehouse;
-    orderStatus: string;
-    ownerName: Owner;
-    totalWeight: number;
-    boxes: number;
-  }
-  
-  export interface Supplier {
-    id: number;
-    name: string;
-  }
 
-  export interface VesselOption {
-    id: number;
-    name: string;
-    owner: Owner;
+export interface Order {
+  id: number;
+  supplierName: Supplier;
+  vesselName: Vessel;
+  orderNumber: string;
+  warehouseName: Warehouse;
+  orderStatus: string;
+  ownerName: Owner;
+  totalWeight: number;
+  boxes: number;
 }
 
-  
-  export interface Vessel {
-    id: number;
-    name: string;
-  }
-  
-  export interface Warehouse {
-    id: number;
-    name: string;
-  }
-  
-  export interface Owner {
-    id: number;
-    name: string;
-  }
-  
-  export interface Agent {
-    id: number;
-    name: string;
-  }
-  
-  export interface OrderRow {
-    id: string;
-    stockLocation: string;
-    pieces: number;
-    weight: number;
-  }
-  
-  export interface StockLocationSummary {
-    orders: number;
-    pieces: number;
-    weight: number;
-  }
+export interface Supplier {
+  id: number;
+  name: string;
+}
+
+export interface VesselOption {
+  id: number;
+  name: string;
+  owner: Owner;
+}
+
+export interface SupplierOption {
+  id: number;
+  name: string;
+}
+
+
+export interface Vessel {
+  id: number;
+  name: string;
+}
+
+export interface Warehouse {
+  id: number;
+  name: string;
+  agent: Agent;
+}
+
+export interface Owner {
+  id: number;
+  name: string;
+}
+
+export interface Agent {
+  id: number;
+  name: string;
+}
+
+export interface OrderRow {
+  id: string;
+  stockLocation: string;
+  pieces: number;
+  weight: number;
+}
+
+export interface StockLocationSummary {
+  orders: number;
+  pieces: number;
+  weight: number;
+}

@@ -6,6 +6,9 @@ using Neo4j.Driver;
 using Persistence;
 using Server;
 using Service;
+using Service.Agent;
+using Service.Supplier;
+using Service.Warehouse;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +34,9 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IBoxService, BoxService>();
 builder.Services.AddScoped<IPortVesselService, PortVesselService>();
 builder.Services.AddScoped<IVesselService, VesselService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+builder.Services.AddScoped<IAgentService, AgentService>();
 
 // Configure the database connection string with SSL enabled
 var connectionString = string.Format("server={0};port={1};database={2};user={3};password={4};SslMode=Required",

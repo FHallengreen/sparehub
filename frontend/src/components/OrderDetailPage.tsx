@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CircularProgress, Typography, Button, TextField, IconButton } from '@mui/material';
 import axios from 'axios';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest } from '../interfaces/order';
+import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest, SupplierOption, Warehouse, Agent } from '../interfaces/order';
 import { useSnackbar } from './SnackbarContext';
 import { useDebounce } from '../hooks/useDebounce';
 
@@ -19,9 +19,9 @@ const OrderDetailPage: React.FC = () => {
     const showSnackbar = useSnackbar();
 
     const [vesselOptions, setVesselOptions] = React.useState<VesselOption[]>([]);
-    const [supplierOptions, setSupplierOptions] = React.useState([]);
-    const [warehouseOptions, setWarehouseOptions] = React.useState([]);
-    const [agentOptions, setAgentOptions] = React.useState([]);
+    const [supplierOptions, setSupplierOptions] = React.useState<SupplierOption[]>([]);
+    const [warehouseOptions, setWarehouseOptions] = React.useState<Warehouse[]>([]);
+    const [agentOptions, setAgentOptions] = React.useState<Agent[]>([]);
 
     const [vesselQuery, setVesselQuery] = React.useState('');
     const [supplierQuery, setSupplierQuery] = React.useState('');
@@ -57,16 +57,21 @@ const OrderDetailPage: React.FC = () => {
                         actualArrival: undefined,
                         supplier: { id: 0, name: '' },
                         vessel: { id: 0, name: '' },
-                        warehouse: { id: 0, name: '' },
+                        warehouse: { id: 0, name: '', agent: { id: 0, name: '' } },
                         agent: { id: 0, name: '' },
                         owner: { id: 0, name: '' },
-                        orderStatus: '',
+                        orderStatus: 'Pending',
                         boxes: []
                     });
                     setEditableBoxes([]);
                 }
             } catch (error) {
-                setError('Failed to fetch order.');
+                if (axios.isAxiosError(error) && error.response?.status === 404) {
+                    showSnackbar('Order not found.', 'error');
+                    navigate('/orders');
+                } else {
+                    setError('Failed to fetch order.');
+                }
             } finally {
                 setLoading(false);
             }
@@ -153,13 +158,16 @@ const OrderDetailPage: React.FC = () => {
 
             try {
                 if (isNewOrder) {
-                    await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, sanitizedOrder);
+                    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, sanitizedOrder);
+                    const newOrderId = response.data.id;
+            
+                    navigate(`/orders/${newOrderId}`); 
                     showSnackbar('Order created successfully!', 'success');
                 } else {
                     await axios.put(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, sanitizedOrder);
                     showSnackbar('Order updated successfully!', 'success');
+                    navigate(`/orders/${id}`);
                 }
-                navigate('/orders');
             } catch (err) {
                 showSnackbar('Failed to save order.', 'error');
             }
@@ -183,7 +191,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedSupplierQuery.length >= 3) {
-            axios.get(`${import.meta.env.VITE_API_URL}/api/suppliers`, {
+            axios.get<SupplierOption[]>(`${import.meta.env.VITE_API_URL}/api/suppliers`, {
                 params: { searchQuery: debouncedSupplierQuery }
             }).then(response => {
                 setSupplierOptions(response.data);
@@ -195,7 +203,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedWarehouseQuery.length >= 3) {
-            axios.get(`${import.meta.env.VITE_API_URL}/api/warehouses`, {
+            axios.get<Warehouse[]>(`${import.meta.env.VITE_API_URL}/api/warehouses/search`, {
                 params: { searchQuery: debouncedWarehouseQuery }
             }).then(response => {
                 setWarehouseOptions(response.data);
@@ -207,7 +215,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedAgentQuery.length >= 3) {
-            axios.get(`${import.meta.env.VITE_API_URL}/api/agents`, {
+            axios.get<Agent[]>(`${import.meta.env.VITE_API_URL}/api/agents/search`, {
                 params: { searchQuery: debouncedAgentQuery }
             }).then(response => {
                 setAgentOptions(response.data);
@@ -309,8 +317,40 @@ const OrderDetailPage: React.FC = () => {
                                     label="Supplier Name"
                                     value={order.supplier.name}
                                     className="w-full"
-                                    onChange={(e) => handleInputChange('supplier', e.target.value)}
+                                    required
+                                    onChange={(e) => {
+                                        handleInputChange('supplier', e.target.value);
+                                        setSupplierQuery(e.target.value);
+                                    }}
+                                    onFocus={() => setSupplierOptions([])}
+                                    autoComplete="off"
                                 />
+                                {supplierOptions.length > 0 && (
+                                    <div className="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-12 max-h-40 overflow-y-auto z-50 w-1/3">
+                                        {supplierOptions.map((option) => (
+                                            <div
+                                                key={option.id}
+                                                onClick={() => {
+                                                    setOrder((prevOrder) => {
+                                                        if (prevOrder) {
+                                                            return {
+                                                                ...prevOrder,
+                                                                supplier: { id: option.id, name: option.name }
+                                                            };
+                                                        } else {
+                                                            return prevOrder;
+                                                        }
+                                                    });
+                                                    setSupplierQuery('');
+                                                    setSupplierOptions([]);
+                                                }}
+                                                className="px-4 py-2 cursor-pointer hover:bg-blue-100"
+                                            >
+                                                {option.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                                 <TextField
                                     label="Supplier Order Number"
                                     value={order.supplierOrderNumber}
@@ -328,21 +368,98 @@ const OrderDetailPage: React.FC = () => {
                                 <TextField
                                     label="Order Number"
                                     value={order.orderNumber}
+                                    required
                                     className="w-full"
                                     onChange={(e) => handleInputChange('orderNumber', e.target.value)}
                                 />
+
                                 <TextField
                                     label="Warehouse Name"
                                     value={order.warehouse.name}
+                                    required
                                     className="w-full"
-                                    onChange={(e) => handleInputChange('warehouse', e.target.value)}
+                                    onChange={(e) => {
+                                        handleInputChange('warehouse', e.target.value);
+                                        setWarehouseQuery(e.target.value);
+                                    }}
+                                    onFocus={() => setWarehouseOptions([])}
+                                    autoComplete="off"
                                 />
+                                {warehouseOptions.length > 0 && (
+                                    <div className="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-12 max-h-40 overflow-y-auto z-50 w-1/3">
+                                        {warehouseOptions.map((option) => (
+                                            <div
+                                                key={option.id}
+                                                onClick={() => {
+                                                    setOrder((prevOrder) => {
+                                                        if (prevOrder) {
+                                                            return {
+                                                                ...prevOrder,
+                                                                warehouse: {
+                                                                    id: option.id,
+                                                                    name: option.name,
+                                                                    agent: {
+                                                                        id: option.agent.id,
+                                                                        name: option.agent.name
+                                                                    }
+                                                                },
+                                                                agent: {
+                                                                    id: option.agent.id,
+                                                                    name: option.agent.name
+                                                                }
+                                                            };
+                                                        }
+                                                        return prevOrder;
+                                                    });
+                                                    setWarehouseQuery('');
+                                                    setWarehouseOptions([]);
+                                                }}
+
+                                                className="px-4 py-2 cursor-pointer hover:bg-blue-100"
+                                            >
+                                                {option.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
                                 <TextField
                                     label="Agent Name"
                                     value={order.agent.name}
+                                    required
                                     className="w-full"
-                                    onChange={(e) => handleInputChange('agent', e.target.value)}
+                                    onChange={(e) => {
+                                        handleInputChange('agent', e.target.value);
+                                        setAgentQuery(e.target.value);
+                                    }}
+                                    onFocus={() => setAgentOptions([])}
+                                    autoComplete="off"
                                 />
+                                {agentOptions.length > 0 && (
+                                    <div className="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-12 max-h-40 overflow-y-auto z-50 w-1/3">
+                                        {agentOptions.map((option) => (
+                                            <div
+                                                key={option.id}
+                                                onClick={() => {
+                                                    setOrder((prevOrder) => {
+                                                        if (prevOrder) {
+                                                            return {
+                                                                ...prevOrder,
+                                                                agent: { id: option.id, name: option.name }
+                                                            };
+                                                        }
+                                                        return prevOrder;
+                                                    });
+                                                    setAgentQuery('');
+                                                    setAgentOptions([]);
+                                                }}                                                
+                                                className="px-4 py-2 cursor-pointer hover:bg-blue-100"
+                                            >
+                                                {option.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
 
                                 <div className="w-full">
                                     <label className="block text-gray-700 text-sm font-bold mb-2">Order Status</label>
@@ -380,7 +497,7 @@ const OrderDetailPage: React.FC = () => {
                         </div>
                     ))}
 
-                    <Button onClick={handleAddBox} variant="outlined" className="mt-4">Add Box</Button>
+                    <Button onClick={handleAddBox} variant="outlined" className="mt-4" disabled={!order?.id || order.id === 0}>Add Box</Button>
 
                     <div className="mt-8 gap-2 flex">
                         <Button onClick={handleSave} variant="contained" color="primary" className="mr-2 pr-5">Save</Button>
