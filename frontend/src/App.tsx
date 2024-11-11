@@ -32,9 +32,9 @@ function App() {
 
           <div className="flex-1 p-4 ml-0 md:ml-16 transition-all duration-300">
             <Routes>
+              <Route path="/orders/:id" element={<OrderDetailPage />} />
               <Route path="/orders" element={<OrderPage />} />
               <Route path="/" element={<OrderPage />} />
-              <Route path="/orders/:id" element={<OrderDetailPage />} />
             </Routes>
           </div>
         </div>

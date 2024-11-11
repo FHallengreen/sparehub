@@ -5,14 +5,14 @@ using Shared;
 namespace Server;
 
 [ApiController]
-[Route("api/vessel")]
+[Route("api/vessels")]
 public class VesselController(IVesselService vesselService) : ControllerBase
 {
     
     [HttpGet]
-    public async Task<IActionResult> GetVessels()
+    public async Task<IActionResult> GetVessels(string? searchQuery = null)
     {
-        var vessels = await vesselService.GetAllVessels();
+        var vessels = await vesselService.GetVesselsBySearchQuery(searchQuery);
         return Ok(vessels);
     }
 }

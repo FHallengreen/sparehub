@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CircularProgress, Typography, Button, TextField, IconButton } from '@mui/material';
 import axios from 'axios';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import { OrderDetail, Box as OrderBox } from '../interfaces/order';
+import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest } from '../interfaces/order';
 import { useSnackbar } from './SnackbarContext';
+import { useDebounce } from '../hooks/useDebounce';
 
 const OrderDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const isNewOrder = id === 'new';
     const navigate = useNavigate();
     const [order, setOrder] = React.useState<OrderDetail | null>(null);
     const [loading, setLoading] = React.useState<boolean>(true);
@@ -16,27 +18,62 @@ const OrderDetailPage: React.FC = () => {
     const [statuses, setStatuses] = React.useState<string[]>([]);
     const showSnackbar = useSnackbar();
 
+    const [vesselOptions, setVesselOptions] = React.useState<VesselOption[]>([]);
+    const [supplierOptions, setSupplierOptions] = React.useState([]);
+    const [warehouseOptions, setWarehouseOptions] = React.useState([]);
+    const [agentOptions, setAgentOptions] = React.useState([]);
+
+    const [vesselQuery, setVesselQuery] = React.useState('');
+    const [supplierQuery, setSupplierQuery] = React.useState('');
+    const [warehouseQuery, setWarehouseQuery] = React.useState('');
+    const [agentQuery, setAgentQuery] = React.useState('');
+
+    const debouncedVesselQuery = useDebounce(vesselQuery, 300);
+    const debouncedSupplierQuery = useDebounce(supplierQuery, 300);
+    const debouncedWarehouseQuery = useDebounce(warehouseQuery, 300);
+    const debouncedAgentQuery = useDebounce(agentQuery, 300);
+
     React.useEffect(() => {
         const fetchOrder = async () => {
             try {
-                const orderResponse = await axios.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/orders/${id}`);
                 const statusResponse = await axios.get<string[]>(`${import.meta.env.VITE_API_URL}/api/orders/statuses`);
-
-                const orderData = orderResponse.data;
-                setOrder({
-                    ...orderData,
-                    boxes: orderData.boxes ?? []
-                });
                 setStatuses(statusResponse.data);
-                setEditableBoxes(Array((orderData.boxes ?? []).length).fill(false));
-            } catch (err) {
+
+                if (!isNewOrder) {
+                    const orderResponse = await axios.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/orders/${id}`);
+                    setOrder({
+                        ...orderResponse.data,
+                        boxes: orderResponse.data.boxes ?? []
+                    });
+                    setEditableBoxes(Array(orderResponse.data.boxes?.length ?? 0).fill(false));
+                } else {
+                    setOrder({
+                        id: 0,
+                        orderNumber: '',
+                        supplierOrderNumber: '',
+                        expectedReadiness: undefined,
+                        actualReadiness: undefined,
+                        expectedArrival: undefined,
+                        actualArrival: undefined,
+                        supplier: { id: 0, name: '' },
+                        vessel: { id: 0, name: '' },
+                        warehouse: { id: 0, name: '' },
+                        agent: { id: 0, name: '' },
+                        owner: { id: 0, name: '' },
+                        orderStatus: '',
+                        boxes: []
+                    });
+                    setEditableBoxes([]);
+                }
+            } catch (error) {
                 setError('Failed to fetch order.');
             } finally {
                 setLoading(false);
             }
         };
         fetchOrder();
-    }, [id]);
+    }, [id, isNewOrder]);
+
 
     const sanitizeInput = (value: string) => {
         return value.replace(/[^a-zA-Z0-9\s]/g, '');
@@ -79,30 +116,49 @@ const OrderDetailPage: React.FC = () => {
         });
     };
 
+    const deleteOrder = async (orderId: number) => {
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}`);
+            showSnackbar('Order deleted successfully!', 'success');
+            navigate('/orders');
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response) {
+                const { status } = err.response;
+                if (status === 404) {
+                    showSnackbar('Order not found.', 'error');
+                } else {
+                    showSnackbar('Failed to delete order.', 'error');
+                }
+            } else {
+                showSnackbar('Unexpected error occurred.', 'error');
+            }
+        }
+    };
+
     const handleSave = async () => {
         if (order) {
-            const sanitizedOrder = {
+            const sanitizedOrder: OrderRequest = {
                 orderNumber: sanitizeInput(order.orderNumber),
                 supplierOrderNumber: sanitizeInput(order.supplierOrderNumber || ""),
-                expectedReadiness: order.expectedReadiness,
-                actualReadiness: order.actualReadiness || null,
-                expectedArrival: order.expectedArrival || null,
-                actualArrival: order.actualArrival || null,
+                expectedReadiness: order.expectedReadiness || new Date(),
+                actualReadiness: order.actualReadiness || undefined,
+                expectedArrival: order.expectedArrival || undefined,
+                actualArrival: order.actualArrival || undefined,
                 supplierId: order.supplier.id,
                 vesselId: order.vessel.id,
                 warehouseId: order.warehouse.id,
                 orderStatus: sanitizeInput(order.orderStatus),
-                boxes: order.boxes?.map((box) => ({
-                    length: box.length,
-                    width: box.width,
-                    height: box.height,
-                    weight: box.weight
-                })) || []
+                boxes: order.boxes || []
             };
 
             try {
-                await axios.put(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, sanitizedOrder);
-                showSnackbar('Order saved successfully!', 'success');
+                if (isNewOrder) {
+                    await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, sanitizedOrder);
+                    showSnackbar('Order created successfully!', 'success');
+                } else {
+                    await axios.put(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, sanitizedOrder);
+                    showSnackbar('Order updated successfully!', 'success');
+                }
                 navigate('/orders');
             } catch (err) {
                 showSnackbar('Failed to save order.', 'error');
@@ -110,8 +166,56 @@ const OrderDetailPage: React.FC = () => {
         }
     };
 
+    React.useEffect(() => {
+        if (debouncedVesselQuery.length >= 3) {
+            axios.get<VesselOption[]>(`${import.meta.env.VITE_API_URL}/api/vessels`, {
+                params: { searchQuery: debouncedVesselQuery }
+            })
+                .then(response => {
+                    setVesselOptions(response.data);
+                })
+                .catch(error => {
+                    console.error('Failed to fetch vessels', error);
+                });
+        }
+    }, [debouncedVesselQuery]);
 
 
+    React.useEffect(() => {
+        if (debouncedSupplierQuery.length >= 3) {
+            axios.get(`${import.meta.env.VITE_API_URL}/api/suppliers`, {
+                params: { searchQuery: debouncedSupplierQuery }
+            }).then(response => {
+                setSupplierOptions(response.data);
+            }).catch(error => {
+                console.error('Failed to fetch suppliers', error);
+            });
+        }
+    }, [debouncedSupplierQuery]);
+
+    React.useEffect(() => {
+        if (debouncedWarehouseQuery.length >= 3) {
+            axios.get(`${import.meta.env.VITE_API_URL}/api/warehouses`, {
+                params: { searchQuery: debouncedWarehouseQuery }
+            }).then(response => {
+                setWarehouseOptions(response.data);
+            }).catch(error => {
+                console.error('Failed to fetch warehouses', error);
+            });
+        }
+    }, [debouncedWarehouseQuery]);
+
+    React.useEffect(() => {
+        if (debouncedAgentQuery.length >= 3) {
+            axios.get(`${import.meta.env.VITE_API_URL}/api/agents`, {
+                params: { searchQuery: debouncedAgentQuery }
+            }).then(response => {
+                setAgentOptions(response.data);
+            }).catch(error => {
+                console.error('Failed to fetch agents', error);
+            });
+        }
+    }, [debouncedAgentQuery]);
 
 
     if (loading) {
@@ -126,10 +230,25 @@ const OrderDetailPage: React.FC = () => {
         <div className="container mx-auto p-6">
             {order && (
                 <>
-                    <Typography variant="h4" className="text-2xl font-bold mb-6 pb-4">
-                        Order / {order.id}
-                    </Typography>
-
+                    <div className="mt-8 gap-2 flex items-center">
+                        {order.id !== 0 && (
+                            <>
+                                <Typography variant="h4" className="text-2xl font-bold mb-6 pb-4">
+                                    Order ID: {order.id}
+                                </Typography>
+                                <IconButton
+                                    onClick={() => {
+                                        if (window.confirm("Are you sure you want to delete this order?")) {
+                                            deleteOrder(order.id);
+                                        }
+                                    }}
+                                    className="text-red-500"
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            </>
+                        )}
+                    </div>
                     <div className="grid grid-cols-2 gap-6 mb-6">
                         <div className="shadow-lg p-6 rounded-md bg-white">
                             <Typography variant="h5" className="font-bold mb-4 pb-4">ORDER FOR:</Typography>
@@ -138,9 +257,48 @@ const OrderDetailPage: React.FC = () => {
                                     label="Vessel Name"
                                     value={order.vessel.name}
                                     className="w-full"
-                                    onChange={(e) => handleInputChange('vessel', e.target.value)}
+                                    required
+                                    onChange={(e) => {
+                                        handleInputChange('vessel', e.target.value);
+                                        setVesselQuery(e.target.value);
+                                    }}
+                                    onFocus={() => setVesselOptions([])}
+                                    autoComplete="off"
                                 />
-                                <TextField label="Owner Name" value={order.owner.name} className="w-full" disabled />
+                                {vesselOptions.length > 0 && (
+                                    <div className="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-12 max-h-40 overflow-y-auto z-50 w-1/3">
+                                        {vesselOptions.map((option) => (
+                                            <div
+                                                key={option.id}
+                                                onClick={() => {
+                                                    setOrder((prevOrder) => {
+                                                        if (prevOrder) {
+                                                            return {
+                                                                ...prevOrder,
+                                                                vessel: { id: option.id, name: option.name },
+                                                                owner: { id: option.owner.id, name: option.owner.name }
+                                                            };
+                                                        } else {
+                                                            return prevOrder;
+                                                        }
+                                                    });
+                                                    setVesselQuery('');
+                                                    setVesselOptions([]);
+                                                }}
+                                                className="px-4 py-2 cursor-pointer hover:bg-blue-100"
+                                            >
+                                                {option.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <TextField
+                                    label="Owner Name"
+                                    value={order.owner.name}
+                                    className="w-full"
+                                    disabled
+                                />
                             </div>
                         </div>
 
@@ -224,15 +382,14 @@ const OrderDetailPage: React.FC = () => {
 
                     <Button onClick={handleAddBox} variant="outlined" className="mt-4">Add Box</Button>
 
-                    <div className="mt-8 gap-2">
+                    <div className="mt-8 gap-2 flex">
                         <Button onClick={handleSave} variant="contained" color="primary" className="mr-2 pr-5">Save</Button>
                         <Button onClick={() => navigate('/orders')} variant="outlined">Cancel</Button>
                     </div>
                 </>
-            )}
-        </div>
-
-
+            )
+            }
+        </div >
     );
 };
 

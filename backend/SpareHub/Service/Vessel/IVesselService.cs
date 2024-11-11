@@ -4,5 +4,5 @@ namespace Service;
 
 public interface IVesselService
 {
-    public Task<List<VesselResponse>> GetAllVessels();
+    public Task<List<VesselResponse>> GetVesselsBySearchQuery(string? searchQuery);
 }

@@ -10,13 +10,12 @@ namespace Server.OrderController;
 [Route("/api/orders")]
 public class OrderController(IOrderService orderService) : ControllerBase
 {
-    
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OrderTableResponse>>> GetOrders([FromQuery] List<string>? searchTerms) 
+    public async Task<ActionResult<IEnumerable<OrderTableResponse>>> GetOrders([FromQuery] List<string>? searchTerms)
     {
         try
         {
-            var list = await orderService.GetOrders(searchTerms); 
+            var list = await orderService.GetOrders(searchTerms);
             return Ok(list);
         }
         catch (Exception e)
@@ -25,7 +24,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
-    
+
     [HttpPut("{orderId:int}")]
     public async Task<IActionResult> UpdateOrder(int orderId, [FromBody] OrderRequest orderRequest)
     {
@@ -41,7 +40,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
         }
     }
 
-    
+
     [HttpGet("statuses")]
     public async Task<ActionResult<OrderStatus>> GetOrderStatuses()
     {
@@ -49,7 +48,8 @@ public class OrderController(IOrderService orderService) : ControllerBase
         {
             var statuses = await orderService.GetAllOrderStatusesAsync();
             return Ok(statuses);
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             Console.WriteLine(e);
             return StatusCode(500, "Internal server error");
@@ -67,25 +67,46 @@ public class OrderController(IOrderService orderService) : ControllerBase
         catch (KeyNotFoundException)
         {
             return NotFound($"Order with ID '{orderId}' not found");
-        } 
+        }
         catch (Exception)
         {
             return StatusCode(500, "Internal server error");
         }
     }
-    
+
     [HttpPost]
-    public async Task<ActionResult<Order>> PostOrder([FromBody] OrderRequest orderTable)
+    public async Task<ActionResult<Order>> CreateOrder([FromBody] OrderRequest orderTable)
     {
         try
         {
             await orderService.CreateOrder(orderTable);
             return Ok(orderTable);
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             Console.WriteLine(e);
             return StatusCode(500, "Internal server error");
         }
-
     }
+
+    [HttpDelete("{orderId:int}")]
+    public IActionResult DeleteOrder(int orderId)
+    {
+        try
+        {
+            orderService.DeleteOrder(orderId);
+            return Ok("Order deleted successfully");
+        }
+        catch (KeyNotFoundException e)
+        {
+            Console.WriteLine(e);
+            return NotFound("Order not found");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
 }

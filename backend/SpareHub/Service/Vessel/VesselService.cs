@@ -6,20 +6,23 @@ namespace Service;
 
 public class VesselService(SpareHubDbContext dbContext) : IVesselService
 {
-    
-    public async Task<List<VesselResponse>> GetAllVessels()
+    public async Task<List<VesselResponse>> GetVesselsBySearchQuery(string? searchQuery = "")
     {
         return await dbContext.Vessels
+            .Where(v => string.IsNullOrEmpty(searchQuery) || v.Name.StartsWith(searchQuery))
+            .Include(v => v.Owner)
             .Select(v => new VesselResponse
             {
                 Id = v.Id,
                 Name = v.Name,
                 ImoNumber = v.ImoNumber,
-                Flag = v.Flag
+                Flag = v.Flag,
+                Owner = new OwnerResponse
+                {
+                    Id = v.Owner.Id,
+                    Name = v.Owner.Name
+                }
             })
             .ToListAsync();
     }
-
-
-
 }

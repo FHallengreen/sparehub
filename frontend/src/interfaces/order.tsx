@@ -15,12 +15,27 @@ export interface Box {
     agent: Agent;
     orderStatus: string;
     owner: Owner;
-    expectedReadiness: Date;
-    actualReadiness?: Date;
-    expectedArrival?: Date;
-    actualArrival?: Date;
+    expectedReadiness?: Date | null;
+    actualReadiness?: Date | null;
+    expectedArrival?: Date | null;
+    actualArrival?: Date | null;
     boxes: Box[] | null;
-  }
+}
+
+export interface OrderRequest {
+  orderNumber: string;
+  supplierOrderNumber?: string;
+  expectedReadiness: Date;
+  actualReadiness?: Date;
+  expectedArrival?: Date;
+  actualArrival?: Date;
+  supplierId: number;
+  vesselId: number;
+  warehouseId: number;
+  orderStatus: string;
+  boxes?: Box[];
+}
+
   
   export interface Order {
     id: number;
@@ -38,6 +53,13 @@ export interface Box {
     id: number;
     name: string;
   }
+
+  export interface VesselOption {
+    id: number;
+    name: string;
+    owner: Owner;
+}
+
   
   export interface Vessel {
     id: number;

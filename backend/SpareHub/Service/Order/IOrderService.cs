@@ -10,4 +10,5 @@ public interface IOrderService
     Task UpdateOrder(int orderId, OrderRequest orderRequest);
     Task<List<string>?> GetAllOrderStatusesAsync();
     Task<OrderResponse> GetOrderById(int orderId);
+    void DeleteOrder(int orderId);
 }

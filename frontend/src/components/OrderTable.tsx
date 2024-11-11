@@ -9,6 +9,7 @@ import {
   Typography,
   Autocomplete,
   TextField,
+  Button,
   Chip,
 } from '@mui/material';
 import axios from 'axios';
@@ -93,7 +94,6 @@ const columns: GridColDef[] = [
   },
 ];
 
-// Main component
 const OrderTable: React.FC = () => {
   const [rows, setRows] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -249,45 +249,52 @@ const OrderTable: React.FC = () => {
 
   return (
     <div className="w-full">
-      <Autocomplete
-        multiple
-        freeSolo
-        options={suggestions}
-        value={searchTags}
-        onChange={(_, newValue) => {
-          setSearchTags(newValue);
-        }}
-        renderTags={(value: string[], getTagProps) =>
-          value.map((option: string, index: number) => {
-            const { key, ...restTagProps } = getTagProps({ index });
+      <div className="flex items-center space-x-2 mb-5">
+        <Autocomplete
+          multiple
+          freeSolo
+          options={suggestions}
+          value={searchTags}
+          onChange={(_, newValue) => {
+            setSearchTags(newValue);
+          }}
+          renderTags={(value: string[], getTagProps) =>
+            value.map((option: string, index: number) => {
+              const { key, ...restTagProps } = getTagProps({ index });
 
-            return (
-              <Chip
-                key={index}
-                variant="outlined"
-                label={option}
-                {...restTagProps}
-              />
-            );
-          })
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            inputRef={searchBoxRef}
-            autoFocus
-            variant="outlined"
-            label="Search Orders"
-            placeholder="Add a tag"
-          />
-        )}
-        style={{ marginBottom: '20px', width: '100%' }}
-      />
+              return (
+                <Chip
+                  key={index}
+                  variant="outlined"
+                  label={option}
+                  {...restTagProps}
+                />
+              );
+            })
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              inputRef={searchBoxRef}
+              autoFocus
+              variant="outlined"
+              label="Search Orders"
+              placeholder="Add a tag"
+            />
+          )}
+          style={{ width: "30vw" }}
+        />
+        <Button onClick={() => navigate(`/orders/new`)} variant="contained" color="primary" className="pr-5">
+          New Order
+        </Button>
+      </div>
+
       {selectedDataRowIds.size > 0 && (
         <div className="mt-5">
           <SummaryPanel selectedRows={selectedDataRowIds} allRows={rows} />
         </div>
       )}
+
       <DataGrid
         rows={groupedRows}
         columns={columns}

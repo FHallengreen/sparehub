@@ -212,4 +212,12 @@ public class OrderService(
                 Boxes = orderBoxes.FirstOrDefault()?.Boxes
             };
         }
-    }
+
+        public void DeleteOrder(int orderId)
+        {
+            var order = dbContext.Orders.Find(orderId) ?? throw new KeyNotFoundException("Order not found");
+
+            dbContext.Orders.Remove(order);
+            dbContext.SaveChanges();
+        }
+}

@@ -9,4 +9,5 @@ public class VesselResponse
 
     public DateTime? ArrivalDate { get; set; }
     public DateTime? DepartureDate { get; set; }
+    public OwnerResponse? Owner { get; set; }
 }
