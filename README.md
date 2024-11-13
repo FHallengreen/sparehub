@@ -41,7 +41,7 @@ MONGO_INITDB_ROOT_USERNAME=root
 MONGO_INITDB_ROOT_PASSWORD=example
 MONGO_INITDB_DATABASE=sparehub
 
-MONGODB_URI=mongodb://root:example@localhost:27017/sparehub
+MONGODB_URI=mongodb://root:example@mongodb-sparehub:27017
 
 ## Neo4j
 NEO4J_URL=bolt://neo4j:7687
@@ -57,12 +57,42 @@ NEO4J_PASSWORD=password
 
 2. **Build and run the containers** using Docker Compose:
 
-This script will also create user privileges for the MySQL database. Run the following commands in the project root directory:
 
+3. First execute following to create user privileges for the MySQL database:
+
+```
+./database/generate_user_privileges.sh
+```
+
+   4. Then to run docker compose up:
    ```
-   ./database/generate_user_privileges.sh
    docker compose up --build -d
    ```
+
+> [!NOTE]  
+> If Environment variables are not set and it shows and error, do following step:
+
+## ON MacOs/Linux:
+   ```
+   export MYSQL_DATABASE=XXXX
+   export MYSQL_USER=XXXX
+   export MYSQL_PASSWORD=XXXX
+
+
+   ./database/generate_user_privileges.sh
+   ```
+
+## ON Windows using Powershell:
+   > [!IMPORTANT]  
+   > If you are on Windows, the environment variables are not set, so run following:
+   ```
+   $env:MYSQL_DATABASE="XXXX"
+   $env:MYSQL_USER="XXXX"
+   $env:MYSQL_PASSWORD="XXXX"
+   ./database/generate_user_privileges.sh
+   ```
+
+
 
    This will start the following services:
    - **frontend**: Running on [http://localhost:5173](http://localhost:5173)
