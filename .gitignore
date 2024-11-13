@@ -1,2 +1,3 @@
 .env
 database/mysql/02-user_privileges.sql
+.DS_Store
