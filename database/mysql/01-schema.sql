@@ -403,7 +403,7 @@ ENGINE = InnoDB;
 -- Table `sparehub`.`box`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `sparehub`.`box` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+  `id` CHAR(36) NOT NULL,
   `length` INT NOT NULL,
   `width` INT NOT NULL,
   `height` INT NOT NULL,
@@ -416,7 +416,7 @@ ENGINE = InnoDB;
 -- Table `sparehub`.`box_has_order`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `sparehub`.`box_has_order` (
-  `box_id` INT NOT NULL,
+  `box_id` CHAR(36) NOT NULL,
   `order_id` INT NOT NULL,
   PRIMARY KEY (`box_id`, `order_id`),
   INDEX `fk_box_has_order_order1_idx` (`order_id` ASC) VISIBLE,
