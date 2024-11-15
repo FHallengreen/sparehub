@@ -115,8 +115,6 @@ const OrderDetailPage: React.FC = () => {
         setEditableBoxes((prev) => [...prev, true]);
     };
 
-
-
     const handleRemoveBox = async (id: number) => {
         if (!order || !order.boxes) {
             showSnackbar('Unable to remove box. Order or boxes not found.', 'error');
@@ -204,7 +202,6 @@ const OrderDetailPage: React.FC = () => {
             showSnackbar('Failed to save order.', 'error');
         }
     };
-
 
     React.useEffect(() => {
         if (debouncedVesselQuery.length >= 3) {
@@ -579,7 +576,11 @@ const OrderDetailPage: React.FC = () => {
                                 <IconButton onClick={() => toggleBoxEdit(index)} className="text-gray-600">
                                     <EditIcon color={editableBoxes[index] ? 'primary' : 'inherit'} />
                                 </IconButton>
-                                <IconButton onClick={() => handleRemoveBox(box.id)} className="text-gray-600">
+                                <IconButton onClick={() => {
+                                    if (box.id !== undefined) {
+                                        handleRemoveBox(box.id);
+                                    }
+                                }} className="text-gray-600">
                                     <DeleteIcon />
                                 </IconButton>
                             </div>
