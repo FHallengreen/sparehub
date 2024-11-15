@@ -112,7 +112,7 @@ const OrderTable: React.FC = () => {
 
   const fetchOrders = async (tags: string[] = []) => {
     try {
-      const response = await axios.get<Order[]>(`${import.meta.env.VITE_API_URL}/api/orders`, {
+      const response = await axios.get<Order[]>(`${import.meta.env.VITE_API_URL}/api/order`, {
         params: { searchTerms: tags },
         paramsSerializer: (params) => {
           return qs.stringify(params, { arrayFormat: 'repeat' });

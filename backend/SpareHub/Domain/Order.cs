@@ -1,12 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Domain;
 
 public class Order
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; init; }
-    public required string OrderNumber { get; set; }
+    public int Id { get; set; }
+    public string OrderNumber { get; set; } = null!;
     public string? SupplierOrderNumber { get; set; }
     public int SupplierId { get; set; }
     public int VesselId { get; set; }
@@ -17,9 +18,12 @@ public class Order
     public DateTime? ActualArrival { get; set; }
     public string OrderStatus { get; set; } = null!;
 
-    public Supplier Supplier { get; init; } = null!;
-    public Vessel Vessel { get; init; } = null!;
-    public Warehouse Warehouse { get; init; } = null!;
+    public Supplier Supplier { get; set; } = null!;
+    public Vessel Vessel { get; set; } = null!;
+    public Warehouse Warehouse { get; set; } = null!;
 
-    public ICollection<Dispatch> Dispatches { get; init; } = new List<Dispatch>();
+    [JsonIgnore]
+    public ICollection<Box> Boxes { get; set; } = new List<Box>();
+    [JsonIgnore]
+    public ICollection<Dispatch> Dispatches { get; set; } = new List<Dispatch>();
 }

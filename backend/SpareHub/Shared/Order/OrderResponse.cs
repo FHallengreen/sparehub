@@ -11,13 +11,11 @@ public class OrderResponse
     public DateTime? ActualReadiness { get; set; }
     public DateTime? ExpectedArrival { get; set; }
     public DateTime? ActualArrival { get; set; }
-    public required SupplierResponse Supplier { get; set; }
-    public required OwnerResponse Owner { get; set; }
-    public required VesselResponse Vessel { get; set; }
-    public required WarehouseResponse Warehouse { get; set; }
-    public required AgentResponse Agent { get; set; }
     public required string OrderStatus { get; set; }
-
+    public required SupplierResponse Supplier { get; set; }
+    public required VesselResponse Vessel { get; set; }
+    public required string Owner { get; set; }
+    public required WarehouseResponse Warehouse { get; set; }
+    public AgentResponse? Agent { get; set; }
     public List<Box>? Boxes { get; set; }
-    
 }

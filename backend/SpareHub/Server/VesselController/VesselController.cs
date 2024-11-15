@@ -5,7 +5,7 @@ using Shared;
 namespace Server;
 
 [ApiController]
-[Route("api/vessels")]
+[Route("api/vessel")]
 public class VesselController(IVesselService vesselService) : ControllerBase
 {
     [HttpGet]

@@ -10,17 +10,19 @@ public class WarehouseService(SpareHubDbContext dbContext) : IWarehouseService
     {
         return await dbContext.Warehouses
             .Where(w => string.IsNullOrEmpty(searchQuery) || w.Name.StartsWith(searchQuery))
-            .Include(w => w.Agent)
-            .Select(w => new WarehouseResponse
-            {
-                Id = w.Id,
-                Name = w.Name,
-                Agent = new AgentResponse
+            .Join(dbContext.Agents,
+                warehouse => warehouse.AgentId,
+                agent => agent.Id,
+                (warehouse, agent) => new WarehouseResponse
                 {
-                    Id = w.Agent.Id,
-                    Name = w.Agent.Name
-                }
-            })
+                    Id = warehouse.Id,
+                    Name = warehouse.Name,
+                    Agent = new AgentResponse
+                    {
+                        Id = agent.Id,
+                        Name = agent.Name
+                    }
+                })
             .ToListAsync();
     }
 }

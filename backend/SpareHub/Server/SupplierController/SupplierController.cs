@@ -4,7 +4,7 @@ using Service.Supplier;
 namespace Server.SupplierController;
 
 [ApiController]
-[Route("api/suppliers")]
+[Route("api/supplier")]
 public class SupplierController(ISupplierService supplierService) : ControllerBase
 {
     

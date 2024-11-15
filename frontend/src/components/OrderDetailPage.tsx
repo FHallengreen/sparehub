@@ -36,16 +36,18 @@ const OrderDetailPage: React.FC = () => {
     React.useEffect(() => {
         const fetchOrder = async () => {
             try {
-                const statusResponse = await axios.get<string[]>(`${import.meta.env.VITE_API_URL}/api/orders/statuses`);
+                const statusResponse = await axios.get<string[]>(`${import.meta.env.VITE_API_URL}/api/order/status`);
                 setStatuses(statusResponse.data);
 
                 if (!isNewOrder) {
-                    const orderResponse = await axios.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/orders/${id}`);
+                    const orderResponse = await axios.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/order/${id}`);
+
                     setOrder({
                         ...orderResponse.data,
                         boxes: orderResponse.data.boxes ?? []
                     });
                     setEditableBoxes(Array(orderResponse.data.boxes?.length ?? 0).fill(false));
+
                 } else {
                     setOrder({
                         id: 0,
@@ -61,8 +63,9 @@ const OrderDetailPage: React.FC = () => {
                         agent: { id: 0, name: '' },
                         owner: { id: 0, name: '' },
                         orderStatus: 'Pending',
-                        boxes: []
+                        boxes: [],
                     });
+
                     setEditableBoxes([]);
                 }
             } catch (error) {
@@ -76,8 +79,10 @@ const OrderDetailPage: React.FC = () => {
                 setLoading(false);
             }
         };
+
         fetchOrder();
     }, [id, isNewOrder]);
+
 
 
     const sanitizeInput = (value: string) => {
@@ -91,26 +96,47 @@ const OrderDetailPage: React.FC = () => {
     };
 
     const handleAddBox = () => {
-        const newBox: OrderBox = { length: 0, width: 0, height: 0, weight: 0 };
-        setOrder((prevOrder) => prevOrder ? { ...prevOrder, boxes: [...(prevOrder.boxes ?? []), newBox] } : null);
+        if (!order) return;
+
+        const newBox: OrderBox = {
+            boxId: 0,
+            length: 0,
+            width: 0,
+            height: 0,
+            weight: 0
+        };
+
+        setOrder((prevOrder) => {
+            if (!prevOrder) return null;
+            const updatedBoxes = [...(prevOrder.boxes ?? []), newBox];
+            return { ...prevOrder, boxes: updatedBoxes };
+        });
+
         setEditableBoxes((prev) => [...prev, true]);
     };
 
-    const handleBoxChange = (index: number, field: keyof OrderBox, value: number) => {
-        if (order) {
-            const updatedBoxes = [...(order.boxes ?? [])];
-            updatedBoxes[index] = { ...updatedBoxes[index], [field]: value };
-            setOrder({ ...order, boxes: updatedBoxes });
-        }
-    };
 
-    const handleRemoveBox = (index: number) => {
-        if (order) {
-            const updatedBoxes = [...(order.boxes ?? [])];
-            updatedBoxes.splice(index, 1);
-            setOrder({ ...order, boxes: updatedBoxes });
-            setEditableBoxes((prev) => prev.filter((_, i) => i !== index));
+
+    const handleRemoveBox = async (boxId: number) => {
+        if (!order || !order.boxes) {
+            showSnackbar('Unable to remove box. Order or boxes not found.', 'error');
+            return;
         }
+
+        if (boxId && boxId !== 0) {
+            try {
+                await axios.delete(`${import.meta.env.VITE_API_URL}/api/order/${order.id}/box/${boxId}`);
+                showSnackbar('Box deleted successfully!', 'success');
+            } catch (err) {
+                showSnackbar('Failed to delete box. Please try again.', 'error');
+                return;
+            }
+        }
+
+        const updatedBoxes = order.boxes.filter((box) => box.boxId !== boxId);
+        setOrder({ ...order, boxes: updatedBoxes });
+
+        setEditableBoxes((prev) => prev.slice(0, updatedBoxes.length));
     };
 
     const toggleBoxEdit = (index: number) => {
@@ -123,7 +149,7 @@ const OrderDetailPage: React.FC = () => {
 
     const deleteOrder = async (orderId: number) => {
         try {
-            await axios.delete(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}`);
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/order/${orderId}`);
             showSnackbar('Order deleted successfully!', 'success');
             navigate('/orders');
         } catch (err) {
@@ -141,42 +167,46 @@ const OrderDetailPage: React.FC = () => {
     };
 
     const handleSave = async () => {
-        if (order) {
-            const sanitizedOrder: OrderRequest = {
-                orderNumber: sanitizeInput(order.orderNumber),
-                supplierOrderNumber: sanitizeInput(order.supplierOrderNumber || ""),
-                expectedReadiness: order.expectedReadiness || new Date(),
-                actualReadiness: order.actualReadiness || undefined,
-                expectedArrival: order.expectedArrival || undefined,
-                actualArrival: order.actualArrival || undefined,
-                supplierId: order.supplier.id,
-                vesselId: order.vessel.id,
-                warehouseId: order.warehouse.id,
-                orderStatus: sanitizeInput(order.orderStatus),
-                boxes: order.boxes || []
-            };
+        if (!order) return;
 
-            try {
-                if (isNewOrder) {
-                    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, sanitizedOrder);
-                    const newOrderId = response.data.id;
-            
-                    navigate(`/orders/${newOrderId}`); 
-                    showSnackbar('Order created successfully!', 'success');
-                } else {
-                    await axios.put(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, sanitizedOrder);
-                    showSnackbar('Order updated successfully!', 'success');
-                    navigate(`/orders/${id}`);
-                }
-            } catch (err) {
-                showSnackbar('Failed to save order.', 'error');
+        const sanitizedOrder: OrderRequest = {
+            orderNumber: sanitizeInput(order.orderNumber),
+            supplierOrderNumber: sanitizeInput(order.supplierOrderNumber || ""),
+            expectedReadiness: order.expectedReadiness || new Date(),
+            actualReadiness: order.actualReadiness || undefined,
+            expectedArrival: order.expectedArrival || undefined,
+            actualArrival: order.actualArrival || undefined,
+            supplierId: order.supplier.id,
+            vesselId: order.vessel.id,
+            warehouseId: order.warehouse.id,
+            orderStatus: sanitizeInput(order.orderStatus),
+            boxes: order.boxes || [],
+        };
+
+        try {
+            if (isNewOrder) {
+                const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/order`, sanitizedOrder);
+                setOrder(response.data);
+                setEditableBoxes(Array(response.data.boxes?.length ?? 0).fill(false));
+                showSnackbar('Order created successfully!', 'success');
+            } else {
+                await axios.put(`${import.meta.env.VITE_API_URL}/api/order/${id}`, sanitizedOrder);
+
+                const response = await axios.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/order/${id}`);
+                setOrder(response.data);
+                setEditableBoxes(Array(response.data.boxes?.length ?? 0).fill(false));
+
+                showSnackbar('Order updated successfully!', 'success');
             }
+        } catch (err) {
+            showSnackbar('Failed to save order.', 'error');
         }
     };
 
+
     React.useEffect(() => {
         if (debouncedVesselQuery.length >= 3) {
-            axios.get<VesselOption[]>(`${import.meta.env.VITE_API_URL}/api/vessels`, {
+            axios.get<VesselOption[]>(`${import.meta.env.VITE_API_URL}/api/vessel`, {
                 params: { searchQuery: debouncedVesselQuery }
             })
                 .then(response => {
@@ -191,7 +221,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedSupplierQuery.length >= 3) {
-            axios.get<SupplierOption[]>(`${import.meta.env.VITE_API_URL}/api/suppliers`, {
+            axios.get<SupplierOption[]>(`${import.meta.env.VITE_API_URL}/api/supplier`, {
                 params: { searchQuery: debouncedSupplierQuery }
             }).then(response => {
                 setSupplierOptions(response.data);
@@ -203,7 +233,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedWarehouseQuery.length >= 3) {
-            axios.get<Warehouse[]>(`${import.meta.env.VITE_API_URL}/api/warehouses/search`, {
+            axios.get<Warehouse[]>(`${import.meta.env.VITE_API_URL}/api/warehouse/search`, {
                 params: { searchQuery: debouncedWarehouseQuery }
             }).then(response => {
                 setWarehouseOptions(response.data);
@@ -215,7 +245,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedAgentQuery.length >= 3) {
-            axios.get<Agent[]>(`${import.meta.env.VITE_API_URL}/api/agents/search`, {
+            axios.get<Agent[]>(`${import.meta.env.VITE_API_URL}/api/agent/search`, {
                 params: { searchQuery: debouncedAgentQuery }
             }).then(response => {
                 setAgentOptions(response.data);
@@ -398,15 +428,19 @@ const OrderDetailPage: React.FC = () => {
                                                                 warehouse: {
                                                                     id: option.id,
                                                                     name: option.name,
-                                                                    agent: {
-                                                                        id: option.agent.id,
-                                                                        name: option.agent.name
-                                                                    }
+                                                                    agent: option.agent
+                                                                        ? {
+                                                                            id: option.agent.id,
+                                                                            name: option.agent.name,
+                                                                        }
+                                                                        : null,
                                                                 },
-                                                                agent: {
-                                                                    id: option.agent.id,
-                                                                    name: option.agent.name
-                                                                }
+                                                                agent: option.agent
+                                                                    ? {
+                                                                        id: option.agent.id,
+                                                                        name: option.agent.name,
+                                                                    }
+                                                                    : null,
                                                             };
                                                         }
                                                         return prevOrder;
@@ -425,16 +459,13 @@ const OrderDetailPage: React.FC = () => {
 
                                 <TextField
                                     label="Agent Name"
-                                    value={order.agent.name}
+                                    value={order.agent?.name || ''}
                                     required
                                     className="w-full"
-                                    onChange={(e) => {
-                                        handleInputChange('agent', e.target.value);
-                                        setAgentQuery(e.target.value);
-                                    }}
-                                    onFocus={() => setAgentOptions([])}
+                                    onChange={(e) => handleInputChange('agent', e.target.value)}
                                     autoComplete="off"
                                 />
+
                                 {agentOptions.length > 0 && (
                                     <div className="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-12 max-h-40 overflow-y-auto z-50 w-1/3">
                                         {agentOptions.map((option) => (
@@ -452,7 +483,7 @@ const OrderDetailPage: React.FC = () => {
                                                     });
                                                     setAgentQuery('');
                                                     setAgentOptions([]);
-                                                }}                                                
+                                                }}
                                                 className="px-4 py-2 cursor-pointer hover:bg-blue-100"
                                             >
                                                 {option.name}
@@ -480,28 +511,85 @@ const OrderDetailPage: React.FC = () => {
                     </div>
                     <Typography variant="h6" className="text-xl font-semibold mt-6 mb-4 pb-5">Boxes</Typography>
 
-                    {order.boxes && order.boxes.map((box, index) => (
-                        <div key={index} className="grid grid-cols-11 gap-3 mb-4">
-                            <TextField label="Length" value={box.length} onChange={(e) => handleBoxChange(index, 'length', parseFloat(e.target.value))} disabled={!editableBoxes[index]} className="w-20" />
-                            <TextField label="Width" value={box.width} onChange={(e) => handleBoxChange(index, 'width', parseFloat(e.target.value))} disabled={!editableBoxes[index]} className="w-20" />
-                            <TextField label="Height" value={box.height} onChange={(e) => handleBoxChange(index, 'height', parseFloat(e.target.value))} disabled={!editableBoxes[index]} className="w-20" />
-                            <TextField label="Weight" value={box.weight} onChange={(e) => handleBoxChange(index, 'weight', parseFloat(e.target.value))} disabled={!editableBoxes[index]} className="w-24" />
-                            <div>
-                                <IconButton onClick={() => toggleBoxEdit(index)} className="text-gray-600">
-                                    <EditIcon color={editableBoxes[index] ? 'primary' : 'inherit'} />
-                                </IconButton>
-                                <IconButton onClick={() => handleRemoveBox(index)} className="text-gray-600">
-                                    <DeleteIcon />
-                                </IconButton>
+                    {order.boxes &&
+                        order.boxes.map((box, index) => (
+                            <div key={box.boxId} className="grid grid-cols-11 gap-3 mb-4">
+                                <TextField
+                                    label="Length"
+                                    value={box.length}
+                                    onChange={(e) =>
+                                        setOrder((prevOrder) => {
+                                            if (!prevOrder) return null;
+                                            const updatedBoxes = prevOrder.boxes?.map((b, i) =>
+                                                i === index ? { ...b, length: parseFloat(e.target.value) } : b
+                                            );
+                                            return { ...prevOrder, boxes: updatedBoxes ?? [] };
+                                        })
+                                    }
+                                    disabled={!editableBoxes[index]}
+                                    className="w-20"
+                                />
+                                <TextField
+                                    label="Width"
+                                    value={box.width}
+                                    onChange={(e) =>
+                                        setOrder((prevOrder) => {
+                                            if (!prevOrder) return null;
+                                            const updatedBoxes = prevOrder.boxes?.map((b, i) =>
+                                                i === index ? { ...b, width: parseFloat(e.target.value) } : b
+                                            );
+                                            return { ...prevOrder, boxes: updatedBoxes ?? [] };
+                                        })
+                                    }
+                                    disabled={!editableBoxes[index]}
+                                    className="w-20"
+                                />
+                                <TextField
+                                    label="Height"
+                                    value={box.height}
+                                    onChange={(e) =>
+                                        setOrder((prevOrder) => {
+                                            if (!prevOrder) return null;
+                                            const updatedBoxes = prevOrder.boxes?.map((b, i) =>
+                                                i === index ? { ...b, height: parseFloat(e.target.value) } : b
+                                            );
+                                            return { ...prevOrder, boxes: updatedBoxes ?? [] };
+                                        })
+                                    }
+                                    disabled={!editableBoxes[index]}
+                                    className="w-20"
+                                />
+                                <TextField
+                                    label="Weight"
+                                    value={box.weight}
+                                    onChange={(e) =>
+                                        setOrder((prevOrder) => {
+                                            if (!prevOrder) return null;
+                                            const updatedBoxes = prevOrder.boxes?.map((b, i) =>
+                                                i === index ? { ...b, weight: parseFloat(e.target.value) } : b
+                                            );
+                                            return { ...prevOrder, boxes: updatedBoxes ?? [] };
+                                        })
+                                    }
+                                    disabled={!editableBoxes[index]}
+                                    className="w-24"
+                                />
+                                <div>
+                                    <IconButton onClick={() => toggleBoxEdit(index)} className="text-gray-600">
+                                        <EditIcon color={editableBoxes[index] ? 'primary' : 'inherit'} />
+                                    </IconButton>
+                                    <IconButton onClick={() => handleRemoveBox(box.boxId)} className="text-gray-600">
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
 
                     <Button onClick={handleAddBox} variant="outlined" className="mt-4" disabled={!order?.id || order.id === 0}>Add Box</Button>
 
                     <div className="mt-8 gap-2 flex">
                         <Button onClick={handleSave} variant="contained" color="primary" className="mr-2 pr-5">Save</Button>
-                        <Button onClick={() => navigate('/orders')} variant="outlined">Cancel</Button>
+                        <Button onClick={() => navigate('/orders')} variant="outlined">Back</Button>
                     </div>
                 </>
             )

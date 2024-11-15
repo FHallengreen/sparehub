@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Domain;
 
@@ -12,5 +13,7 @@ public class Vessel
     public string? Flag { get; init; }
 
     public required Owner Owner { get; init; }
-    
+
+    [JsonIgnore]
+    public ICollection<VesselAtPort> VesselAtPorts { get; set; } = new List<VesselAtPort>();
 }

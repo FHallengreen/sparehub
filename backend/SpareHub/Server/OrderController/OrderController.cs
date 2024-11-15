@@ -1,20 +1,26 @@
 using Domain;
 using Microsoft.AspNetCore.Mvc;
-using Persistence;
 using Service;
 using Shared;
 
 namespace Server.OrderController;
 
 [ApiController]
-[Route("/api/orders")]
-public class OrderController(IOrderService orderService) : ControllerBase
+[Route("/api/order")]
+public class OrderController(IServiceProvider serviceProvider) : ControllerBase
 {
+    private IDatabaseFactory GetDatabaseFactory()
+    {
+        return serviceProvider.GetRequiredService<IDatabaseFactory>();
+    }
+
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OrderTableResponse>>> GetOrders([FromQuery] List<string>? searchTerms)
+    public async Task<ActionResult<IEnumerable<OrderTableResponse>>> GetOrders(
+        [FromQuery] List<string>? searchTerms)
     {
         try
         {
+            var orderService = GetDatabaseFactory().GetService<IOrderService>();
             var list = await orderService.GetOrders(searchTerms);
             return Ok(list);
         }
@@ -30,6 +36,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     {
         try
         {
+            var orderService = GetDatabaseFactory().GetService<IOrderService>();
             await orderService.UpdateOrder(orderId, orderRequest);
             return NoContent();
         }
@@ -40,12 +47,12 @@ public class OrderController(IOrderService orderService) : ControllerBase
         }
     }
 
-
-    [HttpGet("statuses")]
+    [HttpGet("status")]
     public async Task<ActionResult<OrderStatus>> GetOrderStatuses()
     {
         try
         {
+            var orderService = GetDatabaseFactory().GetService<IOrderService>();
             var statuses = await orderService.GetAllOrderStatusesAsync();
             return Ok(statuses);
         }
@@ -61,6 +68,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     {
         try
         {
+            var orderService = GetDatabaseFactory().GetService<IOrderService>();
             var order = await orderService.GetOrderById(orderId);
             return Ok(order);
         }
@@ -79,6 +87,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     {
         try
         {
+            var orderService = GetDatabaseFactory().GetService<IOrderService>();
             var createdOrder = await orderService.CreateOrder(orderTable);
 
             return CreatedAtAction(nameof(GetOrderById), new { orderId = createdOrder.Id }, createdOrder);
@@ -95,6 +104,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     {
         try
         {
+            var orderService = GetDatabaseFactory().GetService<IOrderService>();
             orderService.DeleteOrder(orderId);
             return Ok("Order deleted successfully");
         }
@@ -109,5 +119,4 @@ public class OrderController(IOrderService orderService) : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
-
 }

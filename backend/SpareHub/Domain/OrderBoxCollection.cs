@@ -6,7 +6,12 @@ namespace Domain;
 public class OrderBoxCollection
 {
         [BsonId]
-        public ObjectId Id { get; set; } 
-        public int OrderId { get; init; }
-        public List<Box> Boxes { get; set; } = [];
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+
+        [BsonElement("OrderId")]
+        public int OrderId { get; set; }
+
+        [BsonElement("Boxes")]
+        public List<Box> Boxes { get; set; }
 }

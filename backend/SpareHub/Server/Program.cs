@@ -29,14 +29,31 @@ builder.Configuration.AddUserSecrets<Program>();
 // Add memory caching
 builder.Services.AddMemoryCache();
 
-// Add OrderService
-builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IBoxService, BoxService>();
+builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("DatabaseSettings"));
+
+builder.Services.AddScoped<IDatabaseFactory, DatabaseFactory>();
+
 builder.Services.AddScoped<IPortVesselService, PortVesselService>();
 builder.Services.AddScoped<IVesselService, VesselService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
+
+
+// Register all specific services
+builder.Services.AddScoped<BoxMySqlService>();
+builder.Services.AddScoped<BoxMongoDbService>();
+builder.Services.AddScoped<OrderMySqlService>();
+
+// Register IBoxService and IOrderService with a placeholder default
+builder.Services.AddScoped<IBoxService>(sp => sp.GetRequiredService<BoxMySqlService>()); // Default fallback
+builder.Services.AddScoped<IOrderService>(sp => sp.GetRequiredService<OrderMySqlService>()); // Default fallback
+
+
+
+// builder.Services.AddScoped<OrderMongoDbService>(); // Uncomment once implemented
+// builder.Services.AddScoped<OrderNeo4jService>();
+
 
 // Configure the database connection string with SSL enabled
 var connectionString = string.Format("server={0};port={1};database={2};user={3};password={4};SslMode=Required",

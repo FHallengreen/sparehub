@@ -1,4 +1,5 @@
 export interface Box {
+  boxId: number; 
   length: number;
   width: number;
   height: number;
@@ -12,7 +13,7 @@ export interface OrderDetail {
   supplier: Supplier;
   vessel: Vessel;
   warehouse: Warehouse;
-  agent: Agent;
+  agent?: Agent | null;
   orderStatus: string;
   owner: Owner;
   expectedReadiness?: Date | null;
@@ -21,6 +22,7 @@ export interface OrderDetail {
   actualArrival?: Date | null;
   boxes: Box[] | null;
 }
+
 
 export interface OrderRequest {
   orderNumber: string;
@@ -74,7 +76,7 @@ export interface Vessel {
 export interface Warehouse {
   id: number;
   name: string;
-  agent: Agent;
+  agent?: Agent | null;
 }
 
 export interface Owner {

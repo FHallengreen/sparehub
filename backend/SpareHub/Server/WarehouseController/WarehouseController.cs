@@ -4,7 +4,7 @@ using Service.Warehouse;
 namespace Server.WarehouseController;
 
 [ApiController]
-[Route("api/warehouses")]
+[Route("api/warehouse")]
 public class WarehouseController(IWarehouseService warehouseService) : ControllerBase
 {
     
@@ -14,7 +14,7 @@ public class WarehouseController(IWarehouseService warehouseService) : Controlle
         try
         {
             var warehouses = await warehouseService.GetWarehousesBySearchQuery(searchQuery);
-        
+
             if (!warehouses.Any())
             {
                 return NotFound("No warehouses found matching the search criteria.");
