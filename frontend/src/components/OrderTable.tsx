@@ -125,8 +125,8 @@ const OrderTable: React.FC = () => {
         vessel: order.vesselName,
         supplier: order.supplierName,
         poNumber: order.orderNumber,
-        pieces: order.boxes ?? null,
-        weight: order.totalWeight ?? null,
+        pieces: order.boxes && order.boxes > 0 ? order.boxes : null, 
+      weight: order.totalWeight && order.totalWeight > 0 ? order.totalWeight : null,
         stockLocation: order.warehouseName,
         status: order.orderStatus,
       }));

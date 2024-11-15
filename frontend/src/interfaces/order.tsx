@@ -1,5 +1,5 @@
 export interface Box {
-  boxId: number; 
+  id: number; 
   length: number;
   width: number;
   height: number;

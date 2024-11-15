@@ -49,9 +49,6 @@ builder.Services.AddScoped<OrderMySqlService>();
 builder.Services.AddScoped<IBoxService>(sp => sp.GetRequiredService<BoxMySqlService>()); // Default fallback
 builder.Services.AddScoped<IOrderService>(sp => sp.GetRequiredService<OrderMySqlService>()); // Default fallback
 
-
-
-// builder.Services.AddScoped<OrderMongoDbService>(); // Uncomment once implemented
 // builder.Services.AddScoped<OrderNeo4jService>();
 
 

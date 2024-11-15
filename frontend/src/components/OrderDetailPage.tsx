@@ -99,7 +99,7 @@ const OrderDetailPage: React.FC = () => {
         if (!order) return;
 
         const newBox: OrderBox = {
-            boxId: 0,
+            id: 0,
             length: 0,
             width: 0,
             height: 0,
@@ -117,15 +117,17 @@ const OrderDetailPage: React.FC = () => {
 
 
 
-    const handleRemoveBox = async (boxId: number) => {
+    const handleRemoveBox = async (id: number) => {
         if (!order || !order.boxes) {
             showSnackbar('Unable to remove box. Order or boxes not found.', 'error');
             return;
         }
 
-        if (boxId && boxId !== 0) {
+        console.log('Deleting box with ID:', id);
+
+        if (id && id !== 0) {
             try {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/api/order/${order.id}/box/${boxId}`);
+                await axios.delete(`${import.meta.env.VITE_API_URL}/api/order/${order.id}/box/${id}`);
                 showSnackbar('Box deleted successfully!', 'success');
             } catch (err) {
                 showSnackbar('Failed to delete box. Please try again.', 'error');
@@ -133,7 +135,7 @@ const OrderDetailPage: React.FC = () => {
             }
         }
 
-        const updatedBoxes = order.boxes.filter((box) => box.boxId !== boxId);
+        const updatedBoxes = order.boxes.filter((box) => box.id !== id);
         setOrder({ ...order, boxes: updatedBoxes });
 
         setEditableBoxes((prev) => prev.slice(0, updatedBoxes.length));
@@ -511,79 +513,78 @@ const OrderDetailPage: React.FC = () => {
                     </div>
                     <Typography variant="h6" className="text-xl font-semibold mt-6 mb-4 pb-5">Boxes</Typography>
 
-                    {order.boxes &&
-                        order.boxes.map((box, index) => (
-                            <div key={box.boxId} className="grid grid-cols-11 gap-3 mb-4">
-                                <TextField
-                                    label="Length"
-                                    value={box.length}
-                                    onChange={(e) =>
-                                        setOrder((prevOrder) => {
-                                            if (!prevOrder) return null;
-                                            const updatedBoxes = prevOrder.boxes?.map((b, i) =>
-                                                i === index ? { ...b, length: parseFloat(e.target.value) } : b
-                                            );
-                                            return { ...prevOrder, boxes: updatedBoxes ?? [] };
-                                        })
-                                    }
-                                    disabled={!editableBoxes[index]}
-                                    className="w-20"
-                                />
-                                <TextField
-                                    label="Width"
-                                    value={box.width}
-                                    onChange={(e) =>
-                                        setOrder((prevOrder) => {
-                                            if (!prevOrder) return null;
-                                            const updatedBoxes = prevOrder.boxes?.map((b, i) =>
-                                                i === index ? { ...b, width: parseFloat(e.target.value) } : b
-                                            );
-                                            return { ...prevOrder, boxes: updatedBoxes ?? [] };
-                                        })
-                                    }
-                                    disabled={!editableBoxes[index]}
-                                    className="w-20"
-                                />
-                                <TextField
-                                    label="Height"
-                                    value={box.height}
-                                    onChange={(e) =>
-                                        setOrder((prevOrder) => {
-                                            if (!prevOrder) return null;
-                                            const updatedBoxes = prevOrder.boxes?.map((b, i) =>
-                                                i === index ? { ...b, height: parseFloat(e.target.value) } : b
-                                            );
-                                            return { ...prevOrder, boxes: updatedBoxes ?? [] };
-                                        })
-                                    }
-                                    disabled={!editableBoxes[index]}
-                                    className="w-20"
-                                />
-                                <TextField
-                                    label="Weight"
-                                    value={box.weight}
-                                    onChange={(e) =>
-                                        setOrder((prevOrder) => {
-                                            if (!prevOrder) return null;
-                                            const updatedBoxes = prevOrder.boxes?.map((b, i) =>
-                                                i === index ? { ...b, weight: parseFloat(e.target.value) } : b
-                                            );
-                                            return { ...prevOrder, boxes: updatedBoxes ?? [] };
-                                        })
-                                    }
-                                    disabled={!editableBoxes[index]}
-                                    className="w-24"
-                                />
-                                <div>
-                                    <IconButton onClick={() => toggleBoxEdit(index)} className="text-gray-600">
-                                        <EditIcon color={editableBoxes[index] ? 'primary' : 'inherit'} />
-                                    </IconButton>
-                                    <IconButton onClick={() => handleRemoveBox(box.boxId)} className="text-gray-600">
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </div>
+                    {order.boxes && order.boxes.map((box, index) => (
+                        <div key={`${box.id}-${index}`} className="grid grid-cols-11 gap-3 mb-4">
+                            <TextField
+                                label="Length"
+                                value={box.length}
+                                onChange={(e) =>
+                                    setOrder((prevOrder) => {
+                                        if (!prevOrder) return null;
+                                        const updatedBoxes = prevOrder.boxes?.map((b, i) =>
+                                            i === index ? { ...b, length: parseFloat(e.target.value) } : b
+                                        );
+                                        return { ...prevOrder, boxes: updatedBoxes ?? [] };
+                                    })
+                                }
+                                disabled={!editableBoxes[index]}
+                                className="w-20"
+                            />
+                            <TextField
+                                label="Width"
+                                value={box.width}
+                                onChange={(e) =>
+                                    setOrder((prevOrder) => {
+                                        if (!prevOrder) return null;
+                                        const updatedBoxes = prevOrder.boxes?.map((b, i) =>
+                                            i === index ? { ...b, width: parseFloat(e.target.value) } : b
+                                        );
+                                        return { ...prevOrder, boxes: updatedBoxes ?? [] };
+                                    })
+                                }
+                                disabled={!editableBoxes[index]}
+                                className="w-20"
+                            />
+                            <TextField
+                                label="Height"
+                                value={box.height}
+                                onChange={(e) =>
+                                    setOrder((prevOrder) => {
+                                        if (!prevOrder) return null;
+                                        const updatedBoxes = prevOrder.boxes?.map((b, i) =>
+                                            i === index ? { ...b, height: parseFloat(e.target.value) } : b
+                                        );
+                                        return { ...prevOrder, boxes: updatedBoxes ?? [] };
+                                    })
+                                }
+                                disabled={!editableBoxes[index]}
+                                className="w-20"
+                            />
+                            <TextField
+                                label="Weight"
+                                value={box.weight}
+                                onChange={(e) =>
+                                    setOrder((prevOrder) => {
+                                        if (!prevOrder) return null;
+                                        const updatedBoxes = prevOrder.boxes?.map((b, i) =>
+                                            i === index ? { ...b, weight: parseFloat(e.target.value) } : b
+                                        );
+                                        return { ...prevOrder, boxes: updatedBoxes ?? [] };
+                                    })
+                                }
+                                disabled={!editableBoxes[index]}
+                                className="w-24"
+                            />
+                            <div>
+                                <IconButton onClick={() => toggleBoxEdit(index)} className="text-gray-600">
+                                    <EditIcon color={editableBoxes[index] ? 'primary' : 'inherit'} />
+                                </IconButton>
+                                <IconButton onClick={() => handleRemoveBox(box.id)} className="text-gray-600">
+                                    <DeleteIcon />
+                                </IconButton>
                             </div>
-                        ))}
+                        </div>
+                    ))}
 
                     <Button onClick={handleAddBox} variant="outlined" className="mt-4" disabled={!order?.id || order.id === 0}>Add Box</Button>
 

@@ -38,7 +38,6 @@ public class BoxMongoDbService(IMongoCollection<OrderBoxCollection> collection) 
         return newBox;
     }
 
-
     public async Task<List<OrderBoxCollection>> GetBoxes(int orderId)
     {
         var boxes = await collection.Find(o => Equals(o.OrderId, orderId)).ToListAsync();

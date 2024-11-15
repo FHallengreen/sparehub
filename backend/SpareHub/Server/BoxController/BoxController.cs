@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Service;
 using Shared;
 
+namespace Server.BoxController;
+
 [ApiController]
 [Route("api/order/{orderId:int}/box")]
 public class BoxController(IBoxService boxService) : ControllerBase

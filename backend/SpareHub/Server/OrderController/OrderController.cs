@@ -100,7 +100,7 @@ public class OrderController(IServiceProvider serviceProvider) : ControllerBase
     }
 
     [HttpDelete("{orderId:int}")]
-    public IActionResult DeleteOrder(int orderId)
+    public ActionResult DeleteOrder(int orderId)
     {
         try
         {
