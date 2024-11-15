@@ -1,12 +1,11 @@
-﻿using Domain;
-using Shared;
+﻿using Shared;
 
-namespace Service;
+namespace Service.Order;
 
 public interface IOrderService
 {
     Task<IEnumerable<OrderTableResponse>> GetOrders(List<string>? search);
-    Task<Order> CreateOrder(OrderRequest orderTableRequest);
+    Task<Domain.Order> CreateOrder(OrderRequest orderTableRequest);
     Task UpdateOrder(int orderId, OrderRequest orderRequest);
     Task<List<string>?> GetAllOrderStatusesAsync();
     Task<OrderResponse> GetOrderById(int orderId);

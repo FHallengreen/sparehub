@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Service;
 using Shared;
+using Shared.Order;
 
 namespace Server.BoxController;
 
@@ -31,7 +32,7 @@ public class BoxController(IBoxService boxService) : ControllerBase
     }
 
     [HttpDelete("{boxIndex}")]
-    public async Task<IActionResult> DeleteBox(int orderId, int boxIndex)
+    public async Task<IActionResult> DeleteBox(int orderId, Guid boxIndex)
     {
         try
         {

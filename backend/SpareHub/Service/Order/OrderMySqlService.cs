@@ -1,10 +1,10 @@
-namespace Service;
-
-using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Persistence;
 using Shared;
+using Shared.Order;
+
+namespace Service.Order;
 
 public class OrderMySqlService(
     SpareHubDbContext dbContext,
@@ -71,9 +71,9 @@ public class OrderMySqlService(
             o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
     }
 
-    public async Task<Order> CreateOrder(OrderRequest orderTableRequest)
+    public async Task<Domain.Order> CreateOrder(OrderRequest orderTableRequest)
     {
-        var order = new Order
+        var order = new Domain.Order
         {
             OrderNumber = orderTableRequest.OrderNumber,
             SupplierOrderNumber = orderTableRequest.SupplierOrderNumber,

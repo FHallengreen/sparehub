@@ -7,6 +7,7 @@ using Persistence;
 using Server;
 using Service;
 using Service.Agent;
+using Service.Order;
 using Service.Supplier;
 using Service.Warehouse;
 

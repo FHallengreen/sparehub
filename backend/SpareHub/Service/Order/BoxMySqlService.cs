@@ -1,16 +1,14 @@
-﻿namespace Service;
-
-using Domain;
-using Persistence;
-using Shared;
-using System.Linq;
+﻿using Domain;
 using Microsoft.EntityFrameworkCore;
+using Persistence;
+using Shared.Order;
+
+namespace Service.Order;
 
 public class BoxMySqlService(SpareHubDbContext dbContext) : IBoxService
 {
     public async Task<Box> CreateBox(BoxRequest boxRequest, int orderId)
     {
-        // Check if the order exists
         var order = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
 
         if (order == null)
@@ -18,21 +16,21 @@ public class BoxMySqlService(SpareHubDbContext dbContext) : IBoxService
             throw new Exception($"Order with ID {orderId} not found.");
         }
 
-        // Create a new box
         var newBox = new Box
         {
+            Id = boxRequest.BoxId == Guid.Empty
+                ? Guid.NewGuid()
+                : boxRequest.BoxId,
             Length = boxRequest.Length,
             Width = boxRequest.Width,
             Height = boxRequest.Height,
             Weight = boxRequest.Weight
         };
 
-        // Add the box to the database
         dbContext.Boxes.Add(newBox);
         await dbContext.SaveChangesAsync();
 
-        // Add the box to the order using the join table
-        dbContext.Entry(order).Collection(o => o.Boxes).Load(); // Load the navigation property
+        dbContext.Entry(order).Collection(o => o.Boxes).Load();
         order.Boxes.Add(newBox);
         await dbContext.SaveChangesAsync();
 
@@ -41,9 +39,8 @@ public class BoxMySqlService(SpareHubDbContext dbContext) : IBoxService
 
     public async Task<List<OrderBoxCollection>> GetBoxes(int orderId)
     {
-        // Load boxes for the specified order via the join table
         var order = await dbContext.Orders
-            .Include(o => o.Boxes) // Load boxes via navigation property
+            .Include(o => o.Boxes)
             .FirstOrDefaultAsync(o => o.Id == orderId);
 
         if (order == null)
@@ -79,6 +76,9 @@ public class BoxMySqlService(SpareHubDbContext dbContext) : IBoxService
         {
             var newBox = new Box
             {
+                Id = boxRequest.BoxId == Guid.Empty
+                    ? Guid.NewGuid()
+                    : boxRequest.BoxId, // Generate new GUID if BoxId is empty
                 Length = boxRequest.Length,
                 Width = boxRequest.Width,
                 Height = boxRequest.Height,
@@ -92,7 +92,7 @@ public class BoxMySqlService(SpareHubDbContext dbContext) : IBoxService
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteBox(int orderId, int boxId)
+    public async Task DeleteBox(int orderId, Guid boxId)
     {
         var order = await dbContext.Orders.Include(o => o.Boxes).FirstOrDefaultAsync(o => o.Id == orderId);
 

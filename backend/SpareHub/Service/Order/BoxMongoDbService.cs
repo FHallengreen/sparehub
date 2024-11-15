@@ -1,6 +1,7 @@
 using Domain;
 using MongoDB.Driver;
 using Shared;
+using Shared.Order;
 
 namespace Service;
 
@@ -12,7 +13,7 @@ public class BoxMongoDbService(IMongoCollection<OrderBoxCollection> collection) 
 
         var newBox = new Box
         {
-            Id = new Random().Next(1, int.MaxValue),
+            Id = boxRequest.BoxId == Guid.Empty ? Guid.NewGuid() : boxRequest.BoxId, // Generate GUID if empty
             Length = boxRequest.Length,
             Width = boxRequest.Width,
             Height = boxRequest.Height,
@@ -40,94 +41,83 @@ public class BoxMongoDbService(IMongoCollection<OrderBoxCollection> collection) 
 
     public async Task<List<OrderBoxCollection>> GetBoxes(int orderId)
     {
-        var boxes = await collection.Find(o => Equals(o.OrderId, orderId)).ToListAsync();
+        var boxes = await collection.Find(o => o.OrderId == orderId).ToListAsync();
         return boxes;
     }
 
-public async Task UpdateOrderBoxes(int orderId, List<BoxRequest> boxRequests)
-{
-    var existingOrderBoxes = await collection.Find(b => b.OrderId == orderId).FirstOrDefaultAsync();
-
-    if (existingOrderBoxes != null)
+    public async Task UpdateOrderBoxes(int orderId, List<BoxRequest> boxRequests)
     {
-        var updatedBoxes = new List<Box>();
+        var existingOrderBoxes = await collection.Find(b => b.OrderId == orderId).FirstOrDefaultAsync();
 
-        foreach (var boxRequest in boxRequests)
+        if (existingOrderBoxes != null)
         {
-            if (boxRequest.BoxId == 0)
+            var updatedBoxes = new List<Box>();
+
+            foreach (var boxRequest in boxRequests)
             {
-                int newBoxId = GenerateNewBoxId(existingOrderBoxes.Boxes);
-                var newBox = new Box
+                if (boxRequest.BoxId == Guid.Empty)
                 {
-                    Id = newBoxId,
-                    Length = boxRequest.Length,
-                    Width = boxRequest.Width,
-                    Height = boxRequest.Height,
-                    Weight = boxRequest.Weight
-                };
-                updatedBoxes.Add(newBox);
-            }
-            else
-            {
-                var existingBox = existingOrderBoxes.Boxes.FirstOrDefault(b => b.Id == boxRequest.BoxId);
-                if (existingBox != null)
-                {
-                    existingBox.Length = boxRequest.Length;
-                    existingBox.Width = boxRequest.Width;
-                    existingBox.Height = boxRequest.Height;
-                    existingBox.Weight = boxRequest.Weight;
-                    updatedBoxes.Add(existingBox);
-                }
-                else
-                {
-                    updatedBoxes.Add(new Box
+                    var newBox = new Box
                     {
-                        Id = boxRequest.BoxId,
+                        Id = Guid.NewGuid(),
                         Length = boxRequest.Length,
                         Width = boxRequest.Width,
                         Height = boxRequest.Height,
                         Weight = boxRequest.Weight
-                    });
+                    };
+                    updatedBoxes.Add(newBox);
+                }
+                else
+                {
+                    var existingBox = existingOrderBoxes.Boxes.FirstOrDefault(b => b.Id == boxRequest.BoxId);
+                    if (existingBox != null)
+                    {
+                        existingBox.Length = boxRequest.Length;
+                        existingBox.Width = boxRequest.Width;
+                        existingBox.Height = boxRequest.Height;
+                        existingBox.Weight = boxRequest.Weight;
+                        updatedBoxes.Add(existingBox);
+                    }
+                    else
+                    {
+                        updatedBoxes.Add(new Box
+                        {
+                            Id = boxRequest.BoxId,
+                            Length = boxRequest.Length,
+                            Width = boxRequest.Width,
+                            Height = boxRequest.Height,
+                            Weight = boxRequest.Weight
+                        });
+                    }
                 }
             }
+
+            existingOrderBoxes.Boxes = updatedBoxes;
+
+            await collection.ReplaceOneAsync(b => b.OrderId == orderId, existingOrderBoxes);
         }
-
-        existingOrderBoxes.Boxes = updatedBoxes;
-
-        await collection.ReplaceOneAsync(b => b.OrderId == orderId, existingOrderBoxes);
-    }
-    else
-    {
-        var boxesToAdd = boxRequests.Select(boxRequest => new Box
+        else
         {
-            Id = boxRequest.BoxId == 0 ? 1 : boxRequest.BoxId,
-            Length = boxRequest.Length,
-            Width = boxRequest.Width,
-            Height = boxRequest.Height,
-            Weight = boxRequest.Weight
-        }).ToList();
+            var boxesToAdd = boxRequests.Select(boxRequest => new Box
+            {
+                Id = boxRequest.BoxId == Guid.Empty
+                    ? Guid.NewGuid()
+                    : boxRequest.BoxId,
+                Length = boxRequest.Length,
+                Width = boxRequest.Width,
+                Height = boxRequest.Height,
+                Weight = boxRequest.Weight
+            }).ToList();
 
-        await collection.InsertOneAsync(new OrderBoxCollection
-        {
-            OrderId = orderId,
-            Boxes = boxesToAdd
-        });
+            await collection.InsertOneAsync(new OrderBoxCollection
+            {
+                OrderId = orderId,
+                Boxes = boxesToAdd
+            });
+        }
     }
-}
 
-
-private int GenerateNewBoxId(List<Box> existingBoxes)
-{
-    if (existingBoxes == null || !existingBoxes.Any())
-        return 1;
-    else
-        return existingBoxes.Max(b => b.Id) + 1;
-}
-
-
-
-
-    public async Task DeleteBox(int orderId, int boxId)
+    public async Task DeleteBox(int orderId, Guid boxId)
     {
         var orderBox = await collection.Find(o => o.OrderId == orderId).FirstOrDefaultAsync();
 

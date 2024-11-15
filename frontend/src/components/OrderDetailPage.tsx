@@ -99,7 +99,7 @@ const OrderDetailPage: React.FC = () => {
         if (!order) return;
 
         const newBox: OrderBox = {
-            id: 0,
+            id: undefined,
             length: 0,
             width: 0,
             height: 0,

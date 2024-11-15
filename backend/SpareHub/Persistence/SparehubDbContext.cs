@@ -29,85 +29,86 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Order>(entity =>
-{
-    entity.ToTable("order");
+        {
+            entity.ToTable("order");
+            entity.HasKey(e => e.Id);
 
-    entity.HasKey(e => e.Id);
-    entity.Property(e => e.Id)
-        .HasColumnName("id")
-        .ValueGeneratedOnAdd();
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("INT")
+                .ValueGeneratedOnAdd();
 
-    entity.Property(e => e.OrderNumber)
-        .HasMaxLength(45)
-        .HasColumnName("order_number")
-        .IsRequired();
+            entity.Property(e => e.OrderNumber)
+                .HasMaxLength(45)
+                .HasColumnName("order_number")
+                .IsRequired();
 
-    entity.Property(e => e.SupplierOrderNumber)
-        .HasMaxLength(45)
-        .HasColumnName("supplier_order_number");
+            entity.Property(e => e.SupplierOrderNumber)
+                .HasMaxLength(45)
+                .HasColumnName("supplier_order_number");
 
-    entity.Property(e => e.SupplierId).HasColumnName("supplier_id");
-    entity.Property(e => e.VesselId).HasColumnName("vessel_id");
-    entity.Property(e => e.WarehouseId).HasColumnName("warehouse_id");
-    entity.Property(e => e.ExpectedReadiness).HasColumnName("expected_readiness");
-    entity.Property(e => e.ActualReadiness).HasColumnName("actual_readiness");
-    entity.Property(e => e.ExpectedArrival).HasColumnName("expected_arrival");
-    entity.Property(e => e.ActualArrival).HasColumnName("actual_arrival");
-    entity.Property(e => e.OrderStatus)
-        .HasColumnName("order_status")
-        .IsRequired();
+            entity.Property(e => e.SupplierId).HasColumnName("supplier_id");
+            entity.Property(e => e.VesselId).HasColumnName("vessel_id");
+            entity.Property(e => e.WarehouseId).HasColumnName("warehouse_id");
+            entity.Property(e => e.ExpectedReadiness).HasColumnName("expected_readiness");
+            entity.Property(e => e.ActualReadiness).HasColumnName("actual_readiness");
+            entity.Property(e => e.ExpectedArrival).HasColumnName("expected_arrival");
+            entity.Property(e => e.ActualArrival).HasColumnName("actual_arrival");
+            entity.Property(e => e.OrderStatus)
+                .HasColumnName("order_status")
+                .IsRequired();
 
-    // Foreign Key Constraints
-    entity.HasOne(e => e.Supplier)
-        .WithMany()
-        .HasForeignKey(e => e.SupplierId)
-        .HasConstraintName("fk_Order_Supplier")
-        .OnDelete(DeleteBehavior.NoAction);
+            // Foreign Key Constraints (adjusting to GUID)
+            entity.HasOne(e => e.Supplier)
+                .WithMany()
+                .HasForeignKey(e => e.SupplierId)
+                .HasConstraintName("fk_Order_Supplier")
+                .OnDelete(DeleteBehavior.NoAction);
 
-    entity.HasOne(e => e.Vessel)
-        .WithMany()
-        .HasForeignKey(e => e.VesselId)
-        .HasConstraintName("fk_Order_Vessel1")
-        .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(e => e.Vessel)
+                .WithMany()
+                .HasForeignKey(e => e.VesselId)
+                .HasConstraintName("fk_Order_Vessel1")
+                .OnDelete(DeleteBehavior.NoAction);
 
-    entity.HasOne(e => e.Warehouse)
-        .WithMany()
-        .HasForeignKey(e => e.WarehouseId)
-        .HasConstraintName("fk_Order_Warehouse1")
-        .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(e => e.Warehouse)
+                .WithMany()
+                .HasForeignKey(e => e.WarehouseId)
+                .HasConstraintName("fk_Order_Warehouse1")
+                .OnDelete(DeleteBehavior.NoAction);
 
-    entity.HasOne<OrderStatus>()
-        .WithMany()
-        .HasForeignKey(e => e.OrderStatus)
-        .HasConstraintName("fk_order_order_status1")
-        .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne<OrderStatus>()
+                .WithMany()
+                .HasForeignKey(e => e.OrderStatus)
+                .HasConstraintName("fk_order_order_status1")
+                .OnDelete(DeleteBehavior.NoAction);
 
-    // Configure many-to-many relationship with Box
-    entity.HasMany(o => o.Boxes)
-        .WithMany(b => b.Orders)
-        .UsingEntity<Dictionary<string, object>>(
-            "box_has_order",
-            j => j.HasOne<Box>().WithMany().HasForeignKey("box_id"),
-            j => j.HasOne<Order>().WithMany().HasForeignKey("order_id"),
-            j =>
-            {
-                j.ToTable("box_has_order");
-                j.HasKey("box_id", "order_id");
-            });
+            // Configure many-to-many relationship with Box
+            entity.HasMany(o => o.Boxes)
+                .WithMany(b => b.Orders)
+                .UsingEntity<Dictionary<string, object>>(
+                    "box_has_order",
+                    j => j.HasOne<Box>().WithMany().HasForeignKey("box_id"),
+                    j => j.HasOne<Order>().WithMany().HasForeignKey("order_id"),
+                    j =>
+                    {
+                        j.ToTable("box_has_order");
+                        j.HasKey("box_id", "order_id");
+                    });
 
-    // Configure many-to-many relationship with Dispatch
-    entity.HasMany(o => o.Dispatches)
-        .WithMany(d => d.Orders)
-        .UsingEntity<Dictionary<string, object>>(
-            "dispatch_has_order",
-            j => j.HasOne<Dispatch>().WithMany().HasForeignKey("dispatch_id"),
-            j => j.HasOne<Order>().WithMany().HasForeignKey("order_id"),
-            j =>
-            {
-                j.ToTable("dispatch_has_order");
-                j.HasKey("dispatch_id", "order_id");
-            });
-});
+            // Configure many-to-many relationship with Dispatch
+            entity.HasMany(o => o.Dispatches)
+                .WithMany(d => d.Orders)
+                .UsingEntity<Dictionary<string, object>>(
+                    "dispatch_has_order",
+                    j => j.HasOne<Dispatch>().WithMany().HasForeignKey("dispatch_id"),
+                    j => j.HasOne<Order>().WithMany().HasForeignKey("order_id"),
+                    j =>
+                    {
+                        j.ToTable("dispatch_has_order");
+                        j.HasKey("dispatch_id", "order_id");
+                    });
+        });
 
 
         modelBuilder.Entity<Box>(entity =>
@@ -115,11 +116,26 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.ToTable("box");
 
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
-            entity.Property(e => e.Length).HasColumnName("length").IsRequired();
-            entity.Property(e => e.Width).HasColumnName("width").IsRequired();
-            entity.Property(e => e.Height).HasColumnName("height").IsRequired();
-            entity.Property(e => e.Weight).HasColumnName("weight").IsRequired();
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("CHAR(36)") // Use CHAR(36) for GUID storage
+                .ValueGeneratedOnAdd(); // Ensure the GUID is generated by the database
+
+            entity.Property(e => e.Length)
+                .HasColumnName("length")
+                .IsRequired();
+
+            entity.Property(e => e.Width)
+                .HasColumnName("width")
+                .IsRequired();
+
+            entity.Property(e => e.Height)
+                .HasColumnName("height")
+                .IsRequired();
+
+            entity.Property(e => e.Weight)
+                .HasColumnName("weight")
+                .IsRequired();
         });
 
 
@@ -208,17 +224,6 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 
-        // Box Configuration
-        modelBuilder.Entity<Box>(entity =>
-        {
-            entity.ToTable("box");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Length).HasColumnName("length").IsRequired();
-            entity.Property(e => e.Width).HasColumnName("width").IsRequired();
-            entity.Property(e => e.Height).HasColumnName("height").IsRequired();
-            entity.Property(e => e.Weight).HasColumnName("weight").IsRequired();
-        });
-
         modelBuilder.Entity<OrderStatus>(entity =>
         {
             entity.ToTable("order_status");
@@ -231,7 +236,6 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .IsRequired();
         });
 
-        // Dispatch Configuration
         // Dispatch Configuration
         modelBuilder.Entity<Dispatch>(entity =>
         {
@@ -414,7 +418,6 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasForeignKey(e => e.AgentId)
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("fk_Warehouse_Agent1");
-
         });
 
         // DispatchStatus Configuration

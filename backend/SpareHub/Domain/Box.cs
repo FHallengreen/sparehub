@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Domain;
@@ -6,8 +7,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 public class Box
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public Guid Id { get; set; }
 
     public int Length { get; set; }
     public int Width { get; set; }
