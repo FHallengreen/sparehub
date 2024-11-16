@@ -58,14 +58,11 @@ const OrderDetailPage: React.FC = () => {
                         expectedArrival: undefined,
                         actualArrival: undefined,
                         supplier: { id: 0, name: '' },
-                        vessel: { id: 0, name: '' },
+                        vessel: { id: 0, name: '', owner: { id: 0, name: '' } },
                         warehouse: { id: 0, name: '', agent: { id: 0, name: '' } },
-                        agent: { id: 0, name: '' },
-                        owner: { id: 0, name: '' },
                         orderStatus: 'Pending',
                         boxes: [],
                     });
-
                     setEditableBoxes([]);
                 }
             } catch (error) {
@@ -186,7 +183,7 @@ const OrderDetailPage: React.FC = () => {
                 width: box.width,
                 height: box.height,
                 weight: box.weight,
-            })) || [],            
+            })) || [],
         };
 
         try {
@@ -208,6 +205,7 @@ const OrderDetailPage: React.FC = () => {
             showSnackbar('Failed to save order.', 'error');
         }
     };
+
 
     React.useEffect(() => {
         if (debouncedVesselQuery.length >= 3) {
@@ -318,8 +316,11 @@ const OrderDetailPage: React.FC = () => {
                                                         if (prevOrder) {
                                                             return {
                                                                 ...prevOrder,
-                                                                vessel: { id: option.id, name: option.name },
-                                                                owner: { id: option.owner.id, name: option.owner.name }
+                                                                vessel: {
+                                                                    id: option.id,
+                                                                    name: option.name,
+                                                                    owner: option.owner,
+                                                                },
                                                             };
                                                         } else {
                                                             return prevOrder;
@@ -328,6 +329,7 @@ const OrderDetailPage: React.FC = () => {
                                                     setVesselQuery('');
                                                     setVesselOptions([]);
                                                 }}
+
                                                 className="px-4 py-2 cursor-pointer hover:bg-blue-100"
                                             >
                                                 {option.name}
@@ -338,7 +340,7 @@ const OrderDetailPage: React.FC = () => {
 
                                 <TextField
                                     label="Owner Name"
-                                    value={order.owner.name}
+                                    value={order.vessel.owner?.name || ''}
                                     className="w-full"
                                     disabled
                                 />
@@ -433,19 +435,8 @@ const OrderDetailPage: React.FC = () => {
                                                                 warehouse: {
                                                                     id: option.id,
                                                                     name: option.name,
-                                                                    agent: option.agent
-                                                                        ? {
-                                                                            id: option.agent.id,
-                                                                            name: option.agent.name,
-                                                                        }
-                                                                        : null,
+                                                                    agent: option.agent,
                                                                 },
-                                                                agent: option.agent
-                                                                    ? {
-                                                                        id: option.agent.id,
-                                                                        name: option.agent.name,
-                                                                    }
-                                                                    : null,
                                                             };
                                                         }
                                                         return prevOrder;
@@ -453,7 +444,6 @@ const OrderDetailPage: React.FC = () => {
                                                     setWarehouseQuery('');
                                                     setWarehouseOptions([]);
                                                 }}
-
                                                 className="px-4 py-2 cursor-pointer hover:bg-blue-100"
                                             >
                                                 {option.name}
@@ -462,14 +452,14 @@ const OrderDetailPage: React.FC = () => {
                                     </div>
                                 )}
 
+
                                 <TextField
                                     label="Agent Name"
-                                    value={order.agent?.name || ''}
-                                    required
+                                    value={order.warehouse.agent?.name || ''}
                                     className="w-full"
-                                    onChange={(e) => handleInputChange('agent', e.target.value)}
-                                    autoComplete="off"
+                                    disabled
                                 />
+
 
                                 {agentOptions.length > 0 && (
                                     <div className="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-12 max-h-40 overflow-y-auto z-50 w-1/3">
@@ -580,7 +570,7 @@ const OrderDetailPage: React.FC = () => {
                                 className="w-24"
                                 inputProps={{
                                     type: "number",
-                                    step: "0.1", 
+                                    step: "0.1",
                                 }}
                             />
 

@@ -75,7 +75,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.ImoNumber, opt => opt.MapFrom(src => src.ImoNumber))
             .ForMember(dest => dest.Flag, opt => opt.MapFrom(src => src.Flag))
-            .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.owner));
+            .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner));
 
         // Warehouse mappings
         CreateMap<WarehouseEntity, Domain.Models.Warehouse>()

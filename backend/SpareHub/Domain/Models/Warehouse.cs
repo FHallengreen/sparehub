@@ -5,7 +5,7 @@ namespace Domain.Models;
 
 public class Warehouse
 {
-    public required string Id { get; set; }
-    public required string Name { get; init; }
-    public Agent Agent { get; init; } = null!;
+    public string Id { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public Agent? Agent { get; set; }
 }

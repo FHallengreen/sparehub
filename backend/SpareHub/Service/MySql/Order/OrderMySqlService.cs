@@ -161,7 +161,12 @@ public class OrderMySqlService(IOrderRepository orderRepository, IMemoryCache me
             Warehouse = new WarehouseResponse
             {
                 Id = order.Warehouse.Id,
-                Name = order.Warehouse.Name
+                Name = order.Warehouse.Name,
+                Agent = order.Warehouse.Agent != null ? new AgentResponse
+                {
+                    Id = order.Warehouse.Agent.Id,
+                    Name = order.Warehouse.Agent.Name
+                } : null
             },
             Owner = order.Vessel.Owner.Name,
             Boxes = boxes

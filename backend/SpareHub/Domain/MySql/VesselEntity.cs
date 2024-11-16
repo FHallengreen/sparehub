@@ -11,7 +11,7 @@ public class VesselEntity
     public required string Name { get; init; }
     public string? ImoNumber { get; init; }
     public string? Flag { get; init; }
-    public required OwnerEntity owner { get; init; }
+    public required OwnerEntity Owner { get; init; }
 
     [JsonIgnore]
     public ICollection<VesselAtPortEntity> VesselAtPorts { get; set; } = new List<VesselAtPortEntity>();

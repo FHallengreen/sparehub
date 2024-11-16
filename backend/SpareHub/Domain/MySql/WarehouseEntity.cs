@@ -9,5 +9,6 @@ public class WarehouseEntity
     public required string Name { get; init; }
     public int AgentId { get; init; }
 
+    [ForeignKey("AgentId")]
     public required AgentEntity  Agent { get; init; } 
 }

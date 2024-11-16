@@ -14,7 +14,7 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
         var orderEntities = await dbContext.Orders
             .Include(o => o.Supplier)
             .Include(o => o.Vessel)
-            .ThenInclude(v => v.owner)
+            .ThenInclude(v => v.Owner)
             .Include(o => o.Warehouse)
             .Include(o => o.Boxes)
             .ToListAsync();
@@ -31,8 +31,9 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
         var orderEntity = await dbContext.Orders
             .Include(o => o.Supplier)
             .Include(o => o.Vessel)
-            .ThenInclude(v => v.owner)
+            .ThenInclude(v => v.Owner)
             .Include(o => o.Warehouse)
+            .ThenInclude(w => w.Agent)
             .Include(o => o.Boxes)
             .FirstOrDefaultAsync(o => o.Id == id);
 

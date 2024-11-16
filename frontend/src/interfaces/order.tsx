@@ -13,15 +13,14 @@ export interface OrderDetail {
   supplier: Supplier;
   vessel: Vessel;
   warehouse: Warehouse;
-  agent?: Agent | null;
   orderStatus: string;
-  owner: Owner;
   expectedReadiness?: Date | null;
   actualReadiness?: Date | null;
   expectedArrival?: Date | null;
   actualArrival?: Date | null;
   boxes: Box[] | null;
 }
+
 
 
 export interface OrderRequest {
@@ -71,13 +70,18 @@ export interface SupplierOption {
 export interface Vessel {
   id: number;
   name: string;
+  owner: Owner;
+  imoNumber?: string;
+  flag?: string;
 }
+
 
 export interface Warehouse {
   id: number;
   name: string;
   agent?: Agent | null;
 }
+
 
 export interface Owner {
   id: number;

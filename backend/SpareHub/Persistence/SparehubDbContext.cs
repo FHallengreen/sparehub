@@ -64,7 +64,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasForeignKey(o => o.WarehouseId)
                 .HasConstraintName("fk_Order_Warehouse")
                 .OnDelete(DeleteBehavior.NoAction);
-            
+
             entity.Property(e => e.SupplierId).HasColumnName("supplier_id");
             entity.Property(e => e.VesselId).HasColumnName("vessel_id");
             entity.Property(e => e.WarehouseId).HasColumnName("warehouse_id");
@@ -97,7 +97,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.OrderId)
                 .HasColumnName("order_id")
                 .IsRequired();
-            
+
             entity.Property(e => e.Length)
                 .HasColumnName("length")
                 .IsRequired();
@@ -192,7 +192,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("flag")
                 .HasMaxLength(3);
 
-            entity.HasOne(e => e.owner)
+            entity.HasOne(e => e.Owner)
                 .WithMany(o => o.Vessels)
                 .HasForeignKey(e => e.OwnerId)
                 .HasConstraintName("fk_Vessel_Owner1")
@@ -296,7 +296,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasMaxLength(45);
 
             entity.HasMany(o => o.Vessels)
-                .WithOne(v => v.owner)
+                .WithOne(v => v.Owner)
                 .HasForeignKey(v => v.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_vessel_owner");
@@ -376,15 +376,14 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.ToTable("warehouse");
 
             entity.HasKey(e => e.Id);
-
             entity.Property(e => e.Id)
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
 
             entity.Property(e => e.Name)
                 .HasColumnName("name")
-                .HasMaxLength(45)
-                .IsRequired();
+                .IsRequired()
+                .HasMaxLength(45);
 
             entity.Property(e => e.AgentId)
                 .HasColumnName("agent_id");
@@ -392,9 +391,10 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.HasOne(e => e.Agent)
                 .WithMany()
                 .HasForeignKey(e => e.AgentId)
-                .OnDelete(DeleteBehavior.NoAction)
-                .HasConstraintName("fk_Warehouse_Agent1");
+                .HasConstraintName("fk_Warehouse_Agent")
+                .OnDelete(DeleteBehavior.NoAction);
         });
+
 
 // DispatchStatus Configuration
         modelBuilder.Entity<DispatchStatusEntity>(entity =>
