@@ -40,7 +40,11 @@ public class OrderController(IServiceProvider serviceProvider) : ControllerBase
             var orderService = GetDatabaseFactory().GetService<IOrderService>();
             await orderService.UpdateOrder(orderId, orderRequest);
             return NoContent();
+        } catch (KeyNotFoundException e)
+        {
+            return NotFound(e.Message);
         }
+        
         catch (Exception e)
         {
             Console.WriteLine(e.Message);

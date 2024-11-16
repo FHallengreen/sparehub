@@ -1,10 +1,9 @@
-using Domain;
+using Domain.MongoDb;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.AzureAppServices;
 using MongoDB.Driver;
 using Neo4j.Driver;
 using Persistence;
-using Server;
 using Service;
 using Service.Agent;
 using Service.Order;
@@ -43,12 +42,13 @@ builder.Services.AddScoped<IAgentService, AgentService>();
 
 // Register all specific services
 builder.Services.AddScoped<BoxMySqlService>();
-builder.Services.AddScoped<BoxMongoDbService>();
+// builder.Services.AddScoped<BoxMongoDbService>();
 builder.Services.AddScoped<OrderMySqlService>();
+// builder.Services.AddScoped<OrderMongoDbService>();
 
 // Register IBoxService and IOrderService with a placeholder default
-builder.Services.AddScoped<IBoxService>(sp => sp.GetRequiredService<BoxMySqlService>()); // Default fallback
-builder.Services.AddScoped<IOrderService>(sp => sp.GetRequiredService<OrderMySqlService>()); // Default fallback
+builder.Services.AddScoped<IBoxService>(sp => sp.GetRequiredService<BoxMySqlService>());
+builder.Services.AddScoped<IOrderService>(sp => sp.GetRequiredService<OrderMySqlService>());
 
 // builder.Services.AddScoped<OrderNeo4jService>();
 
@@ -65,15 +65,14 @@ var connectionString = string.Format("server={0};port={1};database={2};user={3};
 builder.Services.AddDbContext<SpareHubDbContext>(options =>
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
             mySqlOptions => mySqlOptions.EnableStringComparisonTranslations())
-            /*.EnableSensitiveDataLogging()
-            .LogTo(Console.WriteLine, LogLevel.Information)*/ // Enable for debugging
-    );
+    // .EnableSensitiveDataLogging()
+    // .LogTo(Console.WriteLine, LogLevel.Information)
+);
 
 
-// Mongo DB configuration
+// MongoDB configuration
 var mongoConnectionString = builder.Configuration.GetValue<string>("MONGODB_URI");
 
-Console.WriteLine();
 builder.Services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(mongoConnectionString));
 
 builder.Services.AddScoped(sp =>
@@ -85,7 +84,13 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<OrderBoxCollection>("OrderBoxCollection");
+    return database.GetCollection<OrderCollection>("OrderCollection");
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var database = sp.GetRequiredService<IMongoDatabase>();
+    return database.GetCollection<BoxOrderCollection>("OrderBoxCollection");
 });
 
 

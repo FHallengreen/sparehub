@@ -18,6 +18,6 @@ public class Dispatch
     public DateTime? DeliveryDate { get; set; }
     public int UserId { get; set; }
     public User User { get; set; } = null!;
-
+    public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     public ICollection<Order> Orders { get; set; } = new List<Order>();
 }

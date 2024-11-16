@@ -22,76 +22,114 @@ public class OrderMySqlService(
             .Include(o => o.Vessel)
             .ThenInclude(v => v.Owner)
             .Include(o => o.Warehouse)
-            .Select(o => new OrderTableResponse
+            .Include(o => o.Boxes)
+            .Select(o => new
             {
-                Id = o.Id,
-                OrderNumber = o.OrderNumber,
-                SupplierName = o.Supplier.Name,
-                OwnerName = o.Vessel.Owner.Name,
-                VesselName = o.Vessel.Name,
-                WarehouseName = o.Warehouse.Name,
-                OrderStatus = o.OrderStatus
+                Order = o,
+                BoxesCount = o.Boxes.Count,
+                TotalWeight = o.Boxes.Sum(b => b.Weight)
             });
 
         var orderStatusFilter = searchTerms?.FirstOrDefault(term =>
             availableStatuses != null && availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase));
 
         query = orderStatusFilter != null
-            ? query.Where(o => o.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase))
-            : query.Where(o => !o.OrderStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
+            ? query.Where(o => o.Order.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase))
+            : query.Where(o => !o.Order.OrderStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
 
         var orders = await query.ToListAsync();
 
-        foreach (var order in orders)
+        var orderResponses = orders.Select(o => new OrderTableResponse
         {
-            // Use the new BoxMySqlService to fetch boxes
-            var orderBoxes = await boxService.GetBoxes(order.Id);
-            var boxes = orderBoxes.FirstOrDefault();
+            Id = o.Order.Id,
+            OrderNumber = o.Order.OrderNumber,
+            SupplierName = o.Order.Supplier.Name,
+            OwnerName = o.Order.Vessel.Owner.Name,
+            VesselName = o.Order.Vessel.Name,
+            WarehouseName = o.Order.Warehouse.Name,
+            OrderStatus = o.Order.OrderStatus,
+            Boxes = o.BoxesCount,
+            TotalWeight = o.TotalWeight
+        }).ToList();
 
-            if (boxes != null)
-            {
-                order.Boxes = boxes.Boxes.Count;
-                order.TotalWeight = boxes.Boxes.Sum(p => p.Weight);
-            }
-            else
-            {
-                order.Boxes = null;
-                order.TotalWeight = null;
-            }
-        }
-
-        if (searchTerms is not { Count: > 0 }) return orders;
+        if (searchTerms is not { Count: > 0 }) return orderResponses;
 
         var nonStatusTerms = searchTerms.Where(t =>
             availableStatuses != null && !availableStatuses.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList();
-        return nonStatusTerms.Aggregate(orders, (current, term) => current.Where(o =>
+
+        return nonStatusTerms.Aggregate(orderResponses, (current, term) => current.Where(o =>
             o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
             o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
             o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
             o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
     }
 
-    public async Task<Domain.Order> CreateOrder(OrderRequest orderTableRequest)
+    public async Task<OrderResponse> CreateOrder(OrderRequest orderTableRequest)
+{
+    // Create a new Order entity
+    var order = new Domain.Order
     {
-        var order = new Domain.Order
+        OrderNumber = orderTableRequest.OrderNumber,
+        SupplierOrderNumber = orderTableRequest.SupplierOrderNumber,
+        SupplierId = orderTableRequest.SupplierId,
+        VesselId = orderTableRequest.VesselId,
+        WarehouseId = orderTableRequest.WarehouseId,
+        ExpectedReadiness = orderTableRequest.ExpectedReadiness,
+        ActualReadiness = orderTableRequest.ActualReadiness,
+        ExpectedArrival = orderTableRequest.ExpectedArrival,
+        ActualArrival = orderTableRequest.ActualArrival,
+        OrderStatus = orderTableRequest.OrderStatus
+    };
+
+    await dbContext.Orders.AddAsync(order);
+    await dbContext.SaveChangesAsync();
+
+    var supplier = await dbContext.Suppliers.FindAsync(order.SupplierId)
+        ?? throw new KeyNotFoundException($"Supplier with ID {order.SupplierId} not found");
+
+    var vessel = await dbContext.Vessels
+        .Include(v => v.Owner)
+        .FirstOrDefaultAsync(v => v.Id == order.VesselId)
+        ?? throw new KeyNotFoundException($"Vessel with ID {order.VesselId} not found");
+
+    var warehouse = await dbContext.Warehouses.FindAsync(order.WarehouseId)
+        ?? throw new KeyNotFoundException($"Warehouse with ID {order.WarehouseId} not found");
+
+    return new OrderResponse
+    {
+        Id = order.Id,
+        OrderNumber = order.OrderNumber,
+        SupplierOrderNumber = order.SupplierOrderNumber,
+        ExpectedReadiness = order.ExpectedReadiness,
+        ActualReadiness = order.ActualReadiness,
+        ExpectedArrival = order.ExpectedArrival,
+        ActualArrival = order.ActualArrival,
+        OrderStatus = order.OrderStatus,
+        Supplier = new SupplierResponse
         {
-            OrderNumber = orderTableRequest.OrderNumber,
-            SupplierOrderNumber = orderTableRequest.SupplierOrderNumber,
-            SupplierId = orderTableRequest.SupplierId,
-            VesselId = orderTableRequest.VesselId,
-            WarehouseId = orderTableRequest.WarehouseId,
-            ExpectedReadiness = orderTableRequest.ExpectedReadiness,
-            ActualReadiness = orderTableRequest.ActualReadiness,
-            ExpectedArrival = orderTableRequest.ExpectedArrival,
-            ActualArrival = orderTableRequest.ActualArrival,
-            OrderStatus = orderTableRequest.OrderStatus
-        };
-
-        await dbContext.Orders.AddAsync(order);
-        await dbContext.SaveChangesAsync();
-
-        return order;
-    }
+            Id = supplier.Id,
+            Name = supplier.Name
+        },
+        Vessel = new VesselResponse
+        {
+            Id = vessel.Id,
+            Name = vessel.Name,
+            ImoNumber = vessel.ImoNumber,
+            Flag = vessel.Flag,
+            Owner = new OwnerResponse
+            {
+                Id = vessel.Owner.Id,
+                Name = vessel.Owner.Name
+            }
+        },
+        Warehouse = new WarehouseResponse
+        {
+            Id = warehouse.Id,
+            Name = warehouse.Name
+        },
+        Owner = vessel.Owner.Name
+    };
+}
 
     public async Task UpdateOrder(int orderId, OrderRequest orderRequest)
     {
@@ -167,14 +205,26 @@ public class OrderMySqlService(
     public async Task<OrderResponse> GetOrderById(int orderId)
     {
         var order = await dbContext.Orders
-            .Include(o => o.Supplier)
-            .Include(o => o.Vessel)
-            .ThenInclude(v => v.Owner)
-            .Include(o => o.Warehouse)
-            .ThenInclude(w => w.Agent)
-            .FirstOrDefaultAsync(o => o.Id == orderId) ?? throw new KeyNotFoundException("Order not found");
+                        .Include(o => o.Supplier)
+                        .Include(o => o.Vessel)
+                        .ThenInclude(v => v.Owner)
+                        .Include(o => o.Warehouse)
+                        .ThenInclude(w => w.Agent)
+                        .FirstOrDefaultAsync(o => o.Id == orderId)
+                    ?? throw new KeyNotFoundException("Order not found");
 
         var orderBoxes = await boxService.GetBoxes(orderId);
+
+        var boxes = orderBoxes.FirstOrDefault()?.Boxes?
+            .Select(b => new BoxResponse
+            {
+                Id = b.Id,
+                Length = b.Length,
+                Width = b.Width,
+                Height = b.Height,
+                Weight = b.Weight
+            }).ToList() ?? new List<BoxResponse>();
+
 
         return new OrderResponse
         {
@@ -209,12 +259,12 @@ public class OrderMySqlService(
                 Id = order.Warehouse.Id,
                 Name = order.Warehouse.Name,
             },
-            Agent = order.Warehouse.Agent == null ? null : new AgentResponse
+            Agent = new AgentResponse
             {
                 Id = order.Warehouse.Agent.Id,
                 Name = order.Warehouse.Agent.Name
             },
-            Boxes = orderBoxes.FirstOrDefault()?.Boxes
+            Boxes = boxes
         };
     }
 

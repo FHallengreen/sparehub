@@ -180,7 +180,13 @@ const OrderDetailPage: React.FC = () => {
             vesselId: order.vessel.id,
             warehouseId: order.warehouse.id,
             orderStatus: sanitizeInput(order.orderStatus),
-            boxes: order.boxes || [],
+            boxes: order.boxes?.map(box => ({
+                id: box.id || undefined,
+                length: box.length,
+                width: box.width,
+                height: box.height,
+                weight: box.weight,
+            })) || [],            
         };
 
         try {
@@ -558,20 +564,26 @@ const OrderDetailPage: React.FC = () => {
                                 className="w-20"
                             />
                             <TextField
-                                label="Weight"
+                                label="Weight (kg)"
                                 value={box.weight}
-                                onChange={(e) =>
+                                onChange={(e) => {
+                                    const value = parseFloat(e.target.value);
                                     setOrder((prevOrder) => {
                                         if (!prevOrder) return null;
                                         const updatedBoxes = prevOrder.boxes?.map((b, i) =>
-                                            i === index ? { ...b, weight: parseFloat(e.target.value) } : b
+                                            i === index ? { ...b, weight: value } : b
                                         );
                                         return { ...prevOrder, boxes: updatedBoxes ?? [] };
-                                    })
-                                }
+                                    });
+                                }}
                                 disabled={!editableBoxes[index]}
                                 className="w-24"
+                                inputProps={{
+                                    type: "number",
+                                    step: "0.1", 
+                                }}
                             />
+
                             <div>
                                 <IconButton onClick={() => toggleBoxEdit(index)} className="text-gray-600">
                                     <EditIcon color={editableBoxes[index] ? 'primary' : 'inherit'} />

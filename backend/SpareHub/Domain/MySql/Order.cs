@@ -6,6 +6,8 @@ namespace Domain;
 
 public class Order
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public string OrderNumber { get; set; } = null!;
     public string? SupplierOrderNumber { get; set; }

@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Domain.MongoDb;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Shared.Order;
@@ -9,7 +10,9 @@ public class BoxMySqlService(SpareHubDbContext dbContext) : IBoxService
 {
     public async Task<Box> CreateBox(BoxRequest boxRequest, int orderId)
     {
-        var order = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+        var order = await dbContext.Orders
+            .Include(o => o.Boxes)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
 
         if (order == null)
         {
@@ -18,9 +21,7 @@ public class BoxMySqlService(SpareHubDbContext dbContext) : IBoxService
 
         var newBox = new Box
         {
-            Id = boxRequest.BoxId == Guid.Empty
-                ? Guid.NewGuid()
-                : boxRequest.BoxId,
+            Id = Guid.NewGuid(),
             Length = boxRequest.Length,
             Width = boxRequest.Width,
             Height = boxRequest.Height,
@@ -28,16 +29,36 @@ public class BoxMySqlService(SpareHubDbContext dbContext) : IBoxService
         };
 
         dbContext.Boxes.Add(newBox);
-        await dbContext.SaveChangesAsync();
-
-        dbContext.Entry(order).Collection(o => o.Boxes).Load();
         order.Boxes.Add(newBox);
-        await dbContext.SaveChangesAsync();
 
+        await dbContext.SaveChangesAsync();
         return newBox;
     }
 
-    public async Task<List<OrderBoxCollection>> GetBoxes(int orderId)
+
+    public async Task<List<BoxOrderCollection>> GetBoxes(int orderId)
+    {
+        var order = await dbContext.Orders
+            .Include(o => o.Boxes)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+        if (order == null)
+        {
+            throw new KeyNotFoundException("Order not found");
+        }
+
+        return
+        [
+            new BoxOrderCollection
+            {
+                OrderId = order.Id,
+                Boxes = order.Boxes.ToList()
+            }
+        ];
+    }
+
+
+    public async Task UpdateOrderBoxes(int orderId, List<BoxRequest> boxRequests)
     {
         var order = await dbContext.Orders
             .Include(o => o.Boxes)
@@ -48,45 +69,40 @@ public class BoxMySqlService(SpareHubDbContext dbContext) : IBoxService
             throw new Exception($"Order with ID {orderId} not found.");
         }
 
-        return new List<OrderBoxCollection>
+        var existingBoxes = order.Boxes.ToList();
+
+        foreach (var boxRequest in boxRequests.Where(b => b.BoxId != Guid.Empty))
         {
-            new OrderBoxCollection
+            var existingBox = existingBoxes.FirstOrDefault(b => b.Id == boxRequest.BoxId);
+            if (existingBox != null)
             {
-                OrderId = orderId,
-                Boxes = order.Boxes.ToList()
+                existingBox.Length = boxRequest.Length;
+                existingBox.Width = boxRequest.Width;
+                existingBox.Height = boxRequest.Height;
+                existingBox.Weight = boxRequest.Weight;
             }
-        };
-    }
-
-    public async Task UpdateOrderBoxes(int orderId, List<BoxRequest> boxRequests)
-    {
-        var order = await dbContext.Orders.Include(o => o.Boxes).FirstOrDefaultAsync(o => o.Id == orderId);
-
-        if (order == null)
-        {
-            throw new Exception($"Order with ID {orderId} not found.");
         }
 
-        // Clear existing boxes
-        dbContext.Entry(order).Collection(o => o.Boxes).Load();
-        order.Boxes.Clear();
-
-        // Add new boxes
-        foreach (var boxRequest in boxRequests)
+        foreach (var boxRequest in boxRequests.Where(b => b.BoxId == Guid.Empty))
         {
             var newBox = new Box
             {
-                Id = boxRequest.BoxId == Guid.Empty
-                    ? Guid.NewGuid()
-                    : boxRequest.BoxId, // Generate new GUID if BoxId is empty
+                Id = Guid.NewGuid(),
                 Length = boxRequest.Length,
                 Width = boxRequest.Width,
                 Height = boxRequest.Height,
                 Weight = boxRequest.Weight
             };
 
-            dbContext.Boxes.Add(newBox);
             order.Boxes.Add(newBox);
+        }
+
+        foreach (var box in existingBoxes)
+        {
+            if (boxRequests.All(b => b.BoxId != box.Id))
+            {
+                dbContext.Boxes.Remove(box);
+            }
         }
 
         await dbContext.SaveChangesAsync();

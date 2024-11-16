@@ -1,8 +1,8 @@
 namespace Shared.Order;
 
-public class BoxRequest
+public class BoxResponse
 {
-    public Guid? BoxId { get; set; }
+    public Guid Id { get; set; }
     public int Length { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }

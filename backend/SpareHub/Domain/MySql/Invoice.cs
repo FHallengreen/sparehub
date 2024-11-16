@@ -6,7 +6,9 @@ public class Invoice
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; init; }
-    public int DispatchId { get; init; }
 
-    public required Dispatch Dispatch { get; init; }
+    public int DispatchId { get; set; } 
+
+    public Dispatch Dispatch { get; set; } = null!;
 }
+

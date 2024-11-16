@@ -16,7 +16,5 @@ public class Box
     public int Height { get; set; }
     public double Weight { get; set; }
 
-    [JsonIgnore]
-    public ICollection<Order> Orders { get; set; } = new List<Order>();
+    [JsonIgnore]  public ICollection<Order> Orders { get; set; } = new List<Order>();
 }
-
