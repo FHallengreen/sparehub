@@ -2,8 +2,7 @@
 
 # SpareHub Project
 
-## Deployed version can be accessed on: https://sparehub.fhallengreen.com/ 
-
+## Deployed version can be accessed on: https://sparehub.fhallengreen.com/
 
 ## Overview
 
@@ -57,14 +56,6 @@ NEO4J_PASSWORD=password
 
 2. **Build and run the containers** using Docker Compose:
 
-
-3. First execute following to create user privileges for the MySQL database:
-
-```
-./database/generate_user_privileges.sh
-```
-
-   4. Then to run docker compose up:
    ```
    docker compose up --build -d
    ```
@@ -73,33 +64,31 @@ NEO4J_PASSWORD=password
 > If Environment variables are not set and it shows and error, do following step:
 
 ## ON MacOs/Linux:
-   ```
-   export MYSQL_DATABASE=XXXX
-   export MYSQL_USER=XXXX
-   export MYSQL_PASSWORD=XXXX
 
-
-   ./database/generate_user_privileges.sh
-   ```
+```
+export MYSQL_DATABASE=XXXX
+export MYSQL_USER=XXXX
+export MYSQL_PASSWORD=XXXX
+```
 
 ## ON Windows using Powershell:
-   > [!IMPORTANT]  
-   > If you are on Windows, the environment variables are not set, so run following:
-   ```
-   $env:MYSQL_DATABASE="XXXX"
-   $env:MYSQL_USER="XXXX"
-   $env:MYSQL_PASSWORD="XXXX"
-   ./database/generate_user_privileges.sh
-   ```
 
+> [!IMPORTANT]  
+> If you are on Windows, the environment variables are not set, so run following:
 
+```
+$env:MYSQL_DATABASE="XXXX"
+$env:MYSQL_USER="XXXX"
+$env:MYSQL_PASSWORD="XXXX"
+```
 
-   This will start the following services:
-   - **frontend**: Running on [http://localhost:5173](http://localhost:5173)
-   - **backend**: Running on [http://localhost:8080](http://localhost:8080)
-   - **MySQL**: Exposed on port `3308` (container uses port `3306`)
-   - **MongoDB**: Exposed on port `27017`
-   - **Neo4j**: Exposed on port `7687`
+This will start the following services:
+
+- **frontend**: Running on [http://localhost:5173](http://localhost:5173)
+- **backend**: Running on [http://localhost:8080](http://localhost:8080)
+- **MySQL**: Exposed on port `3308` (container uses port `3306`)
+- **MongoDB**: Exposed on port `27017`
+- **Neo4j**: Exposed on port `7687`
 
 3. **Access the frontend** at [http://localhost:5173](http://localhost:5173).
 
@@ -132,16 +121,19 @@ You can also run the frontend and backend locally without Docker. Ensure you hav
 ### Backend
 
 1. **MySQL**:
+
    - Start MySQL on your system with the credentials specified in the `.env` file.
    - run creation script `./database/generate_user_privileges.sh` to create user privileges for the MySQL database.
    - Create a new database named `sparehub` in MySQL.
    - Optionally, use the SQL scripts in `./database/mysql/` to initialize the database schema.
 
 2. **MongoDB**:
+
    - Start MongoDB on your system with the credentials specified in the `.env` file.
    - You can use the MongoDB scripts in `./database/MongoDB/` to initialize the database.
 
 3. **Neo4j**:
+
    - Start Neo4j and ensure it's running on the port specified in your `.env` file.
 
 4. **Run the backend**:
@@ -184,4 +176,3 @@ You can also run the frontend and backend locally without Docker. Ensure you hav
 ---
 
 With this setup, you can now run the project both with Docker and without Docker depending on your preference.
-

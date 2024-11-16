@@ -23,6 +23,21 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
         return orders;
     }
 
+    public async Task<IEnumerable<Order>> GetNonCancelledOrdersAsync()
+    {
+        var nonCancelledOrderEntities = await dbContext.Orders
+            .FromSqlRaw("SELECT * FROM non_cancelled_orders")
+            .Include(o => o.Supplier)
+            .Include(o => o.Vessel)
+            .ThenInclude(v => v.Owner)
+            .Include(o => o.Warehouse)
+            .Include(o => o.Boxes)
+            .ToListAsync();
+
+        var orders = mapper.Map<IEnumerable<Order>>(nonCancelledOrderEntities);
+        return orders;
+    }
+    
     public async Task<Order?> GetOrderByIdAsync(string orderId)
     {
         if (!int.TryParse(orderId, out var id))

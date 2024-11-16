@@ -70,8 +70,8 @@ var connectionString = string.Format("server={0};port={1};database={2};user={3};
 builder.Services.AddDbContext<SpareHubDbContext>(options =>
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
             mySqlOptions => mySqlOptions.EnableStringComparisonTranslations())
-    .EnableSensitiveDataLogging()
-    .LogTo(Console.WriteLine, LogLevel.Information)
+    // .EnableSensitiveDataLogging()
+    // .LogTo(Console.WriteLine, LogLevel.Information)
 );
 
 

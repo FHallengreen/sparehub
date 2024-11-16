@@ -16,7 +16,17 @@ public class OrderMySqlService(IOrderRepository orderRepository, IMemoryCache me
     {
         var availableStatuses = await GetAllOrderStatusesAsync();
 
-        var orders = await orderRepository.GetOrdersAsync();
+        IEnumerable<Domain.Models.Order> orders;
+
+        if (searchTerms != null && searchTerms.Any(term => availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase)))
+        {
+            orders = (await orderRepository.GetOrdersAsync())
+                .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
+        }
+        else
+        {
+            orders = await orderRepository.GetNonCancelledOrdersAsync();
+        }
 
         var orderResponses = orders.Select(o => new OrderTableResponse
         {
@@ -31,34 +41,21 @@ public class OrderMySqlService(IOrderRepository orderRepository, IMemoryCache me
             TotalWeight = o.Boxes.Sum(b => b.Weight)
         }).ToList();
 
-        if (searchTerms is not { Count: > 0 })
-            return orderResponses;
-
-        var orderStatusFilter = searchTerms.FirstOrDefault(term =>
-            availableStatuses != null && availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase));
-
-        if (orderStatusFilter != null)
+        if (searchTerms is { Count: > 0 })
         {
-            orderResponses = orderResponses
-                .Where(o => o.OrderStatus.Equals(orderStatusFilter, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-        }
-        else
-        {
-            orderResponses = orderResponses
-                .Where(o => !o.OrderStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            var nonStatusTerms = searchTerms.Where(t =>
+                !availableStatuses.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList();
+
+            orderResponses = nonStatusTerms.Aggregate(orderResponses, (current, term) => current.Where(o =>
+                o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
         }
 
-        var nonStatusTerms = searchTerms.Where(t =>
-            availableStatuses != null && !availableStatuses.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList();
-
-        return nonStatusTerms.Aggregate(orderResponses, (current, term) => current.Where(o =>
-            o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-            o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-            o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-            o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
+        return orderResponses;
     }
+
 
     public async Task<OrderResponse> CreateOrder(OrderRequest orderRequest)
     {
@@ -162,11 +159,13 @@ public class OrderMySqlService(IOrderRepository orderRepository, IMemoryCache me
             {
                 Id = order.Warehouse.Id,
                 Name = order.Warehouse.Name,
-                Agent = order.Warehouse.Agent != null ? new AgentResponse
-                {
-                    Id = order.Warehouse.Agent.Id,
-                    Name = order.Warehouse.Agent.Name
-                } : null
+                Agent = order.Warehouse.Agent != null
+                    ? new AgentResponse
+                    {
+                        Id = order.Warehouse.Agent.Id,
+                        Name = order.Warehouse.Agent.Name
+                    }
+                    : null
             },
             Owner = order.Vessel.Owner.Name,
             Boxes = boxes

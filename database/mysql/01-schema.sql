@@ -7,6 +7,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema sparehub
 -- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `sparehub` ;
 
 -- -----------------------------------------------------
 -- Schema sparehub
@@ -453,7 +454,77 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`vessel_at_port` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+USE `sparehub` ;
+
+-- -----------------------------------------------------
+-- Placeholder table for view `sparehub`.`non_cancelled_orders`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sparehub`.`non_cancelled_orders` (`id` INT, `order_number` INT, `supplier_order_number` INT, `supplier_id` INT, `vessel_id` INT, `warehouse_id` INT, `expected_readiness` INT, `actual_readiness` INT, `expected_arrival` INT, `actual_arrival` INT, `order_status` INT);
+
+-- -----------------------------------------------------
+-- View `sparehub`.`non_cancelled_orders`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `sparehub`.`non_cancelled_orders`;
+USE `sparehub`;
+CREATE  OR REPLACE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`%` 
+    SQL SECURITY DEFINER
+VIEW `non_cancelled_orders` AS
+    SELECT 
+        `order`.`id` AS `id`,
+        `order`.`order_number` AS `order_number`,
+        `order`.`supplier_order_number` AS `supplier_order_number`,
+        `order`.`supplier_id` AS `supplier_id`,
+        `order`.`vessel_id` AS `vessel_id`,
+        `order`.`warehouse_id` AS `warehouse_id`,
+        `order`.`expected_readiness` AS `expected_readiness`,
+        `order`.`actual_readiness` AS `actual_readiness`,
+        `order`.`expected_arrival` AS `expected_arrival`,
+        `order`.`actual_arrival` AS `actual_arrival`,
+        `order`.`order_status` AS `order_status`
+    FROM
+        `order`
+    WHERE
+        (`order`.`order_status` <> 'Cancelled');
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+-- begin attached script 'script'
+-- Set the database context to 'sparehub'
+USE `sparehub`;
+
+CREATE ROLE IF NOT EXISTS 'app_role';
+CREATE ROLE IF NOT EXISTS 'admin_role';
+CREATE ROLE IF NOT EXISTS 'readonly_role';
+CREATE ROLE IF NOT EXISTS 'restricted_role';
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON `sparehub`.* TO 'app_role'; 
+GRANT ALL PRIVILEGES ON `sparehub`.* TO 'admin_role';               
+GRANT SELECT ON `sparehub`.* TO 'readonly_role';                     
+GRANT SELECT ON `sparehub`.`order` TO 'restricted_role';    
+
+-- Application User (minimum privileges)
+CREATE USER IF NOT EXISTS 'app_user'@'%' IDENTIFIED BY 'softE24';
+GRANT 'app_role' TO 'app_user';
+
+-- Full Admin User
+CREATE USER IF NOT EXISTS 'admin_user'@'%' IDENTIFIED BY 'softE24';
+GRANT 'admin_role' TO 'admin_user';
+
+-- Read-Only User
+CREATE USER IF NOT EXISTS 'readonly_user'@'%' IDENTIFIED BY 'softE24';
+GRANT 'readonly_role' TO 'readonly_user';
+
+-- Restricted Read-Only User
+CREATE USER IF NOT EXISTS 'restricted_user'@'%' IDENTIFIED BY 'softE24';
+GRANT 'restricted_role' TO 'restricted_user';
+
+-- Set default roles for each user
+ALTER USER 'app_user'@'%' DEFAULT ROLE 'app_role';
+ALTER USER 'admin_user'@'%' DEFAULT ROLE 'admin_role';
+ALTER USER 'readonly_user'@'%' DEFAULT ROLE 'readonly_role';
+ALTER USER 'restricted_user'@'%' DEFAULT ROLE 'restricted_role';
+
+-- end attached script 'script'
