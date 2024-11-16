@@ -10,17 +10,17 @@ public class VesselService(SpareHubDbContext dbContext) : IVesselService
     {
         return await dbContext.Vessels
             .Where(v => string.IsNullOrEmpty(searchQuery) || v.Name.StartsWith(searchQuery))
-            .Include(v => v.Owner)
+            .Include(v => v.owner)
             .Select(v => new VesselResponse
             {
-                Id = v.Id,
+                Id = v.Id.ToString(),
                 Name = v.Name,
                 ImoNumber = v.ImoNumber,
                 Flag = v.Flag,
                 Owner = new OwnerResponse
                 {
-                    Id = v.Owner.Id,
-                    Name = v.Owner.Name
+                    Id = v.owner.Id.ToString(),
+                    Name = v.owner.Name
                 }
             })
             .ToListAsync();

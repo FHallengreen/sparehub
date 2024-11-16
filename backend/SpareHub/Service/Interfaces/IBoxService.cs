@@ -1,16 +1,11 @@
-using Domain;
-using Domain.MongoDb;
-using Service.Order;
-using Shared;
 using Shared.Order;
 
-namespace Service;
+namespace Service.Interfaces;
 
 public interface IBoxService
 {
-    public Task<Box> CreateBox(BoxRequest boxRequest, int orderId);
-    public Task<List<BoxOrderCollection>> GetBoxes(int orderId);
-    public Task UpdateOrderBoxes (int orderId, List<BoxRequest> boxes);
-    public Task DeleteBox(int orderId, Guid boxId);
-    
+    Task<BoxResponse> CreateBox(BoxRequest boxRequest, string orderId);
+    Task<List<BoxResponse>> GetBoxes(string orderId);
+    Task UpdateOrderBoxes(string orderId, List<BoxRequest> boxes);
+    Task DeleteBox(string orderId, string boxId);
 }

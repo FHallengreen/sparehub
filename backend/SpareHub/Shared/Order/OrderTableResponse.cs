@@ -1,15 +1,14 @@
-namespace Shared;
+namespace Shared.Order;
 
 public class OrderTableResponse
 {
-    public int Id { get; init; }
-    public required string OrderNumber { get; init; }
-    public required string SupplierName { get; init; }
-    public required string OwnerName { get; init; }
-    public required string VesselName { get; init; }
-    public required string WarehouseName { get; init; }
-    public string OrderStatus { get; init; } = null!;
-
-    public int? Boxes { get; set; }
-    public double? TotalWeight { get; set; }
+    public string Id { get; set; } = null!;
+    public string OrderNumber { get; set; } = null!;
+    public string SupplierName { get; set; } = null!;
+    public string OwnerName { get; set; } = null!;
+    public string VesselName { get; set; } = null!;
+    public string WarehouseName { get; set; } = null!;
+    public string OrderStatus { get; set; } = null!;
+    public int Boxes { get; set; }
+    public double TotalWeight { get; set; }
 }

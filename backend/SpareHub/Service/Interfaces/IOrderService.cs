@@ -1,13 +1,14 @@
 ﻿using Shared;
+using Shared.Order;
 
-namespace Service.Order;
+namespace Service.Interfaces;
 
 public interface IOrderService
 {
-    Task<IEnumerable<OrderTableResponse>> GetOrders(List<string>? search);
-    Task<OrderResponse> CreateOrder(OrderRequest orderTableRequest);
-    Task UpdateOrder(int orderId, OrderRequest orderRequest);
-    Task<List<string>?> GetAllOrderStatusesAsync();
-    Task<OrderResponse> GetOrderById(int orderId);
-    void DeleteOrder(int orderId);
+    Task<IEnumerable<OrderTableResponse>> GetOrders(List<string>? searchTerms);
+    Task<OrderResponse> CreateOrder(OrderRequest orderRequest);
+    Task UpdateOrder(string orderId, OrderRequest orderRequest);
+    Task<OrderResponse> GetOrderById(string orderId);
+    Task DeleteOrder(string orderId);
+    Task<List<string>> GetAllOrderStatusesAsync();
 }

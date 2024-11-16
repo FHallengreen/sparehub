@@ -408,25 +408,10 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`box` (
   `width` INT NOT NULL,
   `height` INT NOT NULL,
   `weight` DOUBLE NOT NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `sparehub`.`box_has_order`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sparehub`.`box_has_order` (
-  `box_id` CHAR(36) NOT NULL,
   `order_id` INT NOT NULL,
-  PRIMARY KEY (`box_id`, `order_id`),
-  INDEX `fk_box_has_order_order1_idx` (`order_id` ASC) VISIBLE,
-  INDEX `fk_box_has_order_box1_idx` (`box_id` ASC) VISIBLE,
-  CONSTRAINT `fk_box_has_order_box1`
-    FOREIGN KEY (`box_id`)
-    REFERENCES `sparehub`.`box` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_box_has_order_order1`
+  PRIMARY KEY (`id`),
+  INDEX `fk_box_order1_idx` (`order_id` ASC) VISIBLE,
+  CONSTRAINT `fk_box_order1`
     FOREIGN KEY (`order_id`)
     REFERENCES `sparehub`.`order` (`id`)
     ON DELETE NO ACTION

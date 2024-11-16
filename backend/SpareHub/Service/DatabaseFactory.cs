@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using Service.Interfaces;
+using Service.MySql.Order;
 
 namespace Service;
 
@@ -7,39 +8,34 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptions<Database
     : IDatabaseFactory
 {
     private readonly DatabaseSettings _databaseSettings = databaseSettings.Value;
-
-    public T GetService<T>() where T : class
-    {
-        return _databaseSettings.DefaultDatabaseType switch
+        private readonly Dictionary<(Type serviceType, DatabaseType dbType), Type> _serviceMappings = new()
         {
-            DatabaseType.MySql => ResolveService<T>("MySqlService"),
-            DatabaseType.MongoDb => ResolveService<T>("MongoDbService"),
-            DatabaseType.Neo4j => ResolveService<T>("Neo4jService"),
-            _ => throw new ArgumentException("Invalid database type"),
+            { (typeof(IBoxService), DatabaseType.MySql), typeof(BoxMySqlService) },
+            /*{ (typeof(IBoxService), DatabaseType.MongoDb), typeof(BoxMongoDbService) },
+            { (typeof(IBoxService), DatabaseType.Neo4j), typeof(BoxNeo4jService) },*/
+            { (typeof(IOrderService), DatabaseType.MySql), typeof(OrderMySqlService) },
+            // { (typeof(IOrderService), DatabaseType.MongoDb), typeof(OrderMongoDbService) },
         };
-    }
 
-    private T ResolveService<T>(string serviceSuffix) where T : class
-    {
-        var interfaceName = typeof(T).Name; // e.g., "IBoxService"
-        var expectedServiceName = interfaceName.Substring(1).Replace("Service", "") + serviceSuffix; // e.g., "BoxMySqlService"
+        // Add other service mappings as needed
 
-        var serviceType = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(a => a.GetTypes())
-            .FirstOrDefault(t => t.Name.Equals(expectedServiceName, StringComparison.OrdinalIgnoreCase));
-
-        if (serviceType == null)
+        public T GetService<T>() where T : class
         {
-            throw new InvalidOperationException($"Service type '{expectedServiceName}' not found.");
-        }
+            var serviceType = typeof(T);
+            var dbType = _databaseSettings.DefaultDatabaseType;
 
-        var resolvedService = serviceProvider.GetService(serviceType);
-        if (resolvedService == null)
-        {
-            throw new InvalidOperationException($"Failed to resolve service '{expectedServiceName}'. Ensure it is registered.");
+            if (_serviceMappings.TryGetValue((serviceType, dbType), out var implementationType))
+            {
+                var service = serviceProvider.GetService(implementationType) as T;
+                if (service == null)
+                {
+                    throw new InvalidOperationException($"Failed to resolve service '{implementationType.Name}'. Ensure it is registered.");
+                }
+                return service;
+            }
+            else
+            {
+                throw new InvalidOperationException($"No service mapping found for type '{serviceType.Name}' and database '{dbType}'.");
+            }
         }
-
-        return resolvedService as T;
     }
-
-}

@@ -4,9 +4,13 @@ using Microsoft.Extensions.Logging.AzureAppServices;
 using MongoDB.Driver;
 using Neo4j.Driver;
 using Persistence;
+using Repository.Interfaces;
+using Repository.MySql;
 using Service;
 using Service.Agent;
-using Service.Order;
+using Service.Interfaces;
+using Service.Mapping;
+using Service.MySql.Order;
 using Service.Supplier;
 using Service.Warehouse;
 
@@ -38,17 +42,18 @@ builder.Services.AddScoped<IVesselService, VesselService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
-
-
-// Register all specific services
-builder.Services.AddScoped<BoxMySqlService>();
-// builder.Services.AddScoped<BoxMongoDbService>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddScoped<IOrderRepository, OrderMySqlRepository>();
+builder.Services.AddScoped<IBoxRepository, BoxMySqlRepository>();
+// Register concrete implementations
 builder.Services.AddScoped<OrderMySqlService>();
-// builder.Services.AddScoped<OrderMongoDbService>();
+builder.Services.AddScoped<BoxMySqlService>();
+
+// Keep the interface registrations if they're used elsewhere
+builder.Services.AddScoped<IOrderService, OrderMySqlService>();
+builder.Services.AddScoped<IBoxService, BoxMySqlService>();
 
 // Register IBoxService and IOrderService with a placeholder default
-builder.Services.AddScoped<IBoxService>(sp => sp.GetRequiredService<BoxMySqlService>());
-builder.Services.AddScoped<IOrderService>(sp => sp.GetRequiredService<OrderMySqlService>());
 
 // builder.Services.AddScoped<OrderNeo4jService>();
 
@@ -65,8 +70,8 @@ var connectionString = string.Format("server={0};port={1};database={2};user={3};
 builder.Services.AddDbContext<SpareHubDbContext>(options =>
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
             mySqlOptions => mySqlOptions.EnableStringComparisonTranslations())
-    // .EnableSensitiveDataLogging()
-    // .LogTo(Console.WriteLine, LogLevel.Information)
+    .EnableSensitiveDataLogging()
+    .LogTo(Console.WriteLine, LogLevel.Information)
 );
 
 

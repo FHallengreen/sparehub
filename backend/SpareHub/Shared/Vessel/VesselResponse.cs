@@ -2,7 +2,7 @@ namespace Shared;
 
 public class VesselResponse
 {
-    public int Id { get; set; }
+    public required string Id { get; set; }
     public required string Name { get; set; }
     public string? ImoNumber { get; set; }
     public string? Flag { get; set; }

@@ -12,7 +12,7 @@ public class AgentService (SpareHubDbContext dbContext) : IAgentService
             .Where(a => string.IsNullOrEmpty(searchQuery) || a.Name.StartsWith(searchQuery))
             .Select(a => new AgentResponse
             {
-                Id = a.Id,
+                Id = a.Id.ToString(),
                 Name = a.Name
             })
             .ToListAsync();

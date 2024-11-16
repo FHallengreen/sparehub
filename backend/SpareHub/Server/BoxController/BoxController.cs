@@ -1,16 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Service;
+using Service.Interfaces;
 using Shared;
 using Shared.Order;
 
 namespace Server.BoxController;
 
 [ApiController]
-[Route("api/order/{orderId:int}/box")]
+[Route("api/order/{orderId}/box")]
 public class BoxController(IBoxService boxService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> CreateBox(int orderId, [FromBody] BoxRequest boxRequest)
+    public async Task<IActionResult> CreateBox(string orderId, [FromBody] BoxRequest boxRequest)
     {
         try
         {
@@ -25,14 +26,14 @@ public class BoxController(IBoxService boxService) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetBoxesForOrder(int orderId)
+    public async Task<IActionResult> GetBoxesForOrder(string orderId)
     {
         var boxes = await boxService.GetBoxes(orderId);
         return Ok(boxes);
     }
 
     [HttpDelete("{boxIndex}")]
-    public async Task<IActionResult> DeleteBox(int orderId, Guid boxIndex)
+    public async Task<IActionResult> DeleteBox(string orderId, string boxIndex)
     {
         try
         {

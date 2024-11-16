@@ -53,6 +53,8 @@ services:
       - /app/Service/obj
       - /app/Shared/bin
       - /app/Shared/obj
+      - /app/Repository/obj
+      - /app/Repository/bin
 
     depends_on:
       - mysql

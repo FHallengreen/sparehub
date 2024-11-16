@@ -1,18 +1,16 @@
-using Domain;
-
-namespace Shared;
+namespace Shared.Order;
 
 public class OrderRequest
 {
-    public required string OrderNumber { get; init; }
-    public string? SupplierOrderNumber { get; init; }
-    public DateTime ExpectedReadiness { get; init; }
-    public DateTime? ActualReadiness { get; init; }
-    public DateTime? ExpectedArrival { get; init; }
-    public DateTime? ActualArrival { get; init; }
-    public required int SupplierId { get; init; }
-    public required int VesselId { get; init; }
-    public required int WarehouseId { get; init; }
-    public string OrderStatus { get; init; } = null!;
-    public List<Box>? Boxes { get; set; }
+    public string OrderNumber { get; set; } = null!;
+    public string? SupplierOrderNumber { get; set; }
+    public string SupplierId { get; set; } = null!;
+    public string VesselId { get; set; } = null!;
+    public string WarehouseId { get; set; } = null!;
+    public DateTime ExpectedReadiness { get; set; }
+    public DateTime? ActualReadiness { get; set; }
+    public DateTime? ExpectedArrival { get; set; }
+    public DateTime? ActualArrival { get; set; }
+    public string OrderStatus { get; set; } = null!;
+    public List<BoxRequest>? Boxes { get; set; }
 }

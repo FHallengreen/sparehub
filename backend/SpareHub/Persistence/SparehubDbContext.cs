@@ -1,34 +1,35 @@
 ﻿using Domain;
+using Domain.Models;
+using Domain.MySql;
 using Microsoft.EntityFrameworkCore;
 
 namespace Persistence;
 
 public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : DbContext(options)
 {
-    public DbSet<Order> Orders => Set<Order>();
-    public DbSet<OrderStatus> OrderStatuses => Set<OrderStatus>();
-    public DbSet<Address> Addresses => Set<Address>();
-    public DbSet<Supplier> Suppliers => Set<Supplier>();
-    public DbSet<Owner> Owners => Set<Owner>();
-    public DbSet<Vessel> Vessels => Set<Vessel>();
-    public DbSet<Agent> Agents => Set<Agent>();
-    public DbSet<Warehouse> Warehouses => Set<Warehouse>();
-    public DbSet<Role> Roles => Set<Role>();
-    public DbSet<User> Users => Set<User>();
-    public DbSet<ContactInfo> ContactInfos => Set<ContactInfo>();
-    public DbSet<DispatchStatus> DispatchStatuses => Set<DispatchStatus>();
-    public DbSet<Dispatch> Dispatches => Set<Dispatch>();
-    public DbSet<TransportMode> TransportModes => Set<TransportMode>();
-    public DbSet<Invoice> Invoices => Set<Invoice>();
-    public DbSet<CostType> CostTypes => Set<CostType>();
-    public DbSet<Currency> Currencies => Set<Currency>();
-    public DbSet<Financial> Financials => Set<Financial>();
-    public DbSet<OrderStatus> OrderStatus => Set<OrderStatus>();
-    public DbSet<Box> Boxes => Set<Box>();
+    public DbSet<OrderEntity> Orders => Set<OrderEntity>();
+    public DbSet<AddressEntity> Addresses => Set<AddressEntity>();
+    public DbSet<SupplierEntity> Suppliers => Set<SupplierEntity>();
+    public DbSet<OwnerEntity> Owners => Set<OwnerEntity>();
+    public DbSet<VesselEntity> Vessels => Set<VesselEntity>();
+    public DbSet<AgentEntity> Agents => Set<AgentEntity>();
+    public DbSet<WarehouseEntity> Warehouses => Set<WarehouseEntity>();
+    public DbSet<RoleEntity> Roles => Set<RoleEntity>();
+    public DbSet<UserEntity> Users => Set<UserEntity>();
+    public DbSet<ContactInfoEntity> ContactInfos => Set<ContactInfoEntity>();
+    public DbSet<DispatchStatusEntity> DispatchStatuses => Set<DispatchStatusEntity>();
+    public DbSet<DispatchEntity> Dispatches => Set<DispatchEntity>();
+    public DbSet<TransportModeEntity> TransportModes => Set<TransportModeEntity>();
+    public DbSet<InvoiceEntity> Invoices => Set<InvoiceEntity>();
+    public DbSet<CostTypeEntity> CostTypes => Set<CostTypeEntity>();
+    public DbSet<CurrencyEntity> Currencies => Set<CurrencyEntity>();
+    public DbSet<FinancialEntity> Financials => Set<FinancialEntity>();
+    public DbSet<OrderStatusEntity> OrderStatus => Set<OrderStatusEntity>();
+    public DbSet<BoxEntity> Boxes => Set<BoxEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Order>(entity =>
+        modelBuilder.Entity<OrderEntity>(entity =>
         {
             entity.ToTable("order");
             entity.HasKey(e => e.Id);
@@ -46,6 +47,24 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasMaxLength(45)
                 .HasColumnName("supplier_order_number");
 
+            entity.HasOne(o => o.Supplier)
+                .WithMany()
+                .HasForeignKey(o => o.SupplierId)
+                .HasConstraintName("fk_Order_Supplier")
+                .OnDelete(DeleteBehavior.NoAction);
+
+            entity.HasOne(o => o.Vessel)
+                .WithMany()
+                .HasForeignKey(o => o.VesselId)
+                .HasConstraintName("fk_Order_Vessel")
+                .OnDelete(DeleteBehavior.NoAction);
+
+            entity.HasOne(o => o.Warehouse)
+                .WithMany()
+                .HasForeignKey(o => o.WarehouseId)
+                .HasConstraintName("fk_Order_Warehouse")
+                .OnDelete(DeleteBehavior.NoAction);
+            
             entity.Property(e => e.SupplierId).HasColumnName("supplier_id");
             entity.Property(e => e.VesselId).HasColumnName("vessel_id");
             entity.Property(e => e.WarehouseId).HasColumnName("warehouse_id");
@@ -57,31 +76,14 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("order_status")
                 .IsRequired();
 
-            // Configure the many-to-many relationship
             entity.HasMany(o => o.Boxes)
-                .WithMany(b => b.Orders)
-                .UsingEntity<Dictionary<string, object>>(
-                    "box_has_order",
-                    j => j.HasOne<Box>()
-                        .WithMany()
-                        .HasForeignKey("box_id")
-                        .HasConstraintName("fk_box_has_order_box1")
-                        .OnDelete(DeleteBehavior.NoAction),
-                    j => j.HasOne<Order>()
-                        .WithMany()
-                        .HasForeignKey("order_id")
-                        .HasConstraintName("fk_box_has_order_order1")
-                        .OnDelete(DeleteBehavior.NoAction),
-                    j =>
-                    {
-                        j.ToTable("box_has_order");
-                        j.HasKey("box_id", "order_id");
-                        j.Property<Guid>("box_id").HasColumnType("CHAR(36)");
-                        j.Property<int>("order_id").HasColumnType("INT");
-                    });
+                .WithOne(b => b.Order)
+                .HasForeignKey(b => b.OrderId)
+                .HasConstraintName("fk_box_order1")
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
-        modelBuilder.Entity<Box>(entity =>
+        modelBuilder.Entity<BoxEntity>(entity =>
         {
             entity.ToTable("box");
 
@@ -92,6 +94,10 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnType("CHAR(36)")
                 .IsRequired();
 
+            entity.Property(e => e.OrderId)
+                .HasColumnName("order_id")
+                .IsRequired();
+            
             entity.Property(e => e.Length)
                 .HasColumnName("length")
                 .IsRequired();
@@ -110,7 +116,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 // Port Configuration
-        modelBuilder.Entity<Port>(entity =>
+        modelBuilder.Entity<PortEntity>(entity =>
         {
             entity.ToTable("port");
 
@@ -126,7 +132,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 // VesselAtPort Configuration
-        modelBuilder.Entity<VesselAtPort>(entity =>
+        modelBuilder.Entity<VesselAtPortEntity>(entity =>
         {
             entity.ToTable("vessel_at_port");
 
@@ -146,13 +152,13 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.DepartureDate)
                 .HasColumnName("departure_date");
 
-            entity.HasOne(e => e.Vessel)
+            entity.HasOne(e => e.VesselEntity)
                 .WithMany(v => v.VesselAtPorts)
                 .HasForeignKey(e => e.VesselId)
                 .HasConstraintName("fk_vessel_has_port_vessel1")
                 .OnDelete(DeleteBehavior.NoAction);
 
-            entity.HasOne(e => e.Port)
+            entity.HasOne(e => e.PortEntity)
                 .WithMany(p => p.VesselAtPorts)
                 .HasForeignKey(e => e.PortId)
                 .HasConstraintName("fk_vessel_has_port_port1")
@@ -160,7 +166,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 // Vessel Configuration
-        modelBuilder.Entity<Vessel>(entity =>
+        modelBuilder.Entity<VesselEntity>(entity =>
         {
             entity.ToTable("vessel");
 
@@ -186,7 +192,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("flag")
                 .HasMaxLength(3);
 
-            entity.HasOne(e => e.Owner)
+            entity.HasOne(e => e.owner)
                 .WithMany(o => o.Vessels)
                 .HasForeignKey(e => e.OwnerId)
                 .HasConstraintName("fk_Vessel_Owner1")
@@ -194,7 +200,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 
-        modelBuilder.Entity<OrderStatus>(entity =>
+        modelBuilder.Entity<OrderStatusEntity>(entity =>
         {
             entity.ToTable("order_status");
 
@@ -207,7 +213,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 // Dispatch Configuration
-        modelBuilder.Entity<Dispatch>(entity =>
+        modelBuilder.Entity<DispatchEntity>(entity =>
         {
             entity.ToTable("dispatch");
 
@@ -252,7 +258,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.UserId)
                 .HasColumnName("user_id");
 
-            entity.HasOne(e => e.User)
+            entity.HasOne(e => e.userEntity)
                 .WithMany()
                 .HasForeignKey(e => e.UserId)
                 .HasConstraintName("fk_dispatch_user1")
@@ -263,8 +269,8 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .WithMany(o => o.Dispatches)
                 .UsingEntity<Dictionary<string, object>>(
                     "dispatch_has_order",
-                    j => j.HasOne<Order>().WithMany().HasForeignKey("order_id"),
-                    j => j.HasOne<Dispatch>().WithMany().HasForeignKey("dispatch_id"),
+                    j => j.HasOne<OrderEntity>().WithMany().HasForeignKey("order_id"),
+                    j => j.HasOne<DispatchEntity>().WithMany().HasForeignKey("dispatch_id"),
                     j =>
                     {
                         j.ToTable("dispatch_has_order");
@@ -274,7 +280,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
 
 
 // Owner Configuration
-        modelBuilder.Entity<Owner>(entity =>
+        modelBuilder.Entity<OwnerEntity>(entity =>
         {
             entity.ToTable("owner");
 
@@ -290,14 +296,14 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasMaxLength(45);
 
             entity.HasMany(o => o.Vessels)
-                .WithOne(v => v.Owner)
+                .WithOne(v => v.owner)
                 .HasForeignKey(v => v.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_vessel_owner");
         });
 
 
-        modelBuilder.Entity<Supplier>(entity =>
+        modelBuilder.Entity<SupplierEntity>(entity =>
         {
             entity.ToTable("supplier");
 
@@ -315,7 +321,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.AddressId)
                 .HasColumnName("address_id");
 
-            entity.HasOne(e => e.Address)
+            entity.HasOne(e => e.addressEntity)
                 .WithMany()
                 .HasForeignKey(e => e.AddressId)
                 .HasConstraintName("fk_Supplier_Address1")
@@ -323,7 +329,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 // Address Configuration
-        modelBuilder.Entity<Address>(entity =>
+        modelBuilder.Entity<AddressEntity>(entity =>
         {
             entity.ToTable("address");
 
@@ -350,7 +356,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 // Agent Configuration
-        modelBuilder.Entity<Agent>(entity =>
+        modelBuilder.Entity<AgentEntity>(entity =>
         {
             entity.ToTable("agent");
 
@@ -365,7 +371,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .IsRequired();
         });
 // Warehouse Configuration
-        modelBuilder.Entity<Warehouse>(entity =>
+        modelBuilder.Entity<WarehouseEntity>(entity =>
         {
             entity.ToTable("warehouse");
 
@@ -391,7 +397,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 // DispatchStatus Configuration
-        modelBuilder.Entity<DispatchStatus>(entity =>
+        modelBuilder.Entity<DispatchStatusEntity>(entity =>
         {
             entity.ToTable("dispatch_status");
 
@@ -404,7 +410,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 // Role Configuration
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<RoleEntity>(entity =>
         {
             entity.ToTable("role");
 
@@ -419,7 +425,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .IsRequired();
         });
 // User Configuration
-        modelBuilder.Entity<User>(entity =>
+        modelBuilder.Entity<UserEntity>(entity =>
         {
             entity.ToTable("user");
 
@@ -436,14 +442,14 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.RoleId)
                 .HasColumnName("role_id");
 
-            entity.HasOne<Role>()
+            entity.HasOne(u => u.Role)
                 .WithMany()
-                .HasForeignKey(e => e.RoleId)
-                .HasConstraintName("fk_Operator_Role1")
+                .HasForeignKey(u => u.RoleId)
+                .HasConstraintName("fk_User_Role")
                 .OnDelete(DeleteBehavior.NoAction);
         });
 // ContactInfo Configuration
-        modelBuilder.Entity<ContactInfo>(entity =>
+        modelBuilder.Entity<ContactInfoEntity>(entity =>
         {
             entity.ToTable("contact_info");
 
@@ -465,7 +471,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasMaxLength(10);
         });
 // TransportMode Configuration
-        modelBuilder.Entity<TransportMode>(entity =>
+        modelBuilder.Entity<TransportModeEntity>(entity =>
         {
             entity.ToTable("transport_mode");
 
@@ -475,7 +481,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasMaxLength(10)
                 .IsRequired();
         });
-        modelBuilder.Entity<Invoice>(entity =>
+        modelBuilder.Entity<InvoiceEntity>(entity =>
         {
             entity.ToTable("invoice");
 
@@ -489,7 +495,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("dispatch_id");
 
             // Map the relationship
-            entity.HasOne(e => e.Dispatch)
+            entity.HasOne(e => e.dispatchEntity)
                 .WithMany(d => d.Invoices)
                 .HasForeignKey(e => e.DispatchId)
                 .HasConstraintName("fk_Invoice_Dispatch1")
@@ -497,7 +503,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 // CostType Configuration
-        modelBuilder.Entity<CostType>(entity =>
+        modelBuilder.Entity<CostTypeEntity>(entity =>
         {
             entity.ToTable("cost_type");
 
@@ -512,7 +518,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .IsRequired();
         });
 // Currency Configuration
-        modelBuilder.Entity<Currency>(entity =>
+        modelBuilder.Entity<CurrencyEntity>(entity =>
         {
             entity.ToTable("currency");
 
@@ -527,7 +533,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .IsRequired();
         });
 // Financial Configuration
-        modelBuilder.Entity<Financial>(entity =>
+        modelBuilder.Entity<FinancialEntity>(entity =>
         {
             entity.ToTable("financial");
 
@@ -545,21 +551,21 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.CurrencyId)
                 .HasColumnName("currency_id");
 
-            entity.HasOne(e => e.Invoice)
+            entity.HasOne(e => e.invoiceEntity)
                 .WithMany()
                 .HasForeignKey(e => e.InvoiceId)
                 .HasConstraintName("fk_financial_invoice1")
                 .OnDelete(DeleteBehavior.NoAction);
 
 
-            entity.HasOne(e => e.CostType)
+            entity.HasOne(e => e.costTypeEntity)
                 .WithMany()
                 .HasForeignKey(e => e.CostTypeId)
                 .HasConstraintName("fk_financial_cost_type1")
                 .OnDelete(DeleteBehavior.NoAction);
 
 
-            entity.HasOne(e => e.Currency)
+            entity.HasOne(e => e.currencyEntity)
                 .WithMany()
                 .HasForeignKey(e => e.CurrencyId)
                 .HasConstraintName("fk_financial_currency1")

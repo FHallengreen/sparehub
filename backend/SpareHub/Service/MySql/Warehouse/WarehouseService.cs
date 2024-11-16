@@ -15,11 +15,11 @@ public class WarehouseService(SpareHubDbContext dbContext) : IWarehouseService
                 agent => agent.Id,
                 (warehouse, agent) => new WarehouseResponse
                 {
-                    Id = warehouse.Id,
+                    Id = warehouse.Id.ToString(),
                     Name = warehouse.Name,
                     Agent = new AgentResponse
                     {
-                        Id = agent.Id,
+                        Id = agent.Id.ToString(),
                         Name = agent.Name
                     }
                 })

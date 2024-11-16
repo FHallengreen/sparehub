@@ -12,7 +12,7 @@ public class SupplierService(SpareHubDbContext dbContext) : ISupplierService
             .Where(v => string.IsNullOrEmpty(searchQuery) || v.Name.StartsWith(searchQuery))
             .Select(s => new SupplierResponse
             {
-                Id = s.Id,
+                Id = s.Id.ToString(),
                 Name = s.Name
             }).ToListAsync();
     }

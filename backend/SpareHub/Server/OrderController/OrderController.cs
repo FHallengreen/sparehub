@@ -1,8 +1,10 @@
 using Domain;
+using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using Service.Order;
+using Service.Interfaces;
 using Shared;
+using Shared.Order;
 
 namespace Server.OrderController;
 
@@ -32,8 +34,8 @@ public class OrderController(IServiceProvider serviceProvider) : ControllerBase
         }
     }
 
-    [HttpPut("{orderId:int}")]
-    public async Task<IActionResult> UpdateOrder(int orderId, [FromBody] OrderRequest orderRequest)
+    [HttpPut("{orderId}")]
+    public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] OrderRequest orderRequest)
     {
         try
         {
@@ -68,8 +70,8 @@ public class OrderController(IServiceProvider serviceProvider) : ControllerBase
         }
     }
 
-    [HttpGet("{orderId:int}")]
-    public async Task<ActionResult<OrderResponse>> GetOrderById(int orderId)
+    [HttpGet("{orderId}")]
+    public async Task<ActionResult<OrderResponse>> GetOrderById(string orderId)
     {
         try
         {
@@ -104,8 +106,8 @@ public class OrderController(IServiceProvider serviceProvider) : ControllerBase
         }
     }
 
-    [HttpDelete("{orderId:int}")]
-    public ActionResult DeleteOrder(int orderId)
+    [HttpDelete("{orderId}")]
+    public ActionResult DeleteOrder(string orderId)
     {
         try
         {
