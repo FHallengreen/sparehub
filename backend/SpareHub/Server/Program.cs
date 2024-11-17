@@ -66,12 +66,15 @@ var connectionString = string.Format("server={0};port={1};database={2};user={3};
     builder.Configuration.GetValue<string>("MYSQL_USER"),
     builder.Configuration.GetValue<string>("MYSQL_PASSWORD"));
 
+Console.WriteLine($"Connection String: {connectionString}");
+
 // Register the DbContext with MySQL configuration
 builder.Services.AddDbContext<SpareHubDbContext>(options =>
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
-            mySqlOptions => mySqlOptions.EnableStringComparisonTranslations())
-    // .EnableSensitiveDataLogging()
-    // .LogTo(Console.WriteLine, LogLevel.Information)
+            mySqlOptions => mySqlOptions.EnableStringComparisonTranslations()
+)
+.EnableSensitiveDataLogging()
+.LogTo(Console.WriteLine, LogLevel.Information)
 );
 
 
