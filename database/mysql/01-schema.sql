@@ -459,17 +459,18 @@ USE `sparehub` ;
 -- -----------------------------------------------------
 -- Placeholder table for view `sparehub`.`non_cancelled_orders`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sparehub`.`non_cancelled_orders` (`id` INT, `order_number` INT, `supplier_order_number` INT, `supplier_id` INT, `vessel_id` INT, `warehouse_id` INT, `expected_readiness` INT, `actual_readiness` INT, `expected_arrival` INT, `actual_arrival` INT, `order_status` INT);
+CREATE TABLE IF NOT EXISTS `sparehub`.`non_cancelled_orders` (`id` INT);
 
 -- -----------------------------------------------------
 -- View `sparehub`.`non_cancelled_orders`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `sparehub`.`non_cancelled_orders`;
 USE `sparehub`;
+DROP VIEW IF EXISTS `sparehub`.`non_cancelled_orders`;
+
 CREATE  OR REPLACE 
     ALGORITHM = UNDEFINED 
-    DEFINER = `root`@`%` 
-    SQL SECURITY DEFINER
+    SQL SECURITY INVOKER
 VIEW `non_cancelled_orders` AS
     SELECT 
         `order`.`id` AS `id`,

@@ -55,6 +55,7 @@ public class BoxMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : I
 
     public Task DeleteBoxAsync(string orderId, string boxId)
     {
-        throw new NotImplementedException();
+        dbContext.Boxes.Remove(new BoxEntity { Id = Guid.Parse(boxId) });
+        return dbContext.SaveChangesAsync();
     }
 }
