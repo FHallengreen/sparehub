@@ -50,13 +50,13 @@ public class OrderController(IServiceProvider serviceProvider) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
-    public async Task<IActionResult> UpdateOrder(string orderId, [FromForm] OrderRequest orderRequest)
+    public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] OrderRequest orderRequest)
     {
         try
         {
             var orderService = GetDatabaseFactory().GetService<IOrderService>();
             await orderService.UpdateOrder(orderId, orderRequest);
-            return NoContent();
+            return Ok();
         }
         catch (KeyNotFoundException e)
         {
@@ -112,7 +112,7 @@ public class OrderController(IServiceProvider serviceProvider) : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(OrderResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
-    public async Task<IActionResult> CreateOrder([FromForm] OrderRequest orderTable)
+    public async Task<IActionResult> CreateOrder([FromBody] OrderRequest orderTable)
     {
         try
         {
