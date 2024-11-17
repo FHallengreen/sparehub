@@ -55,9 +55,6 @@ builder.Services.AddScoped<IBoxService, BoxMySqlService>();
 
 // Register IBoxService and IOrderService with a placeholder default
 
-// builder.Services.AddScoped<OrderNeo4jService>();
-
-
 // Configure the database connection string with SSL enabled
 var connectionString = string.Format("server={0};port={1};database={2};user={3};password={4};SslMode=Required",
     builder.Configuration.GetValue<string>("MYSQL_HOST"),
@@ -140,4 +137,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

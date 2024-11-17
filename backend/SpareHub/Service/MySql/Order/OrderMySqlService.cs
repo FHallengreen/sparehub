@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Repository.Interfaces;
 using Service.Interfaces;
 using Shared;
+using Shared.Exceptions;
 using Shared.Order;
 
 namespace Service.MySql.Order;
@@ -18,14 +19,27 @@ public class OrderMySqlService(IOrderRepository orderRepository, IMemoryCache me
 
         IEnumerable<Domain.Models.Order> orders;
 
-        if (searchTerms != null && searchTerms.Any(term => availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase)))
+        try
         {
-            orders = (await orderRepository.GetOrdersAsync())
-                .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
+            if (searchTerms != null &&
+                searchTerms.Any(term => availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase)))
+            {
+                orders = (await orderRepository.GetOrdersAsync())
+                    .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
+            }
+            else
+            {
+                orders = await orderRepository.GetNonCancelledOrdersAsync();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            orders = await orderRepository.GetNonCancelledOrdersAsync();
+            throw new RepositoryException("An error occurred while fetching orders from the database.", ex);
+        }
+
+        if (orders == null || !orders.Any())
+        {
+            throw new KeyNotFoundException("No orders found matching the search criteria.");
         }
 
         var orderResponses = orders.Select(o => new OrderTableResponse
@@ -73,10 +87,16 @@ public class OrderMySqlService(IOrderRepository orderRepository, IMemoryCache me
             OrderStatus = orderRequest.OrderStatus,
             Boxes = new List<Box>()
         };
+        try
+        {
+            await orderRepository.CreateOrderAsync(order);
+        }
+        catch (Exception ex)
+        {
+            throw new RepositoryException("Failed to create order.", ex);
+        }
 
-        await orderRepository.CreateOrderAsync(order);
-
-        if (orderRequest.Boxes != null && orderRequest.Boxes.Any())
+        if (orderRequest.Boxes == null || orderRequest.Boxes.Count == 0) return await GetOrderById(order.Id);
         {
             var boxRequests = orderRequest.Boxes.Select(b => new BoxRequest
             {
@@ -87,11 +107,17 @@ public class OrderMySqlService(IOrderRepository orderRepository, IMemoryCache me
                 Weight = b.Weight
             }).ToList();
 
-            await boxService.UpdateOrderBoxes(order.Id, boxRequests);
+            try
+            {
+                await boxService.UpdateOrderBoxes(order.Id, boxRequests);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("Failed to create boxes for order.", ex);
+            }
         }
 
-        var orderResponse = await GetOrderById(order.Id);
-        return orderResponse;
+        return await GetOrderById(order.Id);
     }
 
     public async Task UpdateOrder(string orderId, OrderRequest orderRequest)
@@ -100,7 +126,6 @@ public class OrderMySqlService(IOrderRepository orderRepository, IMemoryCache me
         if (existingOrder == null)
             throw new KeyNotFoundException("Order not found");
 
-        // Update properties
         existingOrder.OrderNumber = orderRequest.OrderNumber;
         existingOrder.SupplierOrderNumber = orderRequest.SupplierOrderNumber;
         existingOrder.SupplierId = orderRequest.SupplierId;
@@ -112,7 +137,14 @@ public class OrderMySqlService(IOrderRepository orderRepository, IMemoryCache me
         existingOrder.ActualArrival = orderRequest.ActualArrival;
         existingOrder.OrderStatus = orderRequest.OrderStatus;
 
-        await orderRepository.UpdateOrderAsync(existingOrder);
+        try
+        {
+            await orderRepository.UpdateOrderAsync(existingOrder);
+        }
+        catch (Exception ex)
+        {
+            throw new RepositoryException("Failed to update order.", ex);
+        }
 
         if (orderRequest.Boxes != null)
         {
@@ -122,63 +154,81 @@ public class OrderMySqlService(IOrderRepository orderRepository, IMemoryCache me
 
     public async Task<OrderResponse> GetOrderById(string orderId)
     {
-        var order = await orderRepository.GetOrderByIdAsync(orderId);
-        if (order == null)
-            throw new KeyNotFoundException("Order not found");
-
-        var boxes = await boxService.GetBoxes(orderId);
-
-        var orderResponse = new OrderResponse
+        try
         {
-            Id = order.Id,
-            OrderNumber = order.OrderNumber,
-            SupplierOrderNumber = order.SupplierOrderNumber,
-            ExpectedReadiness = order.ExpectedReadiness,
-            ActualReadiness = order.ActualReadiness,
-            ExpectedArrival = order.ExpectedArrival,
-            ActualArrival = order.ActualArrival,
-            OrderStatus = order.OrderStatus,
-            Supplier = new SupplierResponse
-            {
-                Id = order.Supplier.Id,
-                Name = order.Supplier.Name
-            },
-            Vessel = new VesselResponse
-            {
-                Id = order.Vessel.Id,
-                Name = order.Vessel.Name,
-                ImoNumber = order.Vessel.ImoNumber,
-                Flag = order.Vessel.Flag,
-                Owner = new OwnerResponse
-                {
-                    Id = order.Vessel.Owner.Id,
-                    Name = order.Vessel.Owner.Name
-                }
-            },
-            Warehouse = new WarehouseResponse
-            {
-                Id = order.Warehouse.Id,
-                Name = order.Warehouse.Name,
-                Agent = order.Warehouse.Agent != null
-                    ? new AgentResponse
-                    {
-                        Id = order.Warehouse.Agent.Id,
-                        Name = order.Warehouse.Agent.Name
-                    }
-                    : null
-            },
-            Owner = order.Vessel.Owner.Name,
-            Boxes = boxes
-        };
+            var order = await orderRepository.GetOrderByIdAsync(orderId);
+            if (order == null)
+                throw new KeyNotFoundException("Order not found");
 
-        return orderResponse;
+            var boxes = await boxService.GetBoxes(orderId);
+
+            var orderResponse = new OrderResponse
+            {
+                Id = order.Id,
+                OrderNumber = order.OrderNumber,
+                SupplierOrderNumber = order.SupplierOrderNumber,
+                ExpectedReadiness = order.ExpectedReadiness,
+                ActualReadiness = order.ActualReadiness,
+                ExpectedArrival = order.ExpectedArrival,
+                ActualArrival = order.ActualArrival,
+                OrderStatus = order.OrderStatus,
+                Supplier = new SupplierResponse
+                {
+                    Id = order.Supplier.Id,
+                    Name = order.Supplier.Name
+                },
+                Vessel = new VesselResponse
+                {
+                    Id = order.Vessel.Id,
+                    Name = order.Vessel.Name,
+                    ImoNumber = order.Vessel.ImoNumber,
+                    Flag = order.Vessel.Flag,
+                    Owner = new OwnerResponse
+                    {
+                        Id = order.Vessel.Owner.Id,
+                        Name = order.Vessel.Owner.Name
+                    }
+                },
+                Warehouse = new WarehouseResponse
+                {
+                    Id = order.Warehouse.Id,
+                    Name = order.Warehouse.Name,
+                    Agent = order.Warehouse.Agent != null
+                        ? new AgentResponse
+                        {
+                            Id = order.Warehouse.Agent.Id,
+                            Name = order.Warehouse.Agent.Name
+                        }
+                        : null
+                },
+                Owner = order.Vessel.Owner.Name,
+                Boxes = boxes
+            };
+            return orderResponse;
+        }
+        catch (Exception ex)
+        {
+            throw new RepositoryException("Failed to get order.", ex);
+        }
     }
 
 
     public async Task DeleteOrder(string orderId)
     {
-        await orderRepository.DeleteOrderAsync(orderId);
+        try
+        {
+            await orderRepository.DeleteOrderAsync(orderId);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new RepositoryException("An error occurred while deleting the order.", ex);
+        }
     }
+
 
     public async Task<List<string>> GetAllOrderStatusesAsync()
     {
