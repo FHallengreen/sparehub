@@ -84,15 +84,16 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
     public async Task DeleteOrderAsync(string orderId)
     {
         if (!int.TryParse(orderId, out var id))
-            return;
+            throw new ArgumentException("Invalid order ID format.", nameof(orderId));
 
         var orderEntity = await dbContext.Orders.FindAsync(id);
-        if (orderEntity != null)
-        {
-            dbContext.Orders.Remove(orderEntity);
-            await dbContext.SaveChangesAsync();
-        }
+        if (orderEntity == null)
+            throw new KeyNotFoundException($"Order with ID '{orderId}' not found.");
+
+        dbContext.Orders.Remove(orderEntity);
+        await dbContext.SaveChangesAsync();
     }
+
 
     public Task<List<string>> GetAllOrderStatusesAsync()
     {
