@@ -8,7 +8,7 @@ namespace Server
     [Route("api/vessel-port")]
     public class PortVesselController(IPortVesselService portVesselService) : ControllerBase
     {
-        [HttpGet("vessels-at-port")]
+        [HttpGet]
         public async Task<IActionResult> GetVesselsAtPort(string portName)
         {
             var vessels = await portVesselService.GetVesselsAtPortAsync(portName);

@@ -528,4 +528,5 @@ ALTER USER 'admin_user'@'%' DEFAULT ROLE 'admin_role';
 ALTER USER 'readonly_user'@'%' DEFAULT ROLE 'readonly_role';
 ALTER USER 'restricted_user'@'%' DEFAULT ROLE 'restricted_role';
 
+FLUSH PRIVILEGES;
 -- end attached script 'script'
