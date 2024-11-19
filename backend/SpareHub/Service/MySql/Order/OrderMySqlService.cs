@@ -21,54 +21,25 @@ public class OrderMySqlService(
     public async Task<IEnumerable<OrderTableResponse>> GetOrders(List<string>? searchTerms = null)
     {
         var availableStatuses = await GetAllOrderStatusesAsync();
-
-        IEnumerable<Domain.Models.Order> orders;
-
-
-        if (searchTerms != null &&
-            searchTerms.Any(term => availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase)))
-        {
-            orders = (await orderRepository.GetOrdersAsync())
-                .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
-        }
-        else
-        {
-            orders = await orderRepository.GetNonCancelledOrdersAsync();
-        }
+        var orders = await FetchOrdersBasedOnSearchTerms(searchTerms, availableStatuses);
 
         var enumerable = orders.ToList();
-        if (orders == null || enumerable.Count == 0)
+        if (enumerable.Count == 0)
         {
             throw new NotFoundException("No orders found matching the search criteria.");
         }
 
-        var orderResponses = enumerable.Select(o => new OrderTableResponse
-        {
-            Id = o.Id,
-            OrderNumber = o.OrderNumber,
-            SupplierName = o.Supplier.Name,
-            OwnerName = o.Vessel.Owner.Name,
-            VesselName = o.Vessel.Name,
-            WarehouseName = o.Warehouse.Name,
-            OrderStatus = o.OrderStatus,
-            Boxes = o.Boxes.Count,
-            TotalWeight = Math.Round(o.Boxes.Sum(b => b.Weight), 2)
-        }).ToList();
+        var orderResponses = MapOrdersToResponses(enumerable);
 
-        if (searchTerms is not { Count: > 0 }) return orderResponses;
+        if (searchTerms is { Count: > 0 })
         {
-            var nonStatusTerms = searchTerms.Where(t =>
-                !availableStatuses.Contains(t, StringComparer.OrdinalIgnoreCase)).ToList();
-
-            orderResponses = nonStatusTerms.Aggregate(orderResponses, (current, term) => current.Where(o =>
-                o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
+            orderResponses = FilterOrderResponses(orderResponses, searchTerms, availableStatuses);
         }
 
         return orderResponses;
     }
+
+
 
     public async Task<OrderResponse> CreateOrder(OrderRequest orderRequest)
     {
@@ -94,6 +65,8 @@ public class OrderMySqlService(
             return await GetOrderById(order.Id);
         }
     }
+
+
 
     public async Task UpdateOrder(string orderId, OrderRequest orderRequest)
     {
@@ -182,5 +155,49 @@ public class OrderMySqlService(
         memoryCache.Set(OrderStatusCacheKey, cachedStatuses, cacheEntryOptions);
 
         return cachedStatuses;
+    }
+
+
+    private static List<OrderTableResponse> MapOrdersToResponses(IEnumerable<Domain.Models.Order> orders)
+    {
+        return orders.Select(o => new OrderTableResponse
+        {
+            Id = o.Id,
+            OrderNumber = o.OrderNumber,
+            SupplierName = o.Supplier.Name,
+            OwnerName = o.Vessel.Owner.Name,
+            VesselName = o.Vessel.Name,
+            WarehouseName = o.Warehouse.Name,
+            OrderStatus = o.OrderStatus,
+            Boxes = o.Boxes.Count,
+            TotalWeight = Math.Round(o.Boxes.Sum(b => b.Weight), 2)
+        }).ToList();
+    }
+
+    private static List<OrderTableResponse> FilterOrderResponses(
+        List<OrderTableResponse> orderResponses, List<string> searchTerms, IEnumerable<string> availableStatuses)
+    {
+        var nonStatusTerms = searchTerms
+            .Where(t => !availableStatuses.Contains(t, StringComparer.OrdinalIgnoreCase))
+            .ToList();
+
+        return nonStatusTerms.Aggregate(orderResponses, (current, term) => current.Where(o =>
+            o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+            o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+            o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+            o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
+    }
+
+    private async Task<IEnumerable<Domain.Models.Order>> FetchOrdersBasedOnSearchTerms(
+        List<string>? searchTerms, IEnumerable<string> availableStatuses)
+    {
+        if (searchTerms != null &&
+            searchTerms.Any(term => availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase)))
+        {
+            return (await orderRepository.GetOrdersAsync())
+                .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
+        }
+
+        return await orderRepository.GetNonCancelledOrdersAsync();
     }
 }

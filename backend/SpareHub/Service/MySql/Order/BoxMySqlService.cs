@@ -58,7 +58,7 @@ public class BoxMySqlService(BoxMySqlRepository boxRepository) : IBoxService
         if (string.IsNullOrWhiteSpace(orderId))
             throw new ValidationException("Order ID cannot be null or empty.");
 
-        if (boxRequests.Any(boxRequest => string.IsNullOrWhiteSpace(boxRequest.Id)))
+        if (boxRequests.Exists(boxRequest => string.IsNullOrWhiteSpace(boxRequest.Id)))
         {
             throw new ValidationException("Box ID is required for updating a box.");
         }
