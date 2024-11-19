@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Domain.MongoDb;
 
-public class OrderCollection
+public class OrderDocument
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -15,6 +15,7 @@ public class OrderCollection
     public string SupplierName { get; set; } = null!;
     public int VesselId { get; set; }
     public string VesselName { get; set; } = null!;
+    public int VesselOwnerId { get; set; }
     public string VesselOwnerName { get; set; } = null!;
     public int WarehouseId { get; set; }
     public string WarehouseName { get; set; } = null!;
@@ -25,4 +26,3 @@ public class OrderCollection
     public string OrderStatus { get; set; } = null!;
     public List<BoxCollection> Boxes { get; set; } = new();
 }
-
