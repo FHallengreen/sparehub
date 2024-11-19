@@ -21,7 +21,10 @@ public class OrderMongoDbRepository (IMongoCollection<OrderDocument> collection,
 
     public async Task<IEnumerable<Order>> GetNonCancelledOrdersAsync()
     {
-        var orderCollection = await collection.Find(order => true).ToListAsync();
+        var filter = Builders<OrderDocument>.Filter.Ne(order => order.OrderStatus, "Cancelled");
+
+        var orderCollection = await collection.Find(filter).ToListAsync();
+
         return mapper.Map<IEnumerable<Order>>(orderCollection);
 
     }
