@@ -23,6 +23,7 @@ public class OrderMongoDbRepository (IMongoCollection<OrderDocument> collection,
     {
         var orderCollection = await collection.Find(order => true).ToListAsync();
         return mapper.Map<IEnumerable<Order>>(orderCollection);
+
     }
 
     public Task CreateOrderAsync(Order order)
