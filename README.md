@@ -25,10 +25,10 @@ Ensure you have an `.env` file in the root directory of the project with the fol
 
 ```bash
 # MYSQL
-MYSQL_DATABASE=example
-MYSQL_USER=root
-MYSQL_ROOT_PASSWORD=password
-MYSQL_PASSWORD=password
+MYSQL_DATABASE=sparehub
+MYSQL_USER=admin
+MYSQL_ROOT_PASSWORD=softE24
+MYSQL_PASSWORD=softE24
 MYSQL_PORT=3306
 MYSQL_HOST=mysql-sparehub
 
@@ -36,11 +36,11 @@ MYSQL_HOST=mysql-sparehub
 API_URL=http://localhost:8080
 
 # MongoDB
-MONGO_INITDB_ROOT_USERNAME=root
-MONGO_INITDB_ROOT_PASSWORD=example
+MONGO_INITDB_ROOT_USERNAME=sparehubUser
+MONGO_INITDB_ROOT_PASSWORD=softE24
 MONGO_INITDB_DATABASE=sparehub
 
-MONGODB_URI=mongodb://root:example@mongodb-sparehub:27017
+MONGODB_URI=mongodb://sparehubUser:softE24@mongodb-sparehub:27017
 
 ## Neo4j
 NEO4J_URL=bolt://neo4j:7687
