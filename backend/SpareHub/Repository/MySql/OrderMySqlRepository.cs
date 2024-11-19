@@ -37,12 +37,9 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
         var orders = mapper.Map<IEnumerable<Order>>(nonCancelledOrderEntities);
         return orders;
     }
-    
+
     public async Task<Order?> GetOrderByIdAsync(string orderId)
     {
-        if (!int.TryParse(orderId, out var id))
-            return null;
-
         var orderEntity = await dbContext.Orders
             .Include(o => o.Supplier)
             .Include(o => o.Vessel)
@@ -50,7 +47,7 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
             .Include(o => o.Warehouse)
             .ThenInclude(w => w.Agent)
             .Include(o => o.Boxes)
-            .FirstOrDefaultAsync(o => o.Id == id);
+            .FirstOrDefaultAsync(o => o.Id.ToString() == orderId);
 
         return orderEntity != null ? mapper.Map<Order>(orderEntity) : null;
     }
@@ -66,16 +63,8 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
 
     public async Task UpdateOrderAsync(Order order)
     {
-        int orderId = int.Parse(order.Id);
-        var existingOrderEntity = await dbContext.Orders
-            .FirstOrDefaultAsync(o => o.Id == orderId);
-
-        if (existingOrderEntity == null)
-        {
-            throw new KeyNotFoundException("Order not found");
-        }
-
-        mapper.Map(order, existingOrderEntity);
+        var orderEntity = mapper.Map<OrderEntity>(order);
+        dbContext.Orders.Update(orderEntity);
 
         await dbContext.SaveChangesAsync();
     }
@@ -83,14 +72,8 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
 
     public async Task DeleteOrderAsync(string orderId)
     {
-        if (!int.TryParse(orderId, out var id))
-            throw new ArgumentException("Invalid order ID format.", nameof(orderId));
-
-        var orderEntity = await dbContext.Orders.FindAsync(id);
-        if (orderEntity == null)
-            throw new KeyNotFoundException($"Order with ID '{orderId}' not found.");
-
-        dbContext.Orders.Remove(orderEntity);
+        var orderEntity = await dbContext.Orders.FindAsync(orderId);
+        if (orderEntity != null) dbContext.Orders.Remove(orderEntity);
         await dbContext.SaveChangesAsync();
     }
 

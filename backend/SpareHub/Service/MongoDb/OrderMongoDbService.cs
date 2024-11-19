@@ -1,13 +1,15 @@
 ﻿using AutoMapper;
 using Domain.Models;
 using Repository.Interfaces;
+using Repository.MongoDb;
 using Service.Interfaces;
 using Shared;
+using Shared.DTOs.Order;
 using Shared.Order;
 
 namespace Service.MongoDb;
 
-public class OrderMongoDbService (IOrderRepository orderRepository, IMapper mapper) : IOrderService
+public class OrderMongoDbService (OrderMongoDbRepository orderRepository, IMapper mapper) : IOrderService
 {
     public async Task<IEnumerable<OrderTableResponse>> GetOrders(List<string>? searchTerms)
     {

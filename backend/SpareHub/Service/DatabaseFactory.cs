@@ -5,26 +5,20 @@ using Service.MySql.Order;
 
 namespace Service;
 
-public class DatabaseFactory(IServiceProvider serviceProvider, IOptions<DatabaseSettings> databaseSettings)
+public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<DatabaseSettings> databaseSettings)
     : IDatabaseFactory
 {
     private readonly Dictionary<(Type serviceType, DatabaseType dbType), Type> _serviceMappings = new()
     {
         { (typeof(IBoxService), DatabaseType.MySql), typeof(BoxMySqlService) },
-        /*{ (typeof(IBoxService), DatabaseType.MongoDb), typeof(BoxMongoDbService) },
-            { (typeof(IBoxService), DatabaseType.Neo4j), typeof(BoxNeo4jService) },*/
-        { (typeof(IOrderService), DatabaseType.MySql), typeof(OrderMySqlService) },
         { (typeof(IOrderService), DatabaseType.MongoDb), typeof(OrderMongoDbService) },
+        { (typeof(IOrderService), DatabaseType.MySql), typeof(OrderMySqlService) },
     };
-
-    private readonly DatabaseSettings _databaseSettings = databaseSettings.Value;
-
-    // Add other service mappings as needed
 
     public T GetService<T>() where T : class
     {
         var serviceType = typeof(T);
-        var dbType = _databaseSettings.DefaultDatabaseType;
+        var dbType = databaseSettings.CurrentValue.DefaultDatabaseType;
 
         if (_serviceMappings.TryGetValue((serviceType, dbType), out var implementationType))
         {

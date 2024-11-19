@@ -8,4 +8,5 @@ public interface IBoxRepository
     Task<List<Box>> GetBoxesByOrderIdAsync(string orderId);
     Task UpdateBoxesAsync(string orderId, List<Box> boxes);
     Task DeleteBoxAsync(string orderId, string boxId);
+    Task UpdateBoxAsync(string orderId, Box box);
 }

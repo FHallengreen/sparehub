@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Domain.Models;
 using Domain.MySql;
@@ -20,42 +21,41 @@ public class BoxMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : I
 
     public async Task<List<Box>> GetBoxesByOrderIdAsync(string orderId)
     {
-        if (!int.TryParse(orderId, out var id))
-            return new List<Box>();
-
         var boxEntities = await dbContext.Boxes
-            .Where(b => b.OrderId == id)
+            .Where(b => b.OrderId == int.Parse(orderId))
             .ToListAsync();
 
         var boxes = mapper.Map<List<Box>>(boxEntities);
         return boxes;
     }
 
-
     public async Task UpdateBoxesAsync(string orderId, List<Box> boxes)
     {
-        if (!int.TryParse(orderId, out var id))
-            return;
-
-        var existingBoxes = await dbContext.Boxes
-            .Where(b => b.OrderId == id)
-            .ToListAsync();
-
-        dbContext.Boxes.RemoveRange(existingBoxes);
-
         var boxEntities = mapper.Map<List<BoxEntity>>(boxes);
+
         foreach (var boxEntity in boxEntities)
         {
-            boxEntity.OrderId = id;
+            boxEntity.OrderId = int.Parse(orderId);
         }
 
-        dbContext.Boxes.AddRange(boxEntities);
+        dbContext.Boxes.UpdateRange(boxEntities);
+
         await dbContext.SaveChangesAsync();
     }
+
 
     public Task DeleteBoxAsync(string orderId, string boxId)
     {
         dbContext.Boxes.Remove(new BoxEntity { Id = Guid.Parse(boxId) });
         return dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateBoxAsync(string orderId, Box box)
+    {
+        var boxEntity = mapper.Map<BoxEntity>(box);
+        boxEntity.OrderId = int.Parse(orderId);
+        dbContext.Boxes.Update(boxEntity);
+        await dbContext.SaveChangesAsync();
+
     }
 }
