@@ -27,6 +27,7 @@ services:
     env_file:
       - .env
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
       - DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true
       - MYSQL_DATABASE=${MYSQL_DATABASE}

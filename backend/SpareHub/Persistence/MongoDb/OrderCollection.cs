@@ -1,9 +1,9 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Domain.MongoDb;
+namespace Persistence.MongoDb;
 
-public class OrderDocument
+public class OrderCollection
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -19,10 +19,18 @@ public class OrderDocument
     public string VesselOwnerName { get; set; } = null!;
     public int WarehouseId { get; set; }
     public string WarehouseName { get; set; } = null!;
+
+    public int AgentId { get; set; }
+    public string AgentName { get; set; } = null!;
+
     public DateTime ExpectedReadiness { get; set; }
     public DateTime? ActualReadiness { get; set; }
     public DateTime? ExpectedArrival { get; set; }
     public DateTime? ActualArrival { get; set; }
-    public string OrderStatus { get; set; } = null!;
+
+    [BsonRepresentation(BsonType.String)]
+    public OrderStatus OrderStatus { get; set; }
+
     public List<BoxCollection> Boxes { get; set; } = new();
+    public List<DispatchCollection> Dispatches { get; set; } = new();
 }

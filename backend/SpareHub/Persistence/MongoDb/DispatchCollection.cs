@@ -1,13 +1,14 @@
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Domain.MongoDb;
+namespace Persistence.MongoDb;
 
 public class DispatchCollection
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; } = null!;
+
     public string OriginType { get; set; } = null!;
     public int OriginId { get; set; }
     public string DestinationType { get; set; } = null!;
@@ -18,4 +19,8 @@ public class DispatchCollection
     public DateTime? DispatchDate { get; set; }
     public DateTime? DeliveryDate { get; set; }
     public int UserId { get; set; }
+    public UserCollection User { get; set; } = null!;
+
+    public List<InvoiceCollection> Invoices { get; set; } = new();
+    public List<OrderReference> Orders { get; set; } = new();
 }

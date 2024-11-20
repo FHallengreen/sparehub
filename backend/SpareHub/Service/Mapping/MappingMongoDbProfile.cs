@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Models;
-using Domain.MongoDb;
+using Persistence.MongoDb;
 
 namespace Service.Mapping;
 
@@ -8,7 +8,8 @@ public class MappingMongoDbProfile : Profile
 {
     public MappingMongoDbProfile()
     {
-        CreateMap<OrderDocument, Order>()
+        // Map OrderCollection to Order
+        CreateMap<OrderCollection, Order>()
             .ForMember(dest => dest.Supplier, opt => opt.MapFrom(src => new Domain.Models.Supplier
             {
                 Id = src.SupplierId.ToString(),
@@ -18,17 +19,25 @@ public class MappingMongoDbProfile : Profile
             {
                 Id = src.VesselId.ToString(),
                 Name = src.VesselName,
-                Owner = new Domain.Models.Owner
+                Owner = new Owner
                 {
                     Id = src.VesselOwnerId.ToString(),
                     Name = src.VesselOwnerName
                 }
             }))
+
+
             .ForMember(dest => dest.Warehouse, opt => opt.MapFrom(src => new Domain.Models.Warehouse
             {
                 Id = src.WarehouseId.ToString(),
-                Name = src.WarehouseName
+                Name = src.WarehouseName,
+                Agent = new Domain.Models.Agent
+                {
+                    Id = src.AgentId.ToString(),
+                    Name = src.AgentName
+                }
             }))
+
             .ForMember(dest => dest.Boxes, opt => opt.MapFrom(src => src.Boxes))
             .ReverseMap()
             .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier.Name))
@@ -39,6 +48,9 @@ public class MappingMongoDbProfile : Profile
             .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse.Name))
             .ForMember(dest => dest.WarehouseId, opt => opt.MapFrom(src => int.Parse(src.Warehouse.Id)))
             .ForMember(dest => dest.Boxes, opt => opt.MapFrom(src => src.Boxes));
-            ;
+
+        // Add Mapping for BoxCollection to Box
+        CreateMap<BoxCollection, Box>()
+            .ReverseMap();
     }
 }

@@ -1,12 +1,14 @@
-namespace Domain.MongoDb;
-
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+
+namespace Persistence.MongoDb;
 
 public class BoxCollection
 {
-    [BsonElement("Id")] // Maps the field name in MongoDB
-    [BsonRepresentation(MongoDB.Bson.BsonType.String)] 
-    public required string Id { get; set; }
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; } = null!;
+
     public int Length { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
