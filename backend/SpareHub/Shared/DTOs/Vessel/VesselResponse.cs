@@ -1,4 +1,4 @@
-namespace Shared;
+namespace Shared.DTOs.Vessel;
 
 public class VesselResponse
 {

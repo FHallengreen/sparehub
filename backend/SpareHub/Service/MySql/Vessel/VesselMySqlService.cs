@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Shared;
+using Shared.DTOs.Vessel;
 
-namespace Service;
+namespace Service.MySql.Vessel;
 
-public class VesselService(SpareHubDbContext dbContext) : IVesselService
+public class VesselMySqlService(SpareHubDbContext dbContext) : IVesselService
 {
     public async Task<List<VesselResponse>> GetVesselsBySearchQuery(string? searchQuery = "")
     {
@@ -24,5 +25,25 @@ public class VesselService(SpareHubDbContext dbContext) : IVesselService
                 }
             })
             .ToListAsync();
+    }
+
+    public Task<VesselResponse> GetVesselById(string vesselId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<VesselResponse> CreateVessel(CreateVesselDto createVesselDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<VesselResponse> UpdateVessel(string vesselId, CreateVesselDto createVesselDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteVessel(string vesselId)
+    {
+        throw new NotImplementedException();
     }
 }

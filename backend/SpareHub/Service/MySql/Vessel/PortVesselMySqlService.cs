@@ -1,8 +1,7 @@
 using Neo4j.Driver;
-using Shared;
-using System.Linq;
+using Shared.DTOs.Vessel;
 
-namespace Service
+namespace Service.MySql.Vessel
 {
     public class PortVesselService(IAsyncSession session, IVesselService vesselService) : IPortVesselService
     {
@@ -48,6 +47,26 @@ namespace Service
             });
 
             return vesselAtPortDto;
+        }
+
+        public Task<VesselResponse> GetVesselByIdAsync(string vesselId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<VesselResponse> CreateVesselAtPortAsync(VesselAtPortDto vesselAtPortDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<VesselResponse> UpdateVesselAtPortAsync(string vesselId, VesselAtPortDto vesselAtPortDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteVesselAtPortAsync(string vesselId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
