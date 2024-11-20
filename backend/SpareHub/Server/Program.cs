@@ -51,12 +51,14 @@ builder.Services.AddScoped<BoxMySqlRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
+builder.Services.AddScoped<DispatchMongoDbRepository>();
 
 // Register the services as concrete types
 builder.Services.AddScoped<BoxMySqlService>();
 builder.Services.AddScoped<OrderMySqlService>();
 builder.Services.AddScoped<OrderMongoDbService>();
 builder.Services.AddScoped<DispatchMySqlService>();
+builder.Services.AddScoped<DispatchMongoDbService>();
 
 // Dynamically resolve services using the factory
 builder.Services.AddScoped<IBoxService>(sp =>

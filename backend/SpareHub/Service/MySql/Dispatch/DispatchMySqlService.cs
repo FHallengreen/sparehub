@@ -1,5 +1,5 @@
-using Domain.Models;
 using Repository.Interfaces;
+using Repository.MySql;
 using Service.Interfaces;
 using Shared.DTOs.Dispatch;
 using Shared.Exceptions;
@@ -7,7 +7,7 @@ using ValidationException = System.ComponentModel.DataAnnotations.ValidationExce
 
 namespace Service.MySql.Dispatch;
 
-public class DispatchMySqlService(IDispatchRepository dispatchRepository) : IDispatchService
+public class DispatchMySqlService(DispatchMySqlRepository dispatchRepository) : IDispatchService
 {
     public async Task<DispatchResponse> CreateDispatch(DispatchRequest dispatchRequest, string orderId)
     {

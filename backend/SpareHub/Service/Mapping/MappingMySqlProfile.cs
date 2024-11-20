@@ -97,9 +97,9 @@ public class MappingMySqlProfile : Profile
         // Dispatch mappings
         CreateMap<DispatchEntity, Dispatch>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
-            .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.OriginId.ToString()))
+            .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.OriginId))
             .ForMember(dest => dest.DestinationType, opt => opt.MapFrom(src => src.DestinationType))
-            .ForMember(dest => dest.DestinationId, opt => opt.MapFrom(src => src.DestinationId.ToString()))
+            .ForMember(dest => dest.DestinationId, opt => opt.MapFrom(src => src.DestinationId))
             .ForMember(dest => dest.DispatchStatus, opt => opt.MapFrom(src => src.DispatchStatus))
             .ForMember(dest => dest.TransportModeType, opt => opt.MapFrom(src => src.TransportModeType))
             .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
@@ -107,5 +107,14 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.DeliveryDate, opt => opt.MapFrom(src => src.DeliveryDate))
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.userEntity));
+        
+        // User mappings
+        CreateMap<UserEntity, User>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.RoleId))
+            .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => src.OwnerId))
+            .ForMember(dest => dest.Role, opt => opt.Ignore())
+            .ForMember(dest => dest.Owner, opt => opt.Ignore());
     }
 }

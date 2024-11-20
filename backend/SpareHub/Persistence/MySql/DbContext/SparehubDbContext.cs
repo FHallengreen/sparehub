@@ -1,5 +1,4 @@
-﻿using Domain;
-using Domain.Models;
+﻿using Domain.Models;
 using Domain.MySql;
 using Microsoft.EntityFrameworkCore;
 
@@ -423,6 +422,12 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("title")
                 .HasMaxLength(45)
                 .IsRequired();
+            
+            entity.HasMany(r => r.Users)
+                .WithOne(u => u.Role)
+                .HasForeignKey(u => u.RoleId)
+                .HasConstraintName("fk_User_Role")
+                .OnDelete(DeleteBehavior.NoAction);
         });
 // User Configuration
         modelBuilder.Entity<UserEntity>(entity =>
@@ -430,6 +435,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.ToTable("user");
 
             entity.HasKey(e => e.Id);
+
             entity.Property(e => e.Id)
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
@@ -443,9 +449,19 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("role_id");
 
             entity.HasOne(u => u.Role)
-                .WithMany()
+                .WithMany(r => r.Users)
                 .HasForeignKey(u => u.RoleId)
                 .HasConstraintName("fk_User_Role")
+                .OnDelete(DeleteBehavior.NoAction);
+
+            entity.Property(e => e.OwnerId)
+                .HasColumnName("owner_id")
+                .IsRequired();
+
+            entity.HasOne(u => u.Owner)
+                .WithMany(o => o.Users)
+                .HasForeignKey(u => u.OwnerId)
+                .HasConstraintName("fk_User_Owner")
                 .OnDelete(DeleteBehavior.NoAction);
         });
 // ContactInfo Configuration

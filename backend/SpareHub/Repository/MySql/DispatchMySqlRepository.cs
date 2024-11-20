@@ -7,14 +7,23 @@ using Repository.Interfaces;
 
 namespace Repository.MySql;
 
-public class DispatchMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : IDispatchRepository
+public class DispatchMySqlRepository : IDispatchRepository
 {
+    private readonly SpareHubDbContext _dbContext;
+    private readonly IMapper _mapper;
+
+    public DispatchMySqlRepository(SpareHubDbContext dbContext, IMapper mapper)
+    {
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+    }
+
     public async Task<Dispatch> CreateDispatchAsync(Dispatch dispatch)
     {
-        var dispatchEntity = mapper.Map<DispatchEntity>(dispatch);
-        await dbContext.Dispatches.AddAsync(dispatchEntity);
-        await dbContext.SaveChangesAsync();
-        return mapper.Map<Dispatch>(dispatchEntity);
+        var dispatchEntity = _mapper.Map<DispatchEntity>(dispatch);
+        await _dbContext.Dispatches.AddAsync(dispatchEntity);
+        await _dbContext.SaveChangesAsync();
+        return _mapper.Map<Dispatch>(dispatchEntity);
     }
     
     public async Task<Dispatch?> GetDispatchByIdAsync(string dispatchId)
@@ -22,28 +31,28 @@ public class DispatchMySqlRepository(SpareHubDbContext dbContext, IMapper mapper
         if (!int.TryParse(dispatchId, out var id))
             return null;
 
-        var dispatchEntity = await dbContext.Dispatches
+        var dispatchEntity = await _dbContext.Dispatches
             .Include(d => d.userEntity)
             .FirstOrDefaultAsync(d => d.Id == id);
 
-        return dispatchEntity != null ? mapper.Map<Dispatch>(dispatchEntity) : null;
+        return dispatchEntity != null ? _mapper.Map<Dispatch>(dispatchEntity) : null;
     }
     
     public async Task<IEnumerable<Dispatch>> GetDispatchesAsync()
     {
-        var dispatchEntities = await dbContext.Dispatches
+        var dispatchEntities = await _dbContext.Dispatches
             .Include(d => d.userEntity)
             .ToListAsync();
 
-        return mapper.Map<IEnumerable<Dispatch>>(dispatchEntities);
+        return _mapper.Map<IEnumerable<Dispatch>>(dispatchEntities);
     }
     
     public async Task<Dispatch> UpdateDispatchAsync(Dispatch dispatch)
     {
-        var dispatchEntity = mapper.Map<DispatchEntity>(dispatch);
-        dbContext.Dispatches.Update(dispatchEntity);
-        await dbContext.SaveChangesAsync();
-        return mapper.Map<Dispatch>(dispatchEntity);
+        var dispatchEntity = _mapper.Map<DispatchEntity>(dispatch);
+        _dbContext.Dispatches.Update(dispatchEntity);
+        await _dbContext.SaveChangesAsync();
+        return _mapper.Map<Dispatch>(dispatchEntity);
     }
     
     public async Task DeleteDispatchAsync(string dispatchId)
@@ -51,13 +60,13 @@ public class DispatchMySqlRepository(SpareHubDbContext dbContext, IMapper mapper
         if (!int.TryParse(dispatchId, out var id))
             return;
 
-        var dispatchEntity = await dbContext.Dispatches
+        var dispatchEntity = await _dbContext.Dispatches
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (dispatchEntity == null)
             return;
 
-        dbContext.Dispatches.Remove(dispatchEntity);
-        await dbContext.SaveChangesAsync();
+        _dbContext.Dispatches.Remove(dispatchEntity);
+        await _dbContext.SaveChangesAsync();
     }
 }
