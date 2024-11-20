@@ -5,12 +5,14 @@ using MongoDB.Driver;
 using Neo4j.Driver;
 using Persistence;
 using Repository.Interfaces;
+using Repository.MongoDb;
 using Repository.MySql;
 using Service;
 using Service.Agent;
 using Service.Interfaces;
 using Service.Mapping;
 using Service.MySql.Dispatch;
+using Service.MongoDb;
 using Service.MySql.Order;
 using Service.Supplier;
 using Service.Warehouse;
@@ -43,18 +45,25 @@ builder.Services.AddScoped<IVesselService, VesselService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<MappingMySqlProfile>();
+    cfg.AddProfile<MappingMongoDbProfile>();
+});
+
 builder.Services.AddScoped<IOrderRepository, OrderMySqlRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderMongoDbRepository>();
 builder.Services.AddScoped<IBoxRepository, BoxMySqlRepository>();
 builder.Services.AddScoped<IDispatchRepository, DispatchMySqlRepository>();
 // Register concrete implementations
 builder.Services.AddScoped<OrderMySqlService>();
 builder.Services.AddScoped<BoxMySqlService>();
 builder.Services.AddScoped<DispatchMySqlService>();
+builder.Services.AddScoped<OrderMongoDbService>();
 
-// Keep the interface registrations if they're used elsewhere
 builder.Services.AddScoped<IOrderService, OrderMySqlService>();
 builder.Services.AddScoped<IBoxService, BoxMySqlService>();
+builder.Services.AddScoped<IOrderService, OrderMongoDbService>();
 builder.Services.AddScoped<IDispatchService, DispatchMySqlService>();
 
 // Register IBoxService and IOrderService with a placeholder default
@@ -91,7 +100,7 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<OrderCollection>("OrderCollection");
+    return database.GetCollection<OrderDocument>("Order");
 });
 
 builder.Services.AddScoped(sp =>

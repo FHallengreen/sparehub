@@ -1,6 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using Domain.MySql;
-
 namespace Domain.Models;
 
 public class Warehouse

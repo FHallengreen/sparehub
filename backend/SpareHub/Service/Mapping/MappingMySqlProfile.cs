@@ -5,9 +5,9 @@ using Shared.Order;
 
 namespace Service.Mapping;
 
-public class MappingProfile : Profile
+public class MappingMySqlProfile : Profile
 {
-    public MappingProfile()
+    public MappingMySqlProfile()
     {
         // Box mappings
         CreateMap<Box, BoxEntity>()
