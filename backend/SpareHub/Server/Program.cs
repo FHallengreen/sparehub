@@ -10,6 +10,7 @@ using Service;
 using Service.Agent;
 using Service.Interfaces;
 using Service.Mapping;
+using Service.MySql.Dispatch;
 using Service.MySql.Order;
 using Service.Supplier;
 using Service.Warehouse;
@@ -45,13 +46,16 @@ builder.Services.AddScoped<IAgentService, AgentService>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IOrderRepository, OrderMySqlRepository>();
 builder.Services.AddScoped<IBoxRepository, BoxMySqlRepository>();
+builder.Services.AddScoped<IDispatchRepository, DispatchMySqlRepository>();
 // Register concrete implementations
 builder.Services.AddScoped<OrderMySqlService>();
 builder.Services.AddScoped<BoxMySqlService>();
+builder.Services.AddScoped<DispatchMySqlService>();
 
 // Keep the interface registrations if they're used elsewhere
 builder.Services.AddScoped<IOrderService, OrderMySqlService>();
 builder.Services.AddScoped<IBoxService, BoxMySqlService>();
+builder.Services.AddScoped<IDispatchService, DispatchMySqlService>();
 
 // Register IBoxService and IOrderService with a placeholder default
 
@@ -94,6 +98,12 @@ builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
     return database.GetCollection<BoxOrderCollection>("OrderBoxCollection");
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var database = sp.GetRequiredService<IMongoDatabase>();
+    return database.GetCollection<DispatchCollection>("DispatchCollection");
 });
 
 

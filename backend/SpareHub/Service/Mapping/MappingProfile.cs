@@ -92,5 +92,19 @@ public class MappingProfile : Profile
         CreateMap<AgentEntity, Domain.Models.Agent>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+        
+        // Dispatch mappings
+        CreateMap<DispatchEntity, Dispatch>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+            .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.OriginId.ToString()))
+            .ForMember(dest => dest.DestinationType, opt => opt.MapFrom(src => src.DestinationType))
+            .ForMember(dest => dest.DestinationId, opt => opt.MapFrom(src => src.DestinationId.ToString()))
+            .ForMember(dest => dest.DispatchStatus, opt => opt.MapFrom(src => src.DispatchStatus))
+            .ForMember(dest => dest.TransportModeType, opt => opt.MapFrom(src => src.TransportModeType))
+            .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
+            .ForMember(dest => dest.DispatchDate, opt => opt.MapFrom(src => src.DispatchDate))
+            .ForMember(dest => dest.DeliveryDate, opt => opt.MapFrom(src => src.DeliveryDate))
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.userEntity));
     }
 }

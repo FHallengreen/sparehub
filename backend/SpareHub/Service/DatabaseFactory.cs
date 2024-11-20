@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Service.Interfaces;
+using Service.MySql.Dispatch;
 using Service.MySql.Order;
 
 namespace Service;
@@ -15,6 +16,7 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptions<Database
             { (typeof(IBoxService), DatabaseType.Neo4j), typeof(BoxNeo4jService) },*/
             { (typeof(IOrderService), DatabaseType.MySql), typeof(OrderMySqlService) },
             // { (typeof(IOrderService), DatabaseType.MongoDb), typeof(OrderMongoDbService) },
+            { (typeof(IDispatchService), DatabaseType.MySql), typeof(DispatchMySqlService) },
         };
 
         // Add other service mappings as needed
