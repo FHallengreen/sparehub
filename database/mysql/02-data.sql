@@ -34,10 +34,10 @@ INSERT INTO `owner` (`name`) VALUES
 -- Insert into `vessel`
 -- -------------------------------------
 INSERT INTO `vessel` (`owner_id`, `name`, `imo_number`, `flag`) VALUES
-(1, 'SS Marine Explorer', '1234567', 'USA'),
-(2, 'MV Ocean Voyager', '2345678', 'UK'),
-(3, 'HMS Sea King', '3456789', 'AUS'),
-(4, 'FV Harbor Star', '4567890', 'CAN'),
+(1, 'Guadalupe Explorer', '1234567', 'USA'),
+(2, 'Ocean Voyager', '2345678', 'UK'),
+(3, 'Sea King', '3456789', 'AUS'),
+(4, 'Harbor Star', '4567890', 'CAN'),
 (5, 'Yacht Marina Dream', '5678901', 'GER');
 
 -- -------------------------------------

@@ -1,4 +1,5 @@
 ﻿using Shared;
+using Shared.DTOs.Order;
 using Shared.Order;
 
 namespace Service.Interfaces;
