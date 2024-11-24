@@ -3,6 +3,7 @@ using Domain.Models;
 using MongoDB.Driver;
 using Persistence.MongoDb;
 using Repository.Interfaces;
+using OrderStatus = Persistence.MongoDb.OrderStatus;
 
 namespace Repository.MongoDb;
 
@@ -22,7 +23,7 @@ public class OrderMongoDbRepository (IMongoCollection<OrderCollection> collectio
 
     public async Task<IEnumerable<Order>> GetNonCancelledOrdersAsync()
     {
-        var filter = Builders<OrderDocument>.Filter.Ne(order => order.OrderStatus, "Cancelled");
+        var filter = Builders<OrderCollection>.Filter.Ne(order => order.OrderStatus, OrderStatus.Cancelled);
 
         var orderCollection = await collection.Find(filter).ToListAsync();
 
