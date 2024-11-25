@@ -12,6 +12,7 @@ using Service;
 using Service.Agent;
 using Service.Interfaces;
 using Service.Mapping;
+using Service.MySql.Dispatch;
 using Service.MongoDb;
 using Service.MySql.Order;
 using Service.Supplier;
@@ -49,17 +50,23 @@ builder.Services.AddScoped<IDatabaseFactory, DatabaseFactory>();
 builder.Services.AddScoped<BoxMySqlRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<OrderMongoDbRepository>();
+builder.Services.AddScoped<DispatchMySqlRepository>();
+builder.Services.AddScoped<DispatchMongoDbRepository>();
 
 // Register the services as concrete types
 builder.Services.AddScoped<BoxMySqlService>();
 builder.Services.AddScoped<OrderMySqlService>();
 builder.Services.AddScoped<OrderMongoDbService>();
+builder.Services.AddScoped<DispatchMySqlService>();
+builder.Services.AddScoped<DispatchMongoDbService>();
 
 // Dynamically resolve services using the factory
 builder.Services.AddScoped<IBoxService>(sp =>
     sp.GetRequiredService<IDatabaseFactory>().GetService<IBoxService>());
 builder.Services.AddScoped<IOrderService>(sp =>
     sp.GetRequiredService<IDatabaseFactory>().GetService<IOrderService>());
+builder.Services.AddScoped<IDispatchService>(sp =>
+    sp.GetRequiredService<IDatabaseFactory>().GetService<IDispatchService>());
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(cfg =>
@@ -81,7 +88,7 @@ var connectionString = string.Format("server={0};port={1};database={2};user={3};
 builder.Services.AddDbContext<SpareHubDbContext>(options =>
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
             mySqlOptions => mySqlOptions.EnableStringComparisonTranslations()
-        )
+)
 // .EnableSensitiveDataLogging()
 // .LogTo(Console.WriteLine, LogLevel.Information)
 );
@@ -107,6 +114,12 @@ builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
     return database.GetCollection<BoxCollection>("Box");
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var database = sp.GetRequiredService<IMongoDatabase>();
+    return database.GetCollection<DispatchCollection>("Dispatch");
 });
 
 

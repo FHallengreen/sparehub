@@ -9,4 +9,6 @@ public class UserEntity
     public required string Name { get; set; }
     public int RoleId { get; set; } 
     public RoleEntity? Role { get; set; } 
+    public int OwnerId { get; set; }
+    public OwnerEntity Owner { get; set; } = null!;
 }

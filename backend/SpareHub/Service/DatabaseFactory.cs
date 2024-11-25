@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Service.Interfaces;
+using Service.MySql.Dispatch;
 using Service.MongoDb;
 using Service.MySql.Order;
 
@@ -13,7 +14,12 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
         { (typeof(IBoxService), DatabaseType.MySql), typeof(BoxMySqlService) },
         { (typeof(IOrderService), DatabaseType.MongoDb), typeof(OrderMongoDbService) },
         { (typeof(IOrderService), DatabaseType.MySql), typeof(OrderMySqlService) },
+        // { (typeof(IOrderService), DatabaseType.MongoDb), typeof(OrderMongoDbService) },
+        { (typeof(IDispatchService), DatabaseType.MySql), typeof(DispatchMySqlService) },
+        { (typeof(IDispatchService), DatabaseType.MongoDb), typeof(DispatchMongoDbService) }
     };
+
+    // Add other service mappings as needed
 
     public T GetService<T>() where T : class
     {
