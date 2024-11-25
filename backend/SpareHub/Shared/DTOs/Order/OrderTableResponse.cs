@@ -1,6 +1,6 @@
-namespace Shared.Order;
+namespace Shared.DTOs.Order;
 
-public class OrderTableResponse
+public record OrderTableResponse
 {
     public string Id { get; set; } = null!;
     public string OrderNumber { get; set; } = null!;

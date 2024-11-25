@@ -48,6 +48,7 @@ builder.Services.AddScoped<IDatabaseFactory, DatabaseFactory>();
 
 // Register the repositories as concrete types
 builder.Services.AddScoped<BoxMySqlRepository>();
+builder.Services.AddScoped<BoxMongoDbRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
@@ -55,6 +56,7 @@ builder.Services.AddScoped<DispatchMongoDbRepository>();
 
 // Register the services as concrete types
 builder.Services.AddScoped<BoxMySqlService>();
+builder.Services.AddScoped<BoxMongoDbService>();
 builder.Services.AddScoped<OrderMySqlService>();
 builder.Services.AddScoped<OrderMongoDbService>();
 builder.Services.AddScoped<DispatchMySqlService>();
@@ -74,7 +76,6 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<MappingMySqlProfile>();
     cfg.AddProfile<MappingMongoDbProfile>();
 });
-
 
 // Configure the database connection string with SSL enabled
 var connectionString = string.Format("server={0};port={1};database={2};user={3};password={4};SslMode=Required",
@@ -107,19 +108,19 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<OrderCollection>("Order");
+    return database.GetCollection<OrderCollection>("orders");
 });
 
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<BoxCollection>("Box");
+    return database.GetCollection<BoxCollection>("boxes");
 });
 
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<DispatchCollection>("Dispatch");
+    return database.GetCollection<DispatchCollection>("dispatches");
 });
 
 

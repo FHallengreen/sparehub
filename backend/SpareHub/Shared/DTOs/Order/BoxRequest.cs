@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Shared.DTOs.Order;
 
-public class BoxRequest
+public record BoxRequest
 {
-    [RegularExpression(@"^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?$",
-        ErrorMessage = "Id must be a valid GUID or empty.")]
+    [RegularExpression(@"^([0-9a-fA-F]{24})?$",
+        ErrorMessage = "Id must be a valid ID or empty.")]
     public string? Id { get; init; }
 
     [Required(ErrorMessage = "Length is required.")]
