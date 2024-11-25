@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Shared;
+using Shared.DTOs.Order;
 
 namespace Service.Warehouse;
 

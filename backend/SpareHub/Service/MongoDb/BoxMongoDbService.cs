@@ -1,130 +1,58 @@
-/*
+using AutoMapper;
 using Domain;
-using Domain.MongoDb;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using Persistence.MongoDb;
+using Repository.MongoDb;
+using Service.Interfaces;
+using Shared.DTOs.Order;
+using Shared.Exceptions;
 using Shared.Order;
 
 namespace Service.MongoDb;
 
-public class BoxMongoDbService(IMongoCollection<BoxOrderCollection> collection) : IBoxService
+public class BoxMongoDbService(IMongoCollection<BoxCollection> collection,
+    BoxMongoDbRepository boxRepository, IMapper mapper) : IBoxService
 {
-    public async Task<BoxResponse> CreateBox(BoxRequest boxRequest, int orderId)
+    public async Task<BoxResponse> CreateBox(BoxRequest boxRequest, string orderId)
     {
-        var orderBox = await collection.Find(o => o.OrderId == orderId).FirstOrDefaultAsync();
-
-        var newBox = new BoxCollection
+        var boxRequestWithId = boxRequest with
         {
-            Id = Guid.NewGuid(),
-            Length = boxRequest.Length,
-            Width = boxRequest.Width,
-            Height = boxRequest.Height,
-            Weight = boxRequest.Weight
+            Id = string.IsNullOrWhiteSpace(boxRequest.Id)
+                ? ObjectId.GenerateNewId().ToString()
+                : boxRequest.Id
         };
 
-        if (orderBox == null)
-        {
-            orderBox = new BoxOrderCollection
-            {
-                OrderId = orderId,
-                Boxes = [newBox]
-            };
+        var boxCollection = mapper.Map<BoxCollection>(boxRequestWithId);
+        boxCollection.OrderId = orderId;
 
-            await collection.InsertOneAsync(orderBox);
-        }
-        else
-        {
-            orderBox.Boxes.Add(newBox);
-            await collection.ReplaceOneAsync(o => o.OrderId == orderId, orderBox);
-        }
+        await collection.InsertOneAsync(boxCollection);
 
-        return newBox;
+        return mapper.Map<BoxResponse>(boxCollection);
     }
 
-    public async Task<List<BoxOrderCollection>> GetBoxes(int orderId)
+    public async Task<List<BoxResponse>> GetBoxes(string orderId)
     {
-        var orderBox = await collection.Find(o => o.OrderId == orderId).FirstOrDefaultAsync();
+        var boxes = await boxRepository.GetBoxesByOrderIdAsync(orderId);
 
-        if (orderBox == null)
-        {
-            return new List<BoxOrderCollection>();
-        }
+        if (boxes == null || boxes.Count == 0)
+            throw new NotFoundException($"No boxes found for order ID '{orderId}'.");
 
-        return new List<BoxOrderCollection> { orderBox };
+        return mapper.Map<List<BoxResponse>>(boxes);
     }
 
-    public async Task UpdateOrderBoxes(int orderId, List<BoxRequest> boxRequests)
+    public Task UpdateBoxes(string orderId, List<BoxRequest> boxes)
     {
-        var orderBox = await collection.Find(o => o.OrderId == orderId).FirstOrDefaultAsync();
-
-        if (orderBox == null)
-        {
-            throw new Exception($"Order with ID {orderId} not found.");
-        }
-
-        var updatedBoxes = new List<BoxCollection>();
-
-        foreach (var boxRequest in boxRequests)
-        {
-            if (boxRequest.BoxId == null || boxRequest.BoxId == Guid.Empty)
-            {
-                updatedBoxes.Add(new BoxCollection
-                {
-                    Id = Guid.NewGuid(),
-                    Length = boxRequest.Length,
-                    Width = boxRequest.Width,
-                    Height = boxRequest.Height,
-                    Weight = boxRequest.Weight
-                });
-            }
-            else
-            {
-                var existingBox = orderBox.Boxes.FirstOrDefault(b => b.Id == boxRequest.BoxId);
-                if (existingBox != null)
-                {
-                    existingBox.Length = boxRequest.Length;
-                    existingBox.Width = boxRequest.Width;
-                    existingBox.Height = boxRequest.Height;
-                    existingBox.Weight = boxRequest.Weight;
-                    updatedBoxes.Add(existingBox);
-                }
-                else
-                {
-                    updatedBoxes.Add(new BoxCollection
-                    {
-                        Id = boxRequest.BoxId.Value,
-                        Length = boxRequest.Length,
-                        Width = boxRequest.Width,
-                        Height = boxRequest.Height,
-                        Weight = boxRequest.Weight
-                    });
-                }
-            }
-        }
-
-        orderBox.Boxes = updatedBoxes;
-
-        await collection.ReplaceOneAsync(o => o.OrderId == orderId, orderBox);
+        throw new NotImplementedException();
     }
 
-    public async Task DeleteBox(int orderId, Guid boxId)
+    public Task UpdateBox(string orderId, string boxId, BoxRequest boxRequest)
     {
-        var orderBox = await collection.Find(o => o.OrderId == orderId).FirstOrDefaultAsync();
+        throw new NotImplementedException();
+    }
 
-        if (orderBox == null)
-        {
-            throw new Exception($"Order with ID {orderId} not found.");
-        }
-
-        var boxToRemove = orderBox.Boxes.FirstOrDefault(b => b.Id == boxId);
-
-        if (boxToRemove == null)
-        {
-            throw new Exception($"Box with ID {boxId} not found in order {orderId}.");
-        }
-
-        orderBox.Boxes.Remove(boxToRemove);
-
-        await collection.ReplaceOneAsync(o => o.OrderId == orderId, orderBox);
+    public Task DeleteBox(string orderId, string boxId)
+    {
+        throw new NotImplementedException();
     }
 }
-*/

@@ -1,6 +1,6 @@
-namespace Shared;
+namespace Shared.DTOs.Order;
 
-public class AgentResponse
+public record AgentResponse
 {
     public required string Id { get; set; }
     public required string Name { get; set; }
