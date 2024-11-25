@@ -12,20 +12,20 @@ public record BoxRequest
     [Required(ErrorMessage = "Length is required.")]
     [Range(1, 999999, ErrorMessage = "Length must be between 1 and 999999 cm.")]
     [DefaultValue(1)]
-    public int Length { get; init; }
+    public required int Length { get; init; }
 
     [Required(ErrorMessage = "Width is required.")]
     [Range(1, 999999, ErrorMessage = "Width must be between 1 and 999999 cm.")]
     [DefaultValue(1)]
-    public int Width { get; init; }
+    public required int Width { get; init; }
 
     [Required(ErrorMessage = "Height is required.")]
     [Range(1, 999999, ErrorMessage = "Height must be between 1 and 999999 cm.")]
     [DefaultValue(1)]
-    public int Height { get; init; }
+    public required int Height { get; init; }
 
     [Required(ErrorMessage = "Weight is required.")]
     [Range(0.1, 99999999, ErrorMessage = "Weight must be between 0.1 and 99999999 kg.")]
     [DefaultValue(1)]
-    public double Weight { get; init; }
+    public required double Weight { get; init; }
 }

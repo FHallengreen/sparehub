@@ -26,7 +26,6 @@ public class OrderMongoDbRepository (IMongoCollection<OrderCollection> collectio
         var filter = Builders<OrderCollection>.Filter.Ne(order => order.OrderStatus, OrderStatus.Cancelled);
 
         var orderCollection = await collection.Find(filter).ToListAsync();
-        Console.WriteLine($"Fetched {orderCollection.Count} non-cancelled orders.");
         return mapper.Map<List<Order>>(orderCollection);
     }
 

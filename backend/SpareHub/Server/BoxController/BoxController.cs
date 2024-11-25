@@ -19,6 +19,7 @@ public class BoxController(IDatabaseFactory databaseFactory) : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BoxResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
     public async Task<IActionResult> CreateBox(string orderId, [FromBody] BoxRequest boxRequest)
     {

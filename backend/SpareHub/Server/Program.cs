@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using Neo4j.Driver;
 using Persistence;
 using Persistence.MongoDb;
+using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
 using Repository.MongoDb;
 using Repository.MySql;
@@ -24,11 +25,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<AzureFileLoggerOptions>(builder.Configuration.GetSection("AzureLogging"));
 
 // Configure logging providers
-/*builder.Logging.ClearProviders();
+builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 builder.Logging.AddAzureWebAppDiagnostics();
-builder.Logging.SetMinimumLevel(LogLevel.Debug);*/
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 // Enables detailed logging in docker container
 // builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -167,3 +168,5 @@ app.UseMiddleware<ValidationExceptionMiddleware>();
 app.MapControllers();
 
 await app.RunAsync();
+
+public partial class Program { }

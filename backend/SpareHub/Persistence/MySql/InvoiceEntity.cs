@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Persistence.MySql;
 
 namespace Domain.MySql;
 

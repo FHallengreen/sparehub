@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using Domain.Models;
 using Repository.MySql;
 using Service.Interfaces;
@@ -8,13 +9,25 @@ using Shared.Order;
 
 namespace Service.MySql.Order;
 
-public class BoxMySqlService(BoxMySqlRepository boxRepository) : IBoxService
+public class BoxMySqlService(BoxMySqlRepository boxRepository, OrderMySqlRepository orderRepository)
+    : IBoxService
 {
     public async Task<BoxResponse> CreateBox(BoxRequest boxRequest, string orderId)
     {
+        if (string.IsNullOrWhiteSpace(orderId))
+            throw new ValidationException("Order ID cannot be null or empty.");
+
+        if (!int.TryParse(orderId, out _))
+            throw new ValidationException("Order ID must be a valid integer.");
+
+        var order = await orderRepository.GetOrderByIdAsync(orderId);
+        if (order == null)
+            throw new ValidationException($"Order ID '{orderId}' is invalid or does not exist."); // Changed to ValidationException
+
+
         var box = new Box
         {
-            Id = boxRequest.Id ?? Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid().ToString(),
             OrderId = orderId,
             Length = boxRequest.Length,
             Width = boxRequest.Width,
@@ -34,6 +47,7 @@ public class BoxMySqlService(BoxMySqlRepository boxRepository) : IBoxService
             Weight = createdBox.Weight
         };
     }
+
 
     public async Task<List<BoxResponse>> GetBoxes(string orderId)
     {
