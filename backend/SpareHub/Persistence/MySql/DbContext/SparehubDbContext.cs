@@ -392,6 +392,15 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasForeignKey(e => e.AgentId)
                 .HasConstraintName("fk_Warehouse_Agent")
                 .OnDelete(DeleteBehavior.NoAction);
+
+            entity.Property(e => e.AddressId)
+                .HasColumnName("address_id");
+
+            entity.HasOne(e => e.Address)
+                .WithOne()
+                .HasForeignKey<WarehouseEntity>(e => e.AddressId)
+                .HasConstraintName("fk_Warehouse_Address")
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
 
