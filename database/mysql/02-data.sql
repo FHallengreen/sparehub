@@ -83,12 +83,12 @@ INSERT INTO `role` (`title`) VALUES
 -- -------------------------------------
 -- Insert into `user`
 -- -------------------------------------
-INSERT INTO `user` (`role_id`, `name`) VALUES
-(1, 'Alice Johnson'),
-(2, 'Bob Smith'),
-(3, 'Carol Williams'),
-(4, 'David Brown'),
-(5, 'Eva Davis');
+INSERT INTO `user` (`role_id`, `name`, `owner_id`) VALUES
+(1, 'Alice Johnson', 1),
+(2, 'Bob Smith', 1),
+(3, 'Carol Williams', 2),
+(4, 'David Brown', 3),
+(5, 'Eva Davis', 5);
 
 -- -------------------------------------
 -- Insert into `dispatch_status`
@@ -166,15 +166,6 @@ INSERT INTO `contact_info_has_user` (`contact_info_id`, `user_id`) VALUES
 (4, 4),
 (5, 5);
 
--- -------------------------------------
--- Link `owner` with `user`
--- -------------------------------------
-INSERT INTO `owner_has_user` (`owner_id`, `operator_id`) VALUES
-(1, 2),
-(2, 3),
-(3, 4),
-(4, 5),
-(5, 1);
 
 -- -------------------------------------
 -- Populate `order` and `box`

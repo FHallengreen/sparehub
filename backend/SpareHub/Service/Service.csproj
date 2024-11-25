@@ -18,8 +18,4 @@
       <PackageReference Include="Neo4j.Driver" Version="5.25.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="MySql\" />
-    </ItemGroup>
-
 </Project>

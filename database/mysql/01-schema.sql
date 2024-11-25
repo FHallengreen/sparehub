@@ -169,11 +169,18 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`user` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `role_id` INT NOT NULL,
   `name` VARCHAR(45) NOT NULL,
+  `owner_id` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_Operator_Role1_idx` (`role_id` ASC) VISIBLE,
+  INDEX `fk_user_owner1_idx` (`owner_id` ASC) VISIBLE,
   CONSTRAINT `fk_Operator_Role1`
     FOREIGN KEY (`role_id`)
     REFERENCES `sparehub`.`role` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_user_owner1`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `sparehub`.`owner` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -267,28 +274,6 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`dispatch_has_order` (
   CONSTRAINT `fk_Dispatch_has_Order_Order1`
     FOREIGN KEY (`order_id`)
     REFERENCES `sparehub`.`order` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `sparehub`.`owner_has_user`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sparehub`.`owner_has_user` (
-  `owner_id` INT NOT NULL,
-  `operator_id` INT NOT NULL,
-  PRIMARY KEY (`owner_id`, `operator_id`),
-  INDEX `fk_owner_has_user_user1_idx` (`operator_id` ASC) VISIBLE,
-  INDEX `fk_owner_has_user_owner1_idx` (`owner_id` ASC) VISIBLE,
-  CONSTRAINT `fk_owner_has_user_owner1`
-    FOREIGN KEY (`owner_id`)
-    REFERENCES `sparehub`.`owner` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_owner_has_user_user1`
-    FOREIGN KEY (`operator_id`)
-    REFERENCES `sparehub`.`user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -528,5 +513,4 @@ ALTER USER 'admin_user'@'%' DEFAULT ROLE 'admin_role';
 ALTER USER 'readonly_user'@'%' DEFAULT ROLE 'readonly_role';
 ALTER USER 'restricted_user'@'%' DEFAULT ROLE 'restricted_role';
 
-FLUSH PRIVILEGES;
 -- end attached script 'script'
