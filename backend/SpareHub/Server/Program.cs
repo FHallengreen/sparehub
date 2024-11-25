@@ -48,6 +48,8 @@ builder.Services.AddScoped<IDatabaseFactory, DatabaseFactory>();
 
 // Register the repositories as concrete types
 builder.Services.AddScoped<BoxMySqlRepository>();
+builder.Services.AddScoped<PortMySqlRepository>();
+builder.Services.AddScoped<VesselMySqlRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();

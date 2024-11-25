@@ -25,6 +25,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
     public DbSet<FinancialEntity> Financials => Set<FinancialEntity>();
     public DbSet<OrderStatusEntity> OrderStatus => Set<OrderStatusEntity>();
     public DbSet<BoxEntity> Boxes => Set<BoxEntity>();
+    public DbSet<PortEntity> Ports => Set<PortEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
