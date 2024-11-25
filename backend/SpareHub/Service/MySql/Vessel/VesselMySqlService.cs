@@ -32,12 +32,12 @@ public class VesselMySqlService(SpareHubDbContext dbContext) : IVesselService
         throw new NotImplementedException();
     }
 
-    public Task<VesselResponse> CreateVessel(CreateVesselDto createVesselDto)
+    public Task<VesselResponse> CreateVessel(VesselRequest vesselRequest)
     {
         throw new NotImplementedException();
     }
 
-    public Task<VesselResponse> UpdateVessel(string vesselId, CreateVesselDto createVesselDto)
+    public Task<VesselResponse> UpdateVessel(string vesselId, VesselRequest vesselRequest)
     {
         throw new NotImplementedException();
     }

@@ -1,5 +1,6 @@
 using Domain;
 using Shared.Order;
+using Shared.DTOs.Vessel;
 
 namespace Shared;
 

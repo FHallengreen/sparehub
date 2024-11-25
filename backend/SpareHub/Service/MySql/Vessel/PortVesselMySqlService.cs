@@ -1,52 +1,14 @@
 using Neo4j.Driver;
 using Shared.DTOs.Vessel;
 
+
 namespace Service.MySql.Vessel
 {
     public class PortVesselService(IAsyncSession session, IVesselService vesselService) : IPortVesselService
     {
-        public async Task<VesselAtPortDto> GetVesselsAtPortAsync(string portName)
+        public Task<VesselAtPortRequest> GetVesselsAtPortAsync(string portName)
         {
-            var allVessels = await vesselService.GetVesselsBySearchQuery(null);
-
-            var query = @"
-            MATCH (p:Port)<-[r:DOCKS_AT]-(v)
-            WHERE p.name = $portName
-            RETURN p.name AS PortName, r.vessel_name AS VesselName, r.arrival_date AS ArrivalDate, r.departure_date AS DepartureDate;
-            ";
-
-            var result = await session.RunAsync(query, new { portName });
-
-            Console.WriteLine(result);
-            var vesselAtPortDto = new VesselAtPortDto
-            {
-                PortName = portName 
-            };
-
-            await result.ForEachAsync(record =>
-            {
-                string vesselName = record["VesselName"].As<string>();
-                Console.WriteLine($"Neo4j returned vessel: {vesselName}");
-
-                Console.WriteLine($"Neo4j Record: {record}");
-
-                var matchedVessel = allVessels.FirstOrDefault(v => string.Equals(v.Name, vesselName, StringComparison.CurrentCultureIgnoreCase));
-                if (matchedVessel != null)
-                {
-                    vesselAtPortDto.Vessels.Add(new VesselResponse
-                    {
-                        Id = matchedVessel.Id,
-                        Name = matchedVessel.Name,
-                        ImoNumber = matchedVessel.ImoNumber,
-                        Flag = matchedVessel.Flag,
-                        ArrivalDate = record["ArrivalDate"].As<DateTime?>(),
-                        DepartureDate = record["DepartureDate"].As<DateTime?>()
-                        
-                    });
-                }
-            });
-
-            return vesselAtPortDto;
+            throw new NotImplementedException();
         }
 
         public Task<VesselResponse> GetVesselByIdAsync(string vesselId)
@@ -54,12 +16,12 @@ namespace Service.MySql.Vessel
             throw new NotImplementedException();
         }
 
-        public Task<VesselResponse> CreateVesselAtPortAsync(VesselAtPortDto vesselAtPortDto)
+        public Task<VesselResponse> CreateVesselAtPortAsync(VesselAtPortRequest vesselAtPortRequest)
         {
             throw new NotImplementedException();
         }
 
-        public Task<VesselResponse> UpdateVesselAtPortAsync(string vesselId, VesselAtPortDto vesselAtPortDto)
+        public Task<VesselResponse> UpdateVesselAtPortAsync(string vesselId, VesselAtPortRequest vesselAtPortRequest)
         {
             throw new NotImplementedException();
         }

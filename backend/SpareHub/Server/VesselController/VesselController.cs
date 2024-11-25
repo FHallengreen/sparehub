@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using Shared;
+using Shared.DTOs.Vessel;
 
 namespace Server;
 
@@ -24,11 +24,11 @@ public class VesselController(IVesselService vesselService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateVessel(CreateVesselDto createVesselDto)
+    public async Task<IActionResult> CreateVessel(VesselRequest vesselRequest)
     {
         try
         {
-            var vessel = await vesselService.CreateVessel(createVesselDto);
+            var vessel = await vesselService.CreateVessel(vesselRequest);
 
             return Ok(vessel);
         }
@@ -54,13 +54,28 @@ public class VesselController(IVesselService vesselService) : ControllerBase
     }
 
     [HttpPut("{vesselId}")]
-    public async Task<IActionResult> UpdateVessel(string vesselId, CreateVesselDto createVesselDto)
+    public async Task<IActionResult> UpdateVessel(string vesselId, VesselRequest vesselRequest)
     {
         try
         {
-            var vessel = await vesselService.UpdateVessel(vesselId, createVesselDto);
+            var vessel = await vesselService.UpdateVessel(vesselId, vesselRequest);
 
             return Ok(vessel);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    [HttpDelete("{vesselId}")]
+    public async Task<IActionResult> DeleteVessel(string vesselId)
+    {
+        try
+        {
+            await vesselService.DeleteVessel(vesselId);
+
+            return Ok();
         }
         catch (Exception e)
         {

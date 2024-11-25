@@ -5,11 +5,11 @@ namespace Service;
 
 public interface IPortVesselService
 {
-    public Task<VesselAtPortDto> GetVesselsAtPortAsync(string portName);
+    public Task<VesselAtPortRequest> GetVesselsAtPortAsync(string portName);
 
     public Task<VesselResponse> GetVesselByIdAsync(string vesselId);
-    public Task<VesselResponse> CreateVesselAtPortAsync(VesselAtPortDto VesselAtPortDto);
-    public Task<VesselResponse> UpdateVesselAtPortAsync(string vesselId, VesselAtPortDto VesselAtPortDto);
+    public Task<VesselResponse> CreateVesselAtPortAsync(VesselAtPortRequest vesselAtPortRequest);
+    public Task<VesselResponse> UpdateVesselAtPortAsync(string vesselId, VesselAtPortRequest vesselAtPortRequest);
     public Task DeleteVesselAtPortAsync(string vesselId);
 
 }

@@ -1,6 +1,6 @@
-namespace Shared.DTOs.Vessel;
+﻿namespace Shared.DTOs.Vessel;
 
-public class VesselAtPortDto
+public class VesselAtPortRequest
 {
     public required string PortName { get; set; }
 

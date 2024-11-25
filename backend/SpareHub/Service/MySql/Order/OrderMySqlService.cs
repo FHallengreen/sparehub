@@ -6,6 +6,7 @@ using Shared;
 using Shared.DTOs.Order;
 using Shared.Exceptions;
 using Shared.Order;
+using Shared.DTOs.Vessel;
 
 namespace Service.MySql.Order;
 
