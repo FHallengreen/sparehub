@@ -1,9 +1,7 @@
 using AutoMapper;
 using Domain.Models;
-using Domain.MySql;
 using Persistence.MySql;
 using Shared.DTOs.Order;
-using Shared.Order;
 
 namespace Service.Mapping;
 

@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Persistence;
 using Persistence.MySql.SparehubDbContext;
+using Service.Interfaces;
 using Shared;
+using Shared.DTOs.Owner;
 
-namespace Service;
+namespace Service.MySql.Vessel;
 
 public class VesselService(SpareHubDbContext dbContext) : IVesselService
 {

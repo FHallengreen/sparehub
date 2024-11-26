@@ -1,4 +1,4 @@
-﻿namespace Domain.MySql;
+﻿namespace Persistence.MySql;
 
 public class VesselAtPortEntity
 {

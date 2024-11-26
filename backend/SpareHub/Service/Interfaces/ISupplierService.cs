@@ -1,6 +1,7 @@
 using Shared;
+using Shared.DTOs.Supplier;
 
-namespace Service.Supplier;
+namespace Service.Interfaces;
 
 public interface ISupplierService
 {

@@ -1,7 +1,6 @@
-using Shared;
 using Shared.DTOs.Order;
 
-namespace Service.Agent;
+namespace Service.Interfaces;
 
 public interface IAgentService
 {

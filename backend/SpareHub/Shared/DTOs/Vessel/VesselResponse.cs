@@ -1,3 +1,5 @@
+using Shared.DTOs.Owner;
+
 namespace Shared;
 
 public class VesselResponse

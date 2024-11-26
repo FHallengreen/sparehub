@@ -10,14 +10,15 @@ using Repository.MongoDb;
 using Repository.MySql;
 using Server.Middleware;
 using Service;
-using Service.Agent;
 using Service.Interfaces;
 using Service.Mapping;
 using Service.MySql.Dispatch;
 using Service.MongoDb;
+using Service.MySql.Agent;
 using Service.MySql.Order;
-using Service.Supplier;
-using Service.Warehouse;
+using Service.MySql.Supplier;
+using Service.MySql.Vessel;
+using Service.MySql.Warehouse;
 using Shared.DTOs.Order;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,32 +45,45 @@ builder.Services.AddMemoryCache();
 
 builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("DatabaseSettings"));
 
-// Add the DatabaseFactory with IOptionsMonitor
 builder.Services.AddScoped<IDatabaseFactory, DatabaseFactory>();
 
-// Register the repositories as concrete types
+builder.Services.AddScoped<IDispatchRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IDispatchRepository>();
+});
+
+builder.Services.AddScoped<IBoxRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IBoxRepository>();
+});
+
+builder.Services.AddScoped<IOrderRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IOrderRepository>();
+});
+
+// Register services directly
+builder.Services.AddScoped<IDispatchService, DispatchService>();
+builder.Services.AddScoped<IBoxService, BoxService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IVesselService, VesselService>();
+builder.Services.AddScoped<IAgentService, AgentService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+
+// Register MySQL repositories
 builder.Services.AddScoped<BoxMySqlRepository>();
-builder.Services.AddScoped<BoxMongoDbRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
-builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
+
+// Register MongoDB repositories
+builder.Services.AddScoped<BoxMongoDbRepository>();
+builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMongoDbRepository>();
 
-// Register the services as concrete types
-builder.Services.AddScoped<BoxMySqlService>();
-builder.Services.AddScoped<BoxMongoDbService>();
-builder.Services.AddScoped<OrderMySqlService>();
-builder.Services.AddScoped<OrderMongoDbService>();
-builder.Services.AddScoped<DispatchMySqlService>();
-builder.Services.AddScoped<DispatchMongoDbService>();
-
-// Dynamically resolve services using the factory
-builder.Services.AddScoped<IBoxService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetService<IBoxService>());
-builder.Services.AddScoped<IOrderService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetService<IOrderService>());
-builder.Services.AddScoped<IDispatchService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetService<IDispatchService>());
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(cfg =>
