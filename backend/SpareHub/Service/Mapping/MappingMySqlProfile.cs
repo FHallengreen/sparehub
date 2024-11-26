@@ -66,27 +66,26 @@ public class MappingMySqlProfile : Profile
 
         CreateMap<SupplierEntity, Domain.Models.Supplier>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))  // Mapping integer to string
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));  // Mapping Name field directly
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
         CreateMap<BoxRequest, Box>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id ?? Guid.NewGuid().ToString()));
         
         // Vessel mappings
         CreateMap<VesselEntity, Vessel>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.ImoNumber, opt => opt.MapFrom(src => src.ImoNumber))
             .ForMember(dest => dest.Flag, opt => opt.MapFrom(src => src.Flag))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner));
-        
+
         CreateMap<Vessel, VesselEntity>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.ImoNumber, opt => opt.MapFrom(src => src.ImoNumber))
             .ForMember(dest => dest.Flag, opt => opt.MapFrom(src => src.Flag))
             .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => int.Parse(src.Owner.Id)))
             .ForMember(dest => dest.Owner, opt => opt.Ignore());
-        
         //Owner mappings
         CreateMap<OwnerEntity, Owner>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))

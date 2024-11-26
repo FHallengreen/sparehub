@@ -43,7 +43,7 @@ namespace Server.VesselController;
     }
 
     [HttpPut("{vesselId}")]
-    public async Task<IActionResult> UpdateVessel(string vesselId, VesselRequest vesselRequest)
+    public async Task<IActionResult> UpdateVessel(string vesselId, [FromBody]VesselRequest vesselRequest)
     {
         var vessel = await _vesselService.UpdateVessel(vesselId, vesselRequest);
 

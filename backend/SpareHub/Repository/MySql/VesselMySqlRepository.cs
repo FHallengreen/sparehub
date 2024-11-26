@@ -15,6 +15,7 @@ public class VesselMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) 
     {
         var vesselEntitiesWithOwners = await dbContext.Vessels
             .Include(v => v.Owner)
+            .OrderBy(v => v.Id)
             .ToListAsync();
         
         var mappedVessels = mapper.Map<List<Vessel>>(vesselEntitiesWithOwners);
