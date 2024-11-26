@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Persistence.MySql;
 using Repository.Interfaces;
+using Shared.Exceptions;
 
 namespace Repository.MySql;
 
@@ -53,6 +54,12 @@ public class VesselMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) 
 
     public async Task DeleteVesselAsync(string vesselId)
     {
-        throw new NotImplementedException();
+        var vesselEntity = await dbContext.Vessels.FirstOrDefaultAsync(v => v.Id.ToString() == vesselId);
+        
+        if (vesselEntity == null)
+            throw new NotFoundException($"Vessel with id '{vesselId}' not found");
+        
+        dbContext.Vessels.Remove(vesselEntity);
+        await dbContext.SaveChangesAsync();
     }
 }

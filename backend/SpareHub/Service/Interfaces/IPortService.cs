@@ -6,7 +6,6 @@ namespace Service.Interfaces;
 
 public interface IPortService
 {
-    public Task<VesselAtPortRequest> GetVesselsAtPort(string portId);
     
     public Task<List<PortResponse>> GetPorts();
 

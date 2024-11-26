@@ -12,13 +12,6 @@ namespace Server.PortController;
         private readonly IPortService _portService = databaseFactory.GetService<IPortService>();
         
         
-        [HttpGet("{portId}/vessel")]
-        public async Task<IActionResult> GetVesselsAtPort(string portId)
-        {
-            var vessels = await _portService.GetVesselsAtPort(portId);
-            return Ok(vessels);
-        }
-        
         [HttpGet]
         public async Task<IActionResult> GetPorts()
         {

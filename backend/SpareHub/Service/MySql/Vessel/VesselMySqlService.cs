@@ -138,7 +138,11 @@ public class VesselMySqlService(VesselMySqlRepository vesselMySqlRepository, Own
 
     public async Task DeleteVessel(string vesselId)
     {
-        throw new NotImplementedException();
+        var vessel = await vesselMySqlRepository.GetVesselByIdAsync(vesselId);
+        if (vessel == null)
+            throw new NotFoundException($"Vessel with id '{vesselId}' not found");
+        
+        await vesselMySqlRepository.DeleteVesselAsync(vesselId);
     }
 
 }

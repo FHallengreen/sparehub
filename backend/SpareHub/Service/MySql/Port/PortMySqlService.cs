@@ -11,11 +11,6 @@ namespace Service.MySql.Vessel;
 
     public class PortMySqlService(PortMySqlRepository portMySqlRepository) : IPortService
     {
-
-        public async Task<VesselAtPortRequest> GetVesselsAtPort(string portId)
-        {
-            throw new NotImplementedException();
-        }
         
         public async Task<List<PortResponse>> GetPorts()
         {

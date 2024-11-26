@@ -6,8 +6,6 @@ namespace Repository.Interfaces;
 
 public interface IPortRepository
 {
-    Task<VesselAtPortRequest> GetVesselsAtPortAsync(string portId);
-        
     Task<Port> CreatePortAsync(Port port);
     
     Task<List<Port>> GetPortsAsync();

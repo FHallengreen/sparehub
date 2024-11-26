@@ -11,18 +11,6 @@ namespace Repository.MySql;
 public class PortMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : IPortRepository
 {
 
-    public async Task<VesselAtPortRequest> GetVesselsAtPortAsync(string portId)
-    {
-        //step 1: Find ID of port
-        
-
-        //step 2: Find all vessels at port
-        
-
-        //step 3: Return list of vessels at port
-        throw new NotImplementedException();
-    }
-
     public async Task<Port> CreatePortAsync(Port port)
     {
         var portEntity = mapper.Map<PortEntity>(port);
