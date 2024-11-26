@@ -74,14 +74,66 @@ public class VesselMySqlService(VesselMySqlRepository vesselMySqlRepository, Own
 
     public async Task<VesselResponse> CreateVessel(VesselRequest vesselRequest)
     {
-        throw new NotImplementedException();
+        var owner = await ownerMySqlRepository.GetOwnerByIdAsync(vesselRequest.OwnerId);
+        if (owner == null)
+            throw new NotFoundException($"Owner with id '{vesselRequest.OwnerId}' not found");
+
+        var vessel = new Domain.Models.Vessel
+        {
+            Name = vesselRequest.Name,
+            ImoNumber = vesselRequest.ImoNumber,
+            Flag = vesselRequest.Flag,
+            Owner = owner
+        };
+
+        var createdVessel = await vesselMySqlRepository.CreateVesselAsync(vessel);
+
+        return new VesselResponse
+        {
+            Id = createdVessel.Id,
+            Name = createdVessel.Name,
+            ImoNumber = createdVessel.ImoNumber,
+            Flag = createdVessel.Flag,
+            Owner = new OwnerResponse
+            {
+                Id = createdVessel.Owner.Id,
+                Name = createdVessel.Owner.Name
+            }
+        };
     }
 
 
 
     public async Task<VesselResponse> UpdateVessel(string vesselId, VesselRequest vesselRequest)
     {
-        throw new NotImplementedException();
+        var vessel = await vesselMySqlRepository.GetVesselByIdAsync(vesselId);
+        if (vessel == null)
+            throw new NotFoundException($"Vessel with id '{vesselId}' not found");
+        
+        var owner = await ownerMySqlRepository.GetOwnerByIdAsync(vesselRequest.OwnerId);
+        if (owner == null)
+            throw new NotFoundException($"Owner with id '{vesselRequest.OwnerId}' not found");
+        
+        vessel.Name = vesselRequest.Name;
+        vessel.ImoNumber = vesselRequest.ImoNumber;
+        vessel.Flag = vesselRequest.Flag;
+        vessel.Owner = owner;
+        
+        await vesselMySqlRepository.UpdateVesselAsync(vesselId, vessel);
+        
+        return new VesselResponse
+        {
+            Id = vessel.Id,
+            Name = vessel.Name,
+            ImoNumber = vessel.ImoNumber,
+            Flag = vessel.Flag,
+            Owner = new OwnerResponse
+            {
+                Id = vessel.Owner.Id,
+                Name = vessel.Owner.Name
+            }
+        };
+        
     }
 
     public async Task DeleteVessel(string vesselId)

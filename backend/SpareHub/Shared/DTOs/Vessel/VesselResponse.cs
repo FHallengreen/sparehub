@@ -7,6 +7,4 @@ public class VesselResponse
     public string? ImoNumber { get; set; }
     public string? Flag { get; set; }
     public OwnerResponse Owner { get; set; }
-    public DateTime? ArrivalDate { get; set; }
-    public DateTime? DepartureDate { get; set; }
 }

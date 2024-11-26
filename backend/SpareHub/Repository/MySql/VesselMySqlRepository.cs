@@ -35,13 +35,19 @@ public class VesselMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) 
 
     public async Task<Vessel> CreateVesselAsync(Vessel vessel)
     {
-        throw new NotImplementedException();
+        var vesselEntity = mapper.Map<VesselEntity>(vessel);
+        await dbContext.Vessels.AddAsync(vesselEntity);
+        await dbContext.SaveChangesAsync();
+        
+        return mapper.Map<Vessel>(vesselEntity);
     }
     
 
     public async Task UpdateVesselAsync(string vesselId, Vessel vessel)
     {
-        throw new NotImplementedException();
+        var vesselEntity = mapper.Map<VesselEntity>(vessel);
+        dbContext.Vessels.Update(vesselEntity);
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task DeleteVesselAsync(string vesselId)

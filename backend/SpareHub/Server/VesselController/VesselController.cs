@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service;
 using Service.Interfaces;
 using Shared.DTOs.Vessel;
+using Shared.Exceptions;
 
 namespace Server.VesselController;
 
@@ -14,10 +15,13 @@ namespace Server.VesselController;
     
 
     [HttpPost]
-    public async Task<IActionResult> CreateVessel(VesselRequest vesselRequest)
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(VesselResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
+    public async Task<IActionResult> CreateVessel([FromBody] VesselRequest vesselRequest)
     {
         var vessel = await _vesselService.CreateVessel(vesselRequest);
-        return Ok(vessel);
+        return CreatedAtAction(nameof(GetVesselById), new { vesselId = vessel.Id }, vessel);
     }
     
     [HttpGet]

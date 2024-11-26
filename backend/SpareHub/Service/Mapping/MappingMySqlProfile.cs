@@ -101,12 +101,7 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Agent, opt => opt.MapFrom(src => src.Agent));
-
-        // Owner mappings
-        CreateMap<OwnerEntity, Owner>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-
+        
         // Agent mappings
         CreateMap<AgentEntity, Domain.Models.Agent>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
