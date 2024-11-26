@@ -2,7 +2,7 @@ using Domain.Models;
 
 namespace Shared.DTOs.Dispatch;
 
-public class DispatchResponse
+public record DispatchResponse
 {
     public string Id { get; set; } = null!;
     public string OriginType { get; set; } = null!;

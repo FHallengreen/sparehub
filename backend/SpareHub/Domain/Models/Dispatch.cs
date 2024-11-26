@@ -15,4 +15,5 @@ public class Dispatch
     public DateTime? DeliveryDate { get; set; }
     public int UserId { get; set; }
     public User User { get; set; } = null!;
+    public string? OrderId { get; set; }
 }
