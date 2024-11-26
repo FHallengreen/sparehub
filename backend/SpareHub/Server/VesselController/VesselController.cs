@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Service;
+using Service.Interfaces;
 using Shared;
 
 namespace Server;

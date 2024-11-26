@@ -13,7 +13,6 @@ using Persistence.MySql;
 using Persistence.MySql.SparehubDbContext;
 using Shared.DTOs.Order;
 using Shared.Exceptions;
-using Shared.Order;
 using Xunit;
 
 namespace Server.Tests.BoxController;
