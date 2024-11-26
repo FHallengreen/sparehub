@@ -1,15 +1,14 @@
-name: Backend deployment
+name: Backend Deployment
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'backend/SpareHub/**'
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Backend Tests"]
+    types:
+      - completed
 
 jobs:
   build:
+    if: github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/master'
     runs-on: windows-latest
 
     steps:
@@ -34,6 +33,7 @@ jobs:
           path: ./myapp
 
   deploy:
+    if: github.ref == 'refs/heads/master'
     runs-on: windows-latest
     needs: build
     environment:

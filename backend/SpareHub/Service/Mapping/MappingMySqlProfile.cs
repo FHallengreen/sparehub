@@ -1,6 +1,7 @@
 using AutoMapper;
 using Domain.Models;
 using Domain.MySql;
+using Persistence.MySql;
 using Shared.DTOs.Order;
 using Shared.Order;
 
@@ -69,7 +70,7 @@ public class MappingMySqlProfile : Profile
 
         CreateMap<BoxRequest, Box>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id ?? Guid.NewGuid().ToString()));
-        
+
         // Vessel mappings
         CreateMap<VesselEntity, Vessel>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
@@ -93,7 +94,7 @@ public class MappingMySqlProfile : Profile
         CreateMap<AgentEntity, Domain.Models.Agent>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-        
+
         // Dispatch mappings
         CreateMap<DispatchEntity, Dispatch>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
@@ -107,7 +108,7 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.DeliveryDate, opt => opt.MapFrom(src => src.DeliveryDate))
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.userEntity));
-        
+
         // User mappings
         CreateMap<UserEntity, User>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
