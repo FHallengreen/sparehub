@@ -15,6 +15,7 @@ using Service.Mapping;
 using Service.MySql.Dispatch;
 using Service.MongoDb;
 using Service.MySql.Order;
+using Service.MySql.Vessel;
 using Service.Supplier;
 using Service.Warehouse;
 using Shared.DTOs.Order;
@@ -24,11 +25,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<AzureFileLoggerOptions>(builder.Configuration.GetSection("AzureLogging"));
 
 // Configure logging providers
-/*builder.Logging.ClearProviders();
+builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 builder.Logging.AddAzureWebAppDiagnostics();
-builder.Logging.SetMinimumLevel(LogLevel.Debug);*/
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 // Enables detailed logging in docker container
 // builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -54,10 +55,13 @@ builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
 builder.Services.AddScoped<DispatchMongoDbRepository>();
+builder.Services.AddScoped<OwnerMySqlRepository>();
 
 // Register the services as concrete types
 builder.Services.AddScoped<BoxMySqlService>();
 builder.Services.AddScoped<OrderMySqlService>();
+builder.Services.AddScoped<PortMySqlService>();
+builder.Services.AddScoped<VesselMySqlService>();
 builder.Services.AddScoped<OrderMongoDbService>();
 builder.Services.AddScoped<DispatchMySqlService>();
 builder.Services.AddScoped<DispatchMongoDbService>();
@@ -69,6 +73,10 @@ builder.Services.AddScoped<IOrderService>(sp =>
     sp.GetRequiredService<IDatabaseFactory>().GetService<IOrderService>());
 builder.Services.AddScoped<IDispatchService>(sp =>
     sp.GetRequiredService<IDatabaseFactory>().GetService<IDispatchService>());
+builder.Services.AddScoped<IPortService>(sp =>
+    sp.GetRequiredService<IDatabaseFactory>().GetService<IPortService>());
+builder.Services.AddScoped<IVesselService>(sp =>
+    sp.GetRequiredService<IDatabaseFactory>().GetService<IVesselService>());
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(cfg =>

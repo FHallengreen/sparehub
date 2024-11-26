@@ -1,53 +1,51 @@
 ﻿using AutoMapper;
-using Domain.Models;
 using Domain.MySql;
+using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using Persistence.MySql;
 using Repository.Interfaces;
 
 namespace Repository.MySql;
 
 public class VesselMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : IVesselRepository
 {
+
     public async Task<List<Vessel>> GetVesselsAsync()
     {
-        var vesselEntities = await dbContext.Vessels.ToListAsync();
-        var vessels = mapper.Map<List<Vessel>>(vesselEntities);
-        return vessels;
+        var vesselEntitiesWithOwners = await dbContext.Vessels
+            .Include(v => v.Owner)
+            .ToListAsync();
+        
+        var mappedVessels = mapper.Map<List<Vessel>>(vesselEntitiesWithOwners);
+
+        return mappedVessels;
     }
+    
 
     public async Task<Vessel> GetVesselByIdAsync(string vesselId)
     {
-        var vesselEntity = await dbContext.Vessels
-            .FirstOrDefaultAsync(v => v.Id == int.Parse(vesselId));
+        var vesselEntityWithOwner = await dbContext.Vessels
+            .Include(v => v.Owner)
+            .FirstOrDefaultAsync(v => v.Id.ToString() == vesselId);
         
-        var vessel = mapper.Map<Vessel>(vesselEntity);
-        return vessel;
+        var mappedVessel = mapper.Map<Vessel>(vesselEntityWithOwner);
+        return mappedVessel;
     }
 
     public async Task<Vessel> CreateVesselAsync(Vessel vessel)
     {
-        var vesselEntity = mapper.Map<VesselEntity>(vessel);
-        dbContext.Vessels.Add(vesselEntity);
-        await dbContext.SaveChangesAsync();
-        vessel.Id = vesselEntity.Id.ToString();
-        return vessel;
+        throw new NotImplementedException();
     }
+    
 
     public async Task UpdateVesselAsync(string vesselId, Vessel vessel)
     {
-        var vesselEntity = mapper.Map<VesselEntity>(vessel);
-        vesselEntity.Id = int.Parse(vesselId);
-        dbContext.Vessels.Update(vesselEntity);
-        await dbContext.SaveChangesAsync();
+        throw new NotImplementedException();
     }
 
     public async Task DeleteVesselAsync(string vesselId)
     {
-        var vesselEntity = await dbContext.Vessels
-            .FirstOrDefaultAsync(v => v.Id == int.Parse(vesselId));
-
-        if (vesselEntity != null) dbContext.Vessels.Remove(vesselEntity);
-        await dbContext.SaveChangesAsync();
+        throw new NotImplementedException();
     }
 }

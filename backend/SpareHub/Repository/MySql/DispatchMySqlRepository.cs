@@ -3,6 +3,7 @@ using Domain.Models;
 using Domain.MySql;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using Persistence.MySql;
 using Repository.Interfaces;
 
 namespace Repository.MySql;

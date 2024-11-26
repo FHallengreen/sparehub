@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Domain.MySql;
-
+namespace Persistence.MySql;
 // Supplier
 public class SupplierEntity
 {

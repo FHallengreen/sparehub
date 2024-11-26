@@ -1,6 +1,7 @@
 using AutoMapper;
 using Domain.Models;
 using Domain.MySql;
+using Persistence.MySql;
 using Shared.DTOs.Order;
 using Shared.Order;
 
@@ -61,23 +62,40 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.ActualArrival, opt => opt.MapFrom(src => src.ActualArrival))
             .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.OrderStatus))
             .ForMember(dest => dest.Boxes, opt => opt.MapFrom(src => src.Boxes));
+            
 
-        // Supplier mappings
         CreateMap<SupplierEntity, Domain.Models.Supplier>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))  // Mapping integer to string
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));  // Mapping Name field directly
 
         CreateMap<BoxRequest, Box>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id ?? Guid.NewGuid().ToString()));
         
         // Vessel mappings
         CreateMap<VesselEntity, Vessel>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.ImoNumber, opt => opt.MapFrom(src => src.ImoNumber))
             .ForMember(dest => dest.Flag, opt => opt.MapFrom(src => src.Flag))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner));
-
+        
+        CreateMap<Vessel, VesselEntity>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.ImoNumber, opt => opt.MapFrom(src => src.ImoNumber))
+            .ForMember(dest => dest.Flag, opt => opt.MapFrom(src => src.Flag))
+            .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => int.Parse(src.Owner.Id)))
+            .ForMember(dest => dest.Owner, opt => opt.Ignore());
+        
+        //Owner mappings
+        CreateMap<OwnerEntity, Owner>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+        
+        CreateMap<Owner, OwnerEntity>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+        
         // Warehouse mappings
         CreateMap<WarehouseEntity, Domain.Models.Warehouse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))

@@ -6,13 +6,13 @@ using Shared.DTOs.Port;
 namespace Server.PortController;
 
 [ApiController] 
-[Route("api/vessel-port")]
+[Route("api/port")]
     public class PortController(IDatabaseFactory databaseFactory) : ControllerBase
     {
         private readonly IPortService _portService = databaseFactory.GetService<IPortService>();
         
         
-        [HttpGet]
+        [HttpGet("{portId}/vessel")]
         public async Task<IActionResult> GetVesselsAtPort(string portId)
         {
             var vessels = await _portService.GetVesselsAtPort(portId);
@@ -26,10 +26,10 @@ namespace Server.PortController;
             return Ok(ports);
         }
         
-        [HttpGet]
-        public async Task<IActionResult> GetPortById(string vesselId)
+        [HttpGet ("{portId}")]
+        public async Task<IActionResult> GetPortById(string portId)
         {
-            var port = await _portService.GetPortById(vesselId);
+            var port = await _portService.GetPortById(portId);
             return Ok(port);
         }
         
@@ -40,17 +40,17 @@ namespace Server.PortController;
             return Ok(port);
         }
         
-        [HttpPut]
+        [HttpPut ("{portId}")]
         public async Task<IActionResult> UpdatePort(string portId, PortRequest portRequest)
         {
             await _portService.UpdatePort(portId, portRequest);
             return Ok("Port updated successfully");
         }
         
-        [HttpDelete]
-        public async Task<IActionResult> DeletePort(string vesselId)
+        [HttpDelete ("{portId}")]
+        public async Task<IActionResult> DeletePort(string portId)
         {
-            await _portService.DeletePort(vesselId);
+            await _portService.DeletePort(portId);
             return Ok("Port deleted successfully");
         }
     }

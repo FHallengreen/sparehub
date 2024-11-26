@@ -16,75 +16,41 @@ namespace Server.VesselController;
     [HttpPost]
     public async Task<IActionResult> CreateVessel(VesselRequest vesselRequest)
     {
-        try
-        {
-            var vessel = await _vesselService.CreateVessel(vesselRequest);
-
-            return Ok(vessel);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        var vessel = await _vesselService.CreateVessel(vesselRequest);
+        return Ok(vessel);
     }
     
     [HttpGet]
     public async Task<IActionResult> GetVessels()
     {
-        try
-        {
-            var vessels = await _vesselService.GetVessels();
+        var vessels = await _vesselService.GetVessels();
 
-            return Ok(vessels);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return Ok(vessels);
+        
     }
     
     [HttpGet("{vesselId}")]
     public async Task<IActionResult> GetVesselById(string vesselId)
     {
-        try
-        {
-            var vessel = await _vesselService.GetVesselById(vesselId);
+        var vessel = await _vesselService.GetVesselById(vesselId);
 
-            return Ok(vessel);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return Ok(vessel);
+       
     }
 
     [HttpPut("{vesselId}")]
     public async Task<IActionResult> UpdateVessel(string vesselId, VesselRequest vesselRequest)
     {
-        try
-        {
-            var vessel = await _vesselService.UpdateVessel(vesselId, vesselRequest);
+        var vessel = await _vesselService.UpdateVessel(vesselId, vesselRequest);
 
-            return Ok(vessel);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return Ok(vessel);
     }
     
     [HttpDelete("{vesselId}")]
     public async Task<IActionResult> DeleteVessel(string vesselId)
     {
-        try
-        {
-            await _vesselService.DeleteVessel(vesselId);
+        await _vesselService.DeleteVessel(vesselId);
 
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return Ok();
     }
 }

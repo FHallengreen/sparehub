@@ -1,6 +1,7 @@
 ﻿using Domain.Models;
 using Domain.MySql;
 using Microsoft.EntityFrameworkCore;
+using Persistence.MySql;
 
 namespace Persistence;
 
