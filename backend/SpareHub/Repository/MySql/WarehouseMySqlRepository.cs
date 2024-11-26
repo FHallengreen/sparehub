@@ -31,19 +31,55 @@ public class WarehouseMySqlRepository(SpareHubDbContext dbContext, IMapper mappe
 
     public async Task<Warehouse> GetWarehouseByIdAsync(string warehouseId)
     {
-        var warehouses = await dbContext.Warehouses
+        Console.Out.WriteLine("Warehouse ID: " + warehouseId);
+        if (!int.TryParse(warehouseId, out var parsedWarehouseId))
+            throw new ArgumentException("Invalid warehouse ID format.");
+
+        var warehouseEntity = await dbContext.Warehouses
             .Include(w => w.Agent)
             .Include(w => w.Address)
-            .FirstOrDefaultAsync(w => w.Id == Int32.Parse(warehouseId));
-        
-        return await mapper.Map<Task<Warehouse>>(warehouses);
+            .FirstOrDefaultAsync(w => w.Id == parsedWarehouseId);
+
+        if (warehouseEntity == null)
+            throw new KeyNotFoundException($"Warehouse with ID {warehouseId} not found.");
+
+        // Assuming the mapper maps entities to the `Warehouse` domain model correctly.
+        var warehouse = mapper.Map<Warehouse>(warehouseEntity);
+
+        return warehouse;
     }
 
-    public async Task CreateWarehouseAsync(Warehouse warehouse)
+
+    public async Task<Warehouse> CreateWarehouseAsync(Warehouse warehouse)
     {   
         var warehouseEntity = mapper.Map<WarehouseEntity>(warehouse);
         dbContext.Warehouses.Add(warehouseEntity);
         await dbContext.SaveChangesAsync();
         warehouse.Id = warehouseEntity.Id.ToString();
+        
+        return warehouse;
+    }
+
+    public async Task<Warehouse> UpdateWarehouseAsync(Warehouse warehouse)
+    {
+        var warehouseEntity = mapper.Map<WarehouseEntity>(warehouse);
+        dbContext.Warehouses.Update(warehouseEntity);
+        await dbContext.SaveChangesAsync();
+        return mapper.Map<Warehouse>(warehouseEntity);
+    }
+
+    public async Task DeleteWarehouseAsync(string warehouseId)
+    {
+        if (!int.TryParse(warehouseId, out var id))
+            return;
+
+        var warehouseEntity = await dbContext.Warehouses
+            .FirstOrDefaultAsync(d => d.Id == id);
+
+        if (warehouseEntity == null)
+            return;
+
+        dbContext.Warehouses.Remove(warehouseEntity);
+        await dbContext.SaveChangesAsync();
     }
 }

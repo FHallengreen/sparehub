@@ -3,6 +3,7 @@ using Service.Interfaces;
 using Service.MySql.Dispatch;
 using Service.MongoDb;
 using Service.MySql.Order;
+using Service.MySql.Warehouse;
 
 namespace Service;
 
@@ -10,13 +11,22 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
     : IDatabaseFactory
 {
     private readonly Dictionary<(Type serviceType, DatabaseType dbType), Type> _serviceMappings = new()
-    {
+    {   
+        // Box
         { (typeof(IBoxService), DatabaseType.MySql), typeof(BoxMySqlService) },
+        
+        // Order
         { (typeof(IOrderService), DatabaseType.MongoDb), typeof(OrderMongoDbService) },
         { (typeof(IOrderService), DatabaseType.MySql), typeof(OrderMySqlService) },
         // { (typeof(IOrderService), DatabaseType.MongoDb), typeof(OrderMongoDbService) },
+        
+        // Dispatch
         { (typeof(IDispatchService), DatabaseType.MySql), typeof(DispatchMySqlService) },
-        { (typeof(IDispatchService), DatabaseType.MongoDb), typeof(DispatchMongoDbService) }
+        { (typeof(IDispatchService), DatabaseType.MongoDb), typeof(DispatchMongoDbService) },
+        
+        // Warehouse
+        { (typeof(IWarehouseService), DatabaseType.MySql), typeof(WarehouseMySqlService) },
+        
     };
 
     // Add other service mappings as needed

@@ -15,9 +15,7 @@ using Service.Mapping;
 using Service.MySql.Dispatch;
 using Service.MongoDb;
 using Service.MySql.Order;
-using Service.Supplier;
-using Service.Warehouse;
-using Shared.DTOs.Order;
+using Service.MySql.Warehouse;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +50,9 @@ builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
 builder.Services.AddScoped<DispatchMongoDbRepository>();
+builder.Services.AddScoped<WarehouseMySqlRepository>();
+builder.Services.AddScoped<AddressMySqlRepository>();
+builder.Services.AddScoped<AgentMySqlRepository>();
 
 // Register the services as concrete types
 builder.Services.AddScoped<BoxMySqlService>();
@@ -59,6 +60,7 @@ builder.Services.AddScoped<OrderMySqlService>();
 builder.Services.AddScoped<OrderMongoDbService>();
 builder.Services.AddScoped<DispatchMySqlService>();
 builder.Services.AddScoped<DispatchMongoDbService>();
+builder.Services.AddScoped<WarehouseMySqlService>();
 
 // Dynamically resolve services using the factory
 builder.Services.AddScoped<IBoxService>(sp =>
@@ -67,6 +69,8 @@ builder.Services.AddScoped<IOrderService>(sp =>
     sp.GetRequiredService<IDatabaseFactory>().GetService<IOrderService>());
 builder.Services.AddScoped<IDispatchService>(sp =>
     sp.GetRequiredService<IDatabaseFactory>().GetService<IDispatchService>());
+builder.Services.AddScoped<IWarehouseService>(sp =>
+    sp.GetRequiredService<IDatabaseFactory>().GetService<IWarehouseService>());
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(cfg =>

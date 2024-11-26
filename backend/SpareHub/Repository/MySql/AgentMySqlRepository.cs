@@ -13,8 +13,16 @@ public class AgentMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
 {
     public async Task<Agent> GetAgentByIdAsync(string id)
     {
+        if (!int.TryParse(id, out var parsedId))
+            throw new ArgumentException("Invalid agent ID format.");
+
         var agentEntity = await dbContext.Agents
-            .FirstOrDefaultAsync(a => a.Id == Int32.Parse(id));
+            .FirstOrDefaultAsync(a => a.Id == parsedId);
+
+        if (agentEntity == null)
+            throw new KeyNotFoundException($"Agent with ID {id} not found.");
+
         return mapper.Map<Agent>(agentEntity);
     }
+
 }
