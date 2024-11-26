@@ -32,7 +32,6 @@ public class DispatchMySqlRepository : IDispatchRepository
             return null;
 
         var dispatchEntity = await _dbContext.Dispatches
-            .Include(d => d.userEntity)
             .FirstOrDefaultAsync(d => d.Id == id);
 
         return dispatchEntity != null ? _mapper.Map<Dispatch>(dispatchEntity) : null;
@@ -41,7 +40,6 @@ public class DispatchMySqlRepository : IDispatchRepository
     public async Task<IEnumerable<Dispatch>> GetDispatchesAsync()
     {
         var dispatchEntities = await _dbContext.Dispatches
-            .Include(d => d.userEntity)
             .ToListAsync();
 
         return _mapper.Map<IEnumerable<Dispatch>>(dispatchEntities);

@@ -42,7 +42,7 @@ public class DispatchMySqlService(DispatchMySqlRepository dispatchRepository) : 
             DispatchDate = createdDispatch.DispatchDate,
             DeliveryDate = createdDispatch.DeliveryDate,
             UserId = createdDispatch.UserId,
-            User = createdDispatch.User
+            OrderId = createdDispatch.OrderId
         };
     }
 
@@ -66,7 +66,7 @@ public class DispatchMySqlService(DispatchMySqlRepository dispatchRepository) : 
             DispatchDate = dispatch.DispatchDate,
             DeliveryDate = dispatch.DeliveryDate,
             UserId = dispatch.UserId,
-            User = dispatch.User
+            OrderId = dispatch.OrderId
         };
     }
 
@@ -90,7 +90,7 @@ public class DispatchMySqlService(DispatchMySqlRepository dispatchRepository) : 
             DispatchDate = d.DispatchDate,
             DeliveryDate = d.DeliveryDate,
             UserId = d.UserId,
-            User = d.User
+            OrderId = d.OrderId
         });
     }
 
@@ -128,7 +128,7 @@ public class DispatchMySqlService(DispatchMySqlRepository dispatchRepository) : 
             DispatchDate = updatedDispatch.DispatchDate,
             DeliveryDate = updatedDispatch.DeliveryDate,
             UserId = updatedDispatch.UserId,
-            User = updatedDispatch.User
+            OrderId = dispatch.OrderId
         };
     }
 

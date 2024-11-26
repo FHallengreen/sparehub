@@ -105,8 +105,7 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
             .ForMember(dest => dest.DispatchDate, opt => opt.MapFrom(src => src.DispatchDate))
             .ForMember(dest => dest.DeliveryDate, opt => opt.MapFrom(src => src.DeliveryDate))
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.userEntity));
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
         
         // User mappings
         CreateMap<UserEntity, User>()
