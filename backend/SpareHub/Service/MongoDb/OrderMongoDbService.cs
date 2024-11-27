@@ -1,15 +1,20 @@
 ﻿using AutoMapper;
 using Domain.Models;
+using Persistence.MongoDb;
 using Repository.Interfaces;
 using Repository.MongoDb;
 using Service.Interfaces;
 using Shared;
 using Shared.DTOs.Order;
+using Shared.Exceptions;
 using Shared.Order;
 
 namespace Service.MongoDb;
 
-public class OrderMongoDbService (OrderMongoDbRepository orderRepository, IMapper mapper) : IOrderService
+public class OrderMongoDbService(
+    OrderMongoDbRepository orderRepository,
+    BoxMongoDbRepository boxRepository,
+    IMapper mapper) : IOrderService
 {
     public async Task<IEnumerable<OrderTableResponse>> GetOrders(List<string>? searchTerms)
     {
@@ -17,10 +22,11 @@ public class OrderMongoDbService (OrderMongoDbRepository orderRepository, IMappe
 
         IEnumerable<Order> orders;
 
-        if (searchTerms != null && searchTerms.Any(term => availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase)))
+        if (searchTerms != null &&
+            searchTerms.Any(term => availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase)))
         {
             orders = (await orderRepository.GetOrdersAsync())
-                .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
+                .Where(o => searchTerms.Contains(o.OrderStatus.ToString(), StringComparer.OrdinalIgnoreCase));
         }
         else
         {
@@ -28,19 +34,27 @@ public class OrderMongoDbService (OrderMongoDbRepository orderRepository, IMappe
         }
 
         if (!orders.Any())
-            throw new KeyNotFoundException("No orders found matching the search criteria.");
+            throw new NotFoundException("No orders found matching the search criteria.");
 
-        var orderResponses = orders.Select(o => new OrderTableResponse
+        var orderIds = orders.Select(o => o.Id).ToList();
+        var boxCollections = await GetBoxesByOrderIdsAsync(orderIds);
+        var boxLookup = boxCollections.ToLookup(b => b.OrderId);
+
+        var orderResponses = orders.Select(order =>
         {
-            Id = o.Id,
-            OrderNumber = o.OrderNumber,
-            SupplierName = o.Supplier.Name,
-            OwnerName = o.Vessel.Owner.Name,
-            VesselName = o.Vessel.Name,
-            WarehouseName = o.Warehouse.Name,
-            OrderStatus = o.OrderStatus,
-            Boxes = o.Boxes.Count,
-            TotalWeight = o.Boxes.Sum(b => b.Weight)
+            var orderBoxes = boxLookup[order.Id].ToList();
+            return new OrderTableResponse
+            {
+                Id = order.Id,
+                OrderNumber = order.OrderNumber,
+                SupplierName = order.Supplier.Name, // Use flat field
+                OwnerName = order.Vessel.Owner.Name,
+                VesselName = order.Vessel.Name,     // Use flat field
+                WarehouseName = order.Warehouse.Name, // Use flat field
+                OrderStatus = order.OrderStatus.ToString(),
+                Boxes = orderBoxes.Count,
+                TotalWeight = orderBoxes.Sum(b => b.Weight)
+            };
         }).ToList();
 
         if (searchTerms is { Count: > 0 })
@@ -57,6 +71,17 @@ public class OrderMongoDbService (OrderMongoDbRepository orderRepository, IMappe
 
         return orderResponses;
     }
+
+
+    private async Task<List<Box>> GetBoxesByOrderIdsAsync(IEnumerable<string> orderIds)
+    {
+        var boxTasks = orderIds.Select(orderId => boxRepository.GetBoxesByOrderIdAsync(orderId));
+
+        var boxesArray = await Task.WhenAll(boxTasks);
+
+        return boxesArray.SelectMany(boxes => boxes).ToList();
+    }
+
 
     public Task<OrderResponse> CreateOrder(OrderRequest orderRequest)
     {

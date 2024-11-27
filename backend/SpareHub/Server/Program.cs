@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using Neo4j.Driver;
 using Persistence;
 using Persistence.MongoDb;
+using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
 using Repository.MongoDb;
 using Repository.MySql;
@@ -24,11 +25,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<AzureFileLoggerOptions>(builder.Configuration.GetSection("AzureLogging"));
 
 // Configure logging providers
-/*builder.Logging.ClearProviders();
+builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 builder.Logging.AddAzureWebAppDiagnostics();
-builder.Logging.SetMinimumLevel(LogLevel.Debug);*/
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 // Enables detailed logging in docker container
 // builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -48,6 +49,7 @@ builder.Services.AddScoped<IDatabaseFactory, DatabaseFactory>();
 
 // Register the repositories as concrete types
 builder.Services.AddScoped<BoxMySqlRepository>();
+builder.Services.AddScoped<BoxMongoDbRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
@@ -55,6 +57,7 @@ builder.Services.AddScoped<DispatchMongoDbRepository>();
 
 // Register the services as concrete types
 builder.Services.AddScoped<BoxMySqlService>();
+builder.Services.AddScoped<BoxMongoDbService>();
 builder.Services.AddScoped<OrderMySqlService>();
 builder.Services.AddScoped<OrderMongoDbService>();
 builder.Services.AddScoped<DispatchMySqlService>();
@@ -74,7 +77,6 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<MappingMySqlProfile>();
     cfg.AddProfile<MappingMongoDbProfile>();
 });
-
 
 // Configure the database connection string with SSL enabled
 var connectionString = string.Format("server={0};port={1};database={2};user={3};password={4};SslMode=Required",
@@ -107,19 +109,19 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<OrderCollection>("Order");
+    return database.GetCollection<OrderCollection>("orders");
 });
 
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<BoxCollection>("Box");
+    return database.GetCollection<BoxCollection>("boxes");
 });
 
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<DispatchCollection>("Dispatch");
+    return database.GetCollection<DispatchCollection>("dispatches");
 });
 
 
@@ -166,3 +168,5 @@ app.UseMiddleware<ValidationExceptionMiddleware>();
 app.MapControllers();
 
 await app.RunAsync();
+
+public partial class Program { }
