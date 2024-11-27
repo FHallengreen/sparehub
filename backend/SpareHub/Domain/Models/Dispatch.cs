@@ -14,5 +14,5 @@ public class Dispatch
     public DateTime? DispatchDate { get; set; }
     public DateTime? DeliveryDate { get; set; }
     public int UserId { get; set; }
-    public string? OrderId { get; set; }
+    public ICollection<Order> Orders { get; set; } = new List<Order>();
 }

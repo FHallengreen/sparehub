@@ -15,5 +15,5 @@ public record DispatchResponse
     public DateTime? DispatchDate { get; set; }
     public DateTime? DeliveryDate { get; set; }
     public int UserId { get; set; }
-    public string? OrderId { get; set; }
+    public List<string> OrderIds { get; set; } = new List<string>();
 }

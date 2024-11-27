@@ -32,7 +32,6 @@ public class DispatchMongoDbService : IDispatchService
     public async Task<DispatchResponse> CreateDispatch(DispatchRequest dispatchRequest, string orderId)
     {
         var dispatch = _mapper.Map<Dispatch>(dispatchRequest);
-        dispatch.OrderId = orderId;
         var createdDispatch = await _dispatchRepository.CreateDispatchAsync(dispatch);
         return _mapper.Map<DispatchResponse>(createdDispatch);
     }
