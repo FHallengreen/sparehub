@@ -4,7 +4,10 @@ import { GiHamburgerMenu } from 'react-icons/gi';
 import OrderPage from './components/OrderTable';
 import OrderDetailPage from './components/OrderDetailPage';
 import Sidebar from './components/SideBar';
-import { SnackbarProvider } from './components/SnackbarContext'; 
+import { SnackbarProvider } from './components/SnackbarContext';
+import DispatchPage from "./components/DispatchPage.tsx";
+import DispatchDetailPage from "./components/DispatchDetailPage.tsx";
+import NewDispatchPage from "./components/NewDispatchPage.tsx";
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -34,6 +37,9 @@ function App() {
             <Routes>
               <Route path="/orders/:id" element={<OrderDetailPage />} />
               <Route path="/orders" element={<OrderPage />} />
+              <Route path="/dispatches" element={<DispatchPage />} />
+              <Route path="/dispatches/:id" element={<DispatchDetailPage />} />
+              <Route path="/dispatches/new" element={<NewDispatchPage />} />
               <Route path="/" element={<OrderPage />} />
             </Routes>
           </div>
