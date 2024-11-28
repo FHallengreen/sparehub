@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Domain.MySql;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Persistence;

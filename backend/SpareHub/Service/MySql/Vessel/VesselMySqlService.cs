@@ -1,6 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using AutoMapper;
-using Domain.Models;
 using Repository.MySql;
 using Service.Interfaces;
 using Shared;
@@ -115,8 +112,8 @@ public class VesselMySqlService(VesselMySqlRepository vesselMySqlRepository, Own
             throw new NotFoundException($"Owner with id '{vesselRequest.OwnerId}' not found");
         
         vessel.Name = vesselRequest.Name;
-        vessel.ImoNumber = vesselRequest.ImoNumber;
-        vessel.Flag = vesselRequest.Flag;
+        if (vesselRequest.ImoNumber != null) vessel.ImoNumber = vesselRequest.ImoNumber;
+        if (vesselRequest.Flag != null) vessel.Flag = vesselRequest.Flag;
         vessel.Owner = owner;
         
         await vesselMySqlRepository.UpdateVesselAsync(vesselId, vessel);

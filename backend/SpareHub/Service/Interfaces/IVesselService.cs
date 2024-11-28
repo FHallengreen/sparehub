@@ -1,4 +1,3 @@
-using Domain.Models;
 using Shared.DTOs.Vessel;
 
 namespace Service.Interfaces;

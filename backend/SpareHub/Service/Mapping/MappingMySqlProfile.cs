@@ -95,6 +95,15 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
         
+        // Port mappings
+        CreateMap<PortEntity, Port>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+        
+        CreateMap<Port, PortEntity>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+        
         // Warehouse mappings
         CreateMap<WarehouseEntity, Domain.Models.Warehouse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))

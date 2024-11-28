@@ -1,13 +1,11 @@
-using System.ComponentModel.DataAnnotations;
-using Domain.Models;
+
 using Repository.MySql;
 using Service.Interfaces;
-using Shared.DTOs.Vessel;
 using Shared.DTOs.Port;
 using Shared.Exceptions;
 
 
-namespace Service.MySql.Vessel;
+namespace Service.MySql.Port;
 
     public class PortMySqlService(PortMySqlRepository portMySqlRepository) : IPortService
     {
@@ -26,14 +24,14 @@ namespace Service.MySql.Vessel;
             }).ToList();
         }
 
-        public async Task<PortRequest> GetPortById(string portId)
+        public async Task<PortResponse> GetPortById(string portId)
         {
             var port = await portMySqlRepository.GetPortByIdAsync(portId);
 
             if (port == null)
                 throw new NotFoundException($"Port with id '{portId}' not found");
 
-            return new PortRequest
+            return new PortResponse()
             {
                 Id = port.Id,
                 Name = port.Name
@@ -42,9 +40,8 @@ namespace Service.MySql.Vessel;
 
         public async Task<PortResponse> CreatePort(PortRequest portRequest)
         {
-            var port = new Port
+            var port = new Domain.Models.Port
             {
-                Id = portRequest.Id,
                 Name = portRequest.Name
             };
 
@@ -58,24 +55,32 @@ namespace Service.MySql.Vessel;
 
         }
 
-        public Task UpdatePort(string portId, PortRequest portRequest)
+        public async Task<PortResponse> UpdatePort(string portId, PortRequest portRequest)
         {
-            if (string.IsNullOrEmpty(portId))
-                throw new ValidationException("Port Id cannot be null or empty");
+            var port = await portMySqlRepository.GetPortByIdAsync(portId);
+            if (port == null)
+                throw new NotFoundException($"Port with id '{portId}' not found");
 
-            var port = new Port
+            // Update properties
+            port.Name = portRequest.Name;
+
+            // Save changes through the repository
+             await portMySqlRepository.UpdatePortAsync(portId, port);
+
+            // Prepare the response
+            return new PortResponse
             {
-                Id = portId,
-                Name = portRequest.Name
+                Id = port.Id,
+                Name = port.Name
             };
-            return portMySqlRepository.UpdatePortAsync(portId, port);
-            
         }
+
 
         public async Task DeletePort(string portId)
         {
-            if (string.IsNullOrEmpty(portId))
-                throw new ValidationException("Port Id cannot be null or empty");
+            var port = await portMySqlRepository.GetPortByIdAsync(portId);
+            if (port == null)
+                throw new NotFoundException($"Port with id '{portId}' not found");
 
             await portMySqlRepository.DeletePortAsync(portId);
         }

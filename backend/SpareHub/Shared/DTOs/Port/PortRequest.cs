@@ -1,10 +1,12 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace Shared.DTOs.Port;
 
 public class PortRequest
 {
-    public required string Id { get; set; }
     
+    [Required(ErrorMessage = "Name is required.")]
     public required string Name { get; set; }
     
     

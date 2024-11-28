@@ -25,6 +25,8 @@ namespace Server.VesselController;
     }
     
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
     public async Task<IActionResult> GetVessels()
     {
         var vessels = await _vesselService.GetVessels();
@@ -34,6 +36,8 @@ namespace Server.VesselController;
     }
     
     [HttpGet("{vesselId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
     public async Task<IActionResult> GetVesselById(string vesselId)
     {
         var vessel = await _vesselService.GetVesselById(vesselId);
@@ -43,6 +47,9 @@ namespace Server.VesselController;
     }
 
     [HttpPut("{vesselId}")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(VesselResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
     public async Task<IActionResult> UpdateVessel(string vesselId, [FromBody]VesselRequest vesselRequest)
     {
         var vessel = await _vesselService.UpdateVessel(vesselId, vesselRequest);
@@ -51,6 +58,9 @@ namespace Server.VesselController;
     }
     
     [HttpDelete("{vesselId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<IActionResult> DeleteVessel(string vesselId)
     {
         await _vesselService.DeleteVessel(vesselId);

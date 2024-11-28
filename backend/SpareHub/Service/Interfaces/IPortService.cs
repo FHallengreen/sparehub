@@ -9,11 +9,11 @@ public interface IPortService
     
     public Task<List<PortResponse>> GetPorts();
 
-    public Task<PortRequest> GetPortById(string vesselId);
+    public Task<PortResponse> GetPortById(string vesselId);
     
     public Task<PortResponse> CreatePort(PortRequest portRequest);
     
-    public Task UpdatePort(string portId, PortRequest portRequest);
+    public Task<PortResponse> UpdatePort(string portId, PortRequest portRequest);
     
     public Task DeletePort(string vesselId);
 
