@@ -1,5 +1,4 @@
 using Shared.DTOs.Port;
-using Shared.DTOs.Vessel;
 
 
 namespace Service.Interfaces;

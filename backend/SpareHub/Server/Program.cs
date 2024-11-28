@@ -15,6 +15,7 @@ using Service.Mapping;
 using Service.MySql.Dispatch;
 using Service.MongoDb;
 using Service.MySql.Order;
+using Service.MySql.Owner;
 using Service.MySql.Port;
 using Service.MySql.Vessel;
 using Service.Supplier;
@@ -66,6 +67,7 @@ builder.Services.AddScoped<VesselMySqlService>();
 builder.Services.AddScoped<OrderMongoDbService>();
 builder.Services.AddScoped<DispatchMySqlService>();
 builder.Services.AddScoped<DispatchMongoDbService>();
+builder.Services.AddScoped<OwnerMySqlService>();
 
 // Dynamically resolve services using the factory
 builder.Services.AddScoped<IBoxService>(sp =>

@@ -1,7 +1,9 @@
-﻿namespace Shared;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Shared.DTOs.Owner;
 
 public class OwnerRequest
 {
-    public string Id { get; set; }
-    public string Name { get; set; }
+    [Required(ErrorMessage = "Name is required.")]
+    public required string Name { get; set; }
 }

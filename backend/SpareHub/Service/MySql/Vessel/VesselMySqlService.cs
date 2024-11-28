@@ -1,6 +1,7 @@
 using Repository.MySql;
 using Service.Interfaces;
 using Shared;
+using Shared.DTOs.Owner;
 using Shared.DTOs.Vessel;
 using Shared.Exceptions;
 

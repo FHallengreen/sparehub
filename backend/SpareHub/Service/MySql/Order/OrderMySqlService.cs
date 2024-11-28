@@ -4,6 +4,7 @@ using Repository.MySql;
 using Service.Interfaces;
 using Shared;
 using Shared.DTOs.Order;
+using Shared.DTOs.Owner;
 using Shared.Exceptions;
 using Shared.Order;
 using Shared.DTOs.Vessel;
