@@ -2,10 +2,12 @@
 using Service.Interfaces;
 using Service.MySql.Dispatch;
 using Service.MongoDb;
+using Service.MySql;
 using Service.MySql.Order;
 using Service.MySql.Owner;
 using Service.MySql.Port;
 using Service.MySql.Vessel;
+using Service.MySql.VesselAtPort;
 
 namespace Service;
 
@@ -22,7 +24,8 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
         { (typeof(IDispatchService), DatabaseType.MongoDb), typeof(DispatchMongoDbService) },
         { (typeof(IPortService), DatabaseType.MySql), typeof(PortMySqlService) },
         { (typeof(IVesselService), DatabaseType.MySql), typeof(VesselMySqlService) },
-        { (typeof(IOwnerService), DatabaseType.MySql), typeof(OwnerMySqlService) }
+        { (typeof(IOwnerService), DatabaseType.MySql), typeof(OwnerMySqlService) },
+        { (typeof(IVesselAtPortService), DatabaseType.MySql), typeof(VesselAtPortMySqlService) }
     };
 
     // Add other service mappings as needed

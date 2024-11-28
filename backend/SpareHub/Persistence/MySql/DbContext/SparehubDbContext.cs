@@ -12,6 +12,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
     public DbSet<SupplierEntity> Suppliers => Set<SupplierEntity>();
     public DbSet<OwnerEntity> Owners => Set<OwnerEntity>();
     public DbSet<VesselEntity> Vessels => Set<VesselEntity>();
+    public DbSet<VesselAtPortEntity> VAP => Set<VesselAtPortEntity>();
     public DbSet<AgentEntity> Agents => Set<AgentEntity>();
     public DbSet<WarehouseEntity> Warehouses => Set<WarehouseEntity>();
     public DbSet<RoleEntity> Roles => Set<RoleEntity>();

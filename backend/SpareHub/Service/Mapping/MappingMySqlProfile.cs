@@ -104,6 +104,19 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
         
+        // VesselAtPort mappings
+        CreateMap<VesselAtPortEntity, VesselAtPort>()
+            .ForMember(dest => dest.VesselId, opt => opt.MapFrom(src => src.VesselId.ToString()))
+            .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => src.PortId.ToString()))
+            .ForMember(dest => dest.ArrivalDate, opt => opt.MapFrom(src => src.ArrivalDate))
+            .ForMember(dest => dest.DepartureDate, opt => opt.MapFrom(src => src.DepartureDate));
+        
+        CreateMap<VesselAtPort, VesselAtPortEntity>()
+            .ForMember(dest => dest.VesselId, opt => opt.MapFrom(src => int.Parse(src.VesselId)))
+            .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => int.Parse(src.PortId)))
+            .ForMember(dest => dest.VesselEntity, opt => opt.Ignore())
+            .ForMember(dest => dest.PortEntity, opt => opt.Ignore());
+        
         // Warehouse mappings
         CreateMap<WarehouseEntity, Domain.Models.Warehouse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
