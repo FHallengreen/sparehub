@@ -58,6 +58,8 @@ namespace Server.PortController;
         public async Task<IActionResult> DeletePort(string portId)
         {
             await _portService.DeletePort(portId);
+            
             return Ok("Port deleted successfully");
+            
         }
     }

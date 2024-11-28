@@ -30,8 +30,9 @@ public class PortMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : 
     public async Task<Port> GetPortByIdAsync(string portId)
     {
         var portEntity = await dbContext.Ports
+            .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == int.Parse(portId));
-
+            
         var port = mapper.Map<Port>(portEntity);
         return port;
     }
@@ -51,7 +52,7 @@ public class PortMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : 
         if (portEntity == null)
             throw new NotFoundException($"Port with id '{portId}' not found");
         
-        dbContext.Ports.Remove(new PortEntity {Id = int.Parse(portId)});
+        dbContext.Ports.Remove(portEntity);
         await dbContext.SaveChangesAsync();
     }
 
