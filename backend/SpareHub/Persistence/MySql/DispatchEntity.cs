@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Domain.MySql;
+
 
 namespace Persistence.MySql;
+
+
 public class DispatchEntity
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

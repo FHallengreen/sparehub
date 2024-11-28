@@ -1,3 +1,5 @@
+using Shared.DTOs.Order;
+
 namespace Shared;
 
 public class WarehouseResponse

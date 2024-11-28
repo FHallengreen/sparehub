@@ -2,7 +2,7 @@
 using Domain.Models;
 using Domain.MySql;
 using Microsoft.EntityFrameworkCore;
-using Persistence;
+using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
 using Shared.Exceptions;
 

@@ -2,8 +2,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Persistence.MySql;
+using Domain.MySql;
 
-namespace Domain.MySql;
+namespace Persistence.MySql;
 
 public class OrderEntity
 {

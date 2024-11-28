@@ -17,9 +17,9 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
     private readonly Dictionary<(Type serviceType, DatabaseType dbType), Type> _serviceMappings = new()
     {
         { (typeof(IBoxService), DatabaseType.MySql), typeof(BoxMySqlService) },
+        { (typeof(IBoxService), DatabaseType.MongoDb), typeof(BoxMongoDbService) },
         { (typeof(IOrderService), DatabaseType.MongoDb), typeof(OrderMongoDbService) },
         { (typeof(IOrderService), DatabaseType.MySql), typeof(OrderMySqlService) },
-        // { (typeof(IOrderService), DatabaseType.MongoDb), typeof(OrderMongoDbService) },
         { (typeof(IDispatchService), DatabaseType.MySql), typeof(DispatchMySqlService) },
         { (typeof(IDispatchService), DatabaseType.MongoDb), typeof(DispatchMongoDbService) },
         { (typeof(IPortService), DatabaseType.MySql), typeof(PortMySqlService) },

@@ -1,10 +1,10 @@
-using Domain;
+
 using Shared.Order;
 using Shared.DTOs.Vessel;
 
-namespace Shared;
+namespace Shared.DTOs.Order;
 
-public class OrderResponse
+public record OrderResponse
 {
     public string Id { get; set; } = null!;
     public string OrderNumber { get; set; } = null!;

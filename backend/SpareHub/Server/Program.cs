@@ -4,6 +4,8 @@ using MongoDB.Driver;
 using Neo4j.Driver;
 using Persistence;
 using Persistence.MongoDb;
+using Persistence.MySql.SparehubDbContext;
+using Repository.Interfaces;
 using Repository.MongoDb;
 using Repository.MySql;
 using Server.Middleware;
@@ -52,6 +54,7 @@ builder.Services.AddScoped<BoxMySqlRepository>();
 builder.Services.AddScoped<PortMySqlRepository>();
 builder.Services.AddScoped<VesselMySqlRepository>();
 builder.Services.AddScoped<VesselAtPortMySqlRepository>();
+builder.Services.AddScoped<BoxMongoDbRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
@@ -60,6 +63,7 @@ builder.Services.AddScoped<OwnerMySqlRepository>();
 
 // Register the services as concrete types
 builder.Services.AddScoped<BoxMySqlService>();
+builder.Services.AddScoped<BoxMongoDbService>();
 builder.Services.AddScoped<OrderMySqlService>();
 builder.Services.AddScoped<PortMySqlService>();
 builder.Services.AddScoped<VesselMySqlService>();
@@ -87,7 +91,6 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<MappingMySqlProfile>();
     cfg.AddProfile<MappingMongoDbProfile>();
 });
-
 
 // Configure the database connection string with SSL enabled
 var connectionString = string.Format("server={0};port={1};database={2};user={3};password={4};SslMode=Required",
@@ -120,19 +123,19 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<OrderCollection>("Order");
+    return database.GetCollection<OrderCollection>("orders");
 });
 
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<BoxCollection>("Box");
+    return database.GetCollection<BoxCollection>("boxes");
 });
 
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<DispatchCollection>("Dispatch");
+    return database.GetCollection<DispatchCollection>("dispatches");
 });
 
 
@@ -179,3 +182,5 @@ app.UseMiddleware<ValidationExceptionMiddleware>();
 app.MapControllers();
 
 await app.RunAsync();
+
+public partial class Program { }

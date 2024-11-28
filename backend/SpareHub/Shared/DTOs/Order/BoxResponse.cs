@@ -1,7 +1,7 @@
 namespace Shared.Order
 
 {
-    public class BoxResponse
+    public record BoxResponse
     {
         public string Id { get; set; } = null!;
         public string OrderId { get; set; } = null!;

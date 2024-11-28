@@ -1,9 +1,9 @@
 using AutoMapper;
 using Domain.Models;
-using Domain.MySql;
 using Microsoft.EntityFrameworkCore;
-using Persistence;
 using Persistence.MySql;
+using Persistence.MySql.SparehubDbContext;
+
 using Repository.Interfaces;
 
 namespace Repository.MySql;

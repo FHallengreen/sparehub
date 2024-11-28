@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Shared.DTOs.Order;
 
-public class OrderRequest
+public record OrderRequest
 {
      [Required(ErrorMessage = "OrderNumber is required.")]
     [MaxLength(45, ErrorMessage = "OrderNumber cannot exceed 45 characters.")]

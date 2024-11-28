@@ -5,6 +5,8 @@
       <Path>../../../sparehub</Path>
     </attachedFolders>
     <explicitIncludes />
-    <explicitExcludes />
+    <explicitExcludes>
+      <Path>Server</Path>
+    </explicitExcludes>
   </component>
 </project>
