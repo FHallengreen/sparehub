@@ -45,6 +45,7 @@ builder.Services.AddMemoryCache();
 
 builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("DatabaseSettings"));
 
+// Add the DatabaseFactory with IOptionsMonitor
 builder.Services.AddScoped<IDatabaseFactory, DatabaseFactory>();
 
 builder.Services.AddScoped<IDispatchRepository>(sp =>
