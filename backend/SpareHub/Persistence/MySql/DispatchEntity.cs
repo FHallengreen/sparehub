@@ -18,7 +18,6 @@ public class DispatchEntity
     public DateTime? DispatchDate { get; set; }
     public DateTime? DeliveryDate { get; set; }
     public int UserId { get; set; }
-    public UserEntity userEntity { get; set; } = null!;
     public ICollection<InvoiceEntity> Invoices { get; set; } = new List<InvoiceEntity>();
     public ICollection<OrderEntity> Orders { get; set; } = new List<OrderEntity>();
 }
