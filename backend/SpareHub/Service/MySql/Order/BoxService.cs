@@ -1,15 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Domain.Models;
+using Repository.Interfaces;
 using Repository.MySql;
 using Service.Interfaces;
 using Shared.DTOs.Order;
 using Shared.Exceptions;
-using Shared.Order;
 
 namespace Service.MySql.Order;
 
-public class BoxMySqlService(BoxMySqlRepository boxRepository, OrderMySqlRepository orderRepository)
+public class BoxService(IBoxRepository boxRepository, IOrderRepository orderRepository)
     : IBoxService
 {
     public async Task<BoxResponse> CreateBox(BoxRequest boxRequest, string orderId)
@@ -17,12 +17,9 @@ public class BoxMySqlService(BoxMySqlRepository boxRepository, OrderMySqlReposit
         if (string.IsNullOrWhiteSpace(orderId))
             throw new ValidationException("Order ID cannot be null or empty.");
 
-        if (!int.TryParse(orderId, out _))
-            throw new ValidationException("Order ID must be a valid integer.");
-
         var order = await orderRepository.GetOrderByIdAsync(orderId);
         if (order == null)
-            throw new ValidationException($"Order ID '{orderId}' is invalid or does not exist."); // Changed to ValidationException
+            throw new ValidationException($"Order ID '{orderId}' is invalid or does not exist.");
 
 
         var box = new Box

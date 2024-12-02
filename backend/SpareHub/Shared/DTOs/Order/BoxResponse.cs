@@ -1,4 +1,4 @@
-namespace Shared.Order
+namespace Shared.DTOs.Order
 
 {
     public record BoxResponse

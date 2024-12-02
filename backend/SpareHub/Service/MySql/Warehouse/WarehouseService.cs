@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using Persistence;
 using Persistence.MySql.SparehubDbContext;
+using Service.Interfaces;
 using Shared;
 using Shared.DTOs.Order;
+using Shared.DTOs.Warehouse;
 
-namespace Service.Warehouse;
+namespace Service.MySql.Warehouse;
 
 public class WarehouseService(SpareHubDbContext dbContext) : IWarehouseService
 {

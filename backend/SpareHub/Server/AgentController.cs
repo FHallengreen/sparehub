@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Service.Agent;
+using Service.Interfaces;
 
 namespace Server;
 

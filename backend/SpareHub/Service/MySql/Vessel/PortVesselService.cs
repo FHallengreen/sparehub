@@ -1,8 +1,8 @@
 using Neo4j.Driver;
+using Service.Interfaces;
 using Shared;
-using System.Linq;
 
-namespace Service
+namespace Service.MySql.Vessel
 {
     public class PortVesselService(IAsyncSession session, IVesselService vesselService) : IPortVesselService
     {

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Service.Warehouse;
+using Service.Interfaces;
 
 namespace Server.WarehouseController;
 

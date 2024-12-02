@@ -13,8 +13,9 @@ public class BoxMongoDbRepository(IMongoCollection<BoxCollection> collection, IM
         var boxCollection = mapper.Map<BoxCollection>(box);
 
         await collection.InsertOneAsync(boxCollection);
+        box.Id = boxCollection.Id;
 
-        return mapper.Map<Box>(boxCollection);
+        return box;
     }
 
     public async Task<List<Box>> GetBoxesByOrderIdAsync(string orderId)

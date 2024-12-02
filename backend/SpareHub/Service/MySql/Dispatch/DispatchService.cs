@@ -7,7 +7,7 @@ using ValidationException = System.ComponentModel.DataAnnotations.ValidationExce
 
 namespace Service.MySql.Dispatch;
 
-public class DispatchMySqlService(DispatchMySqlRepository dispatchRepository) : IDispatchService
+public class DispatchService(IDispatchRepository dispatchRepository) : IDispatchService
 {
     public async Task<DispatchResponse> CreateDispatch(DispatchRequest dispatchRequest, string orderId)
     {
