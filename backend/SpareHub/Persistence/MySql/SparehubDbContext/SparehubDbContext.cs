@@ -1,5 +1,4 @@
-﻿using Domain.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.MySql.SparehubDbContext;
 

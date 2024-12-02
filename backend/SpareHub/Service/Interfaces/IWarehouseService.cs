@@ -5,6 +5,7 @@ namespace Service.Interfaces;
 
 public interface IWarehouseService
 {
+    Task<List<WarehouseResponse>> GetWarehouses();
     Task<List<WarehouseResponse>> GetWarehousesBySearchQuery(string? searchQuery);
     Task<WarehouseResponse> GetWarehouseById(string warehouseId);
     Task<WarehouseResponse> CreateWarehouse(WarehouseRequest request);

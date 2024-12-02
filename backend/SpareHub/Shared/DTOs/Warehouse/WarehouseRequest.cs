@@ -1,4 +1,4 @@
-namespace Shared;
+namespace Shared.DTOs.Warehouse;
 
 public class WarehouseRequest
 {

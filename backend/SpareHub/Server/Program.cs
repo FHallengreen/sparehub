@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.AzureAppServices;
 using MongoDB.Driver;
 using Neo4j.Driver;
-using Persistence;
 using Persistence.MongoDb;
 using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
@@ -12,14 +11,13 @@ using Server.Middleware;
 using Service;
 using Service.Interfaces;
 using Service.Mapping;
+using Service.MySql.Address;
 using Service.MySql.Dispatch;
-using Service.MongoDb;
 using Service.MySql.Agent;
 using Service.MySql.Order;
 using Service.MySql.Supplier;
 using Service.MySql.Vessel;
 using Service.MySql.Warehouse;
-using Shared.DTOs.Order;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +64,24 @@ builder.Services.AddScoped<IOrderRepository>(sp =>
     return databaseFactory.GetRepository<IOrderRepository>();
 });
 
+builder.Services.AddScoped<IAgentRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IAgentRepository>();
+});
+
+builder.Services.AddScoped<IWarehouseRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IWarehouseRepository>();
+});
+
+builder.Services.AddScoped<IAddressRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IAddressRepository>();
+});
+
 // Register services directly
 builder.Services.AddScoped<IDispatchService, DispatchService>();
 builder.Services.AddScoped<IBoxService, BoxService>();
@@ -74,11 +90,15 @@ builder.Services.AddScoped<IVesselService, VesselService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+builder.Services.AddScoped<IAddressService, AddressService>();
 
 // Register MySQL repositories
 builder.Services.AddScoped<BoxMySqlRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
+builder.Services.AddScoped<AgentMySqlRepository>();
+builder.Services.AddScoped<WarehouseMySqlRepository>();
+builder.Services.AddScoped<AddressMySqlRepository>();
 
 // Register MongoDB repositories
 builder.Services.AddScoped<BoxMongoDbRepository>();

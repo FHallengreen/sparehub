@@ -1,38 +1,58 @@
 ﻿using AutoMapper;
 using Domain.Models;
-using Domain.MySql;
 using Microsoft.EntityFrameworkCore;
-using Persistence;
+using Persistence.MySql;
+using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
+using Shared.Exceptions;
 
 namespace Repository.MySql;
 
 public class WarehouseMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : IWarehouseRepository
 {
+    public async Task<List<Warehouse>> GetWarehousesAsync()
+    {
+        var warehouses = await dbContext.Warehouses.ToListAsync();
+        return mapper.Map<List<Warehouse>>(warehouses);
+    }
     public async Task<List<Warehouse>> GetWarehousesBySearchQueryAsync(string? searchQuery)
     {
         return await dbContext.Warehouses
             .Where(w => string.IsNullOrEmpty(searchQuery) || w.Name.StartsWith(searchQuery))
+            .Include(w => w.Address) 
             .Join(dbContext.Agents,
                 warehouse => warehouse.AgentId,
                 agent => agent.Id,
-                (warehouse, agent) => new Warehouse
+                (warehouse, agent) => new
                 {
-                    Id = warehouse.Id.ToString(),
-                    Name = warehouse.Name,
-                    Agent = new Agent
-                    {
-                        Id = agent.Id.ToString(),
-                        Name = agent.Name
-                    }
+                    Warehouse = warehouse,
+                    Agent = agent
                 })
+            .Select(result => new Warehouse
+            {
+                Id = result.Warehouse.Id.ToString(),
+                Name = result.Warehouse.Name,
+                Agent = new Agent
+                {
+                    Id = result.Agent.Id.ToString(),
+                    Name = result.Agent.Name
+                },
+                Address = new Address
+                {
+                    Id = result.Warehouse.Address.Id.ToString(),
+                    AddressLine = result.Warehouse.Address.AddressLine,
+                    PostalCode = result.Warehouse.Address.PostalCode,
+                    Country = result.Warehouse.Address.Country
+                }
+            })
             .ToListAsync();
     }
 
+
     public async Task<Warehouse> GetWarehouseByIdAsync(string warehouseId)
     {
-        Console.Out.WriteLine("Warehouse ID: " + warehouseId);
-        if (!int.TryParse(warehouseId, out var parsedWarehouseId))
+        int parsedWarehouseId;
+        if (!int.TryParse(warehouseId, out parsedWarehouseId))
             throw new ArgumentException("Invalid warehouse ID format.");
 
         var warehouseEntity = await dbContext.Warehouses
@@ -53,7 +73,7 @@ public class WarehouseMySqlRepository(SpareHubDbContext dbContext, IMapper mappe
     public async Task<Warehouse> CreateWarehouseAsync(Warehouse warehouse)
     {   
         var warehouseEntity = mapper.Map<WarehouseEntity>(warehouse);
-        dbContext.Warehouses.Add(warehouseEntity);
+        await dbContext.Warehouses.AddAsync(warehouseEntity);
         await dbContext.SaveChangesAsync();
         warehouse.Id = warehouseEntity.Id.ToString();
         
@@ -77,7 +97,7 @@ public class WarehouseMySqlRepository(SpareHubDbContext dbContext, IMapper mappe
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (warehouseEntity == null)
-            return;
+            throw new NotFoundException("Warehouse not found");
 
         dbContext.Warehouses.Remove(warehouseEntity);
         await dbContext.SaveChangesAsync();

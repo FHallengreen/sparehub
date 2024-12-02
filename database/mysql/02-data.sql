@@ -8,7 +8,8 @@ INSERT INTO `address` (`address`, `postal_code`, `country`) VALUES
 ('456 Harbor Street', 'SW1A 1AA', 'UK'),
 ('789 Dockside Blvd', '2000', 'Australia'),
 ('321 Port Avenue', '1000', 'Canada'),
-('654 Marina Drive', '3000', 'Germany');
+('654 Marina Drive', '3000', 'Germany'),
+('123 Red Street', '420', 'Amsterdam');
 
 -- -------------------------------------
 -- Insert into `supplier`
@@ -53,12 +54,12 @@ INSERT INTO `agent` (`name`) VALUES
 -- -------------------------------------
 -- Insert into `warehouse`
 -- -------------------------------------
-INSERT INTO `warehouse` (`name`, `agent_id`) VALUES
-('Amsterdam Warehouse', 1),
-('Houston Warehouse', 2),
-('Incheon Warehouse', 3),
-('Osaka Warehouse', 4),
-('Shanghai Warehouse', 5);
+INSERT INTO `warehouse` (`name`, `agent_id`, `address_id`) VALUES
+('Amsterdam Warehouse', 1, 6),
+('Houston Warehouse', 2, 1),
+('Incheon Warehouse', 3, 2),
+('Osaka Warehouse', 4, 3),
+('Shanghai Warehouse', 5, 4);
 
 -- -------------------------------------
 -- Insert into `order_status`

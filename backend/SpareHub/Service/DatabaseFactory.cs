@@ -11,12 +11,26 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
 {
     private readonly Dictionary<(Type repositoryType, DatabaseType dbType), Type> _repositoryMappings = new()
     {
+        //Box
         { (typeof(IBoxRepository), DatabaseType.MySql), typeof(BoxMySqlRepository) },
         { (typeof(IBoxRepository), DatabaseType.MongoDb), typeof(BoxMongoDbRepository) },
+
+        //Order
         { (typeof(IOrderRepository), DatabaseType.MySql), typeof(OrderMySqlRepository) },
         { (typeof(IOrderRepository), DatabaseType.MongoDb), typeof(OrderMongoDbRepository) },
+
+        //Dispatch
         { (typeof(IDispatchRepository), DatabaseType.MySql), typeof(DispatchMySqlRepository) },
-        { (typeof(IDispatchRepository), DatabaseType.MongoDb), typeof(DispatchMongoDbRepository) }
+        { (typeof(IDispatchRepository), DatabaseType.MongoDb), typeof(DispatchMongoDbRepository) },
+
+        //Warehouse
+        { (typeof(IWarehouseRepository), DatabaseType.MySql), typeof(WarehouseMySqlRepository) },
+
+        //Agent
+        { (typeof(IAgentRepository), DatabaseType.MySql), typeof(AgentMySqlRepository) },
+        
+        //Address
+        { (typeof(IAddressRepository), DatabaseType.MySql), typeof(AddressMySqlRepository) },
     };
 
     public T GetRepository<T>() where T : class
