@@ -18,6 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import { Dispatch } from '../interfaces/dispatch';
 import { format } from 'date-fns';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', flex: 0.1, headerAlign: 'center', align: 'center' },
   { field: 'originType', headerName: 'Origin Type', flex: 0.3, headerAlign: 'center', align: 'center' },
@@ -77,7 +79,7 @@ const DispatchTable: React.FC = () => {
 
   const fetchDispatches = async (tags: string[] = []) => {
     try {
-      const response = await axios.get<Dispatch[]>(`${import.meta.env.VITE_API_URL}/api/dispatch`, {
+      const response = await axios.get<Dispatch[]>(`${API_URL}/api/dispatch`, {
         params: { searchTerms: tags },
         paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
       });

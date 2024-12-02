@@ -5,6 +5,8 @@ import axios from 'axios';
 import { DispatchRequest } from '../interfaces/dispatch';
 import { useSnackbar } from './SnackbarContext';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const NewDispatchPage: React.FC = () => {
   const navigate = useNavigate();
   const showSnackbar = useSnackbar();
@@ -37,7 +39,7 @@ const NewDispatchPage: React.FC = () => {
     setError(null);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/dispatch`, dispatch);
+      const response = await axios.post(`${API_URL}/api/dispatch`, dispatch);
       showSnackbar('Dispatch created successfully!', 'success');
       navigate(`/dispatches/${response.data.id}`);
     } catch (err) {
