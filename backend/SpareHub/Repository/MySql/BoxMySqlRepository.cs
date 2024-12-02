@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Domain.Models;
-using Domain.MySql;
 using Microsoft.EntityFrameworkCore;
-using Persistence;
+using Persistence.MySql;
+using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
 
 namespace Repository.MySql;
@@ -12,9 +12,15 @@ public class BoxMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : I
 {
     public async Task<Box> CreateBoxAsync(Box box)
     {
+        if (!int.TryParse(box.OrderId, out int orderIdInt))
+            throw new ValidationException("Order ID must be a valid integer.");
+
         var boxEntity = mapper.Map<BoxEntity>(box);
+        boxEntity.OrderId = orderIdInt;
+
         dbContext.Boxes.Add(boxEntity);
         await dbContext.SaveChangesAsync();
+
         box.Id = boxEntity.Id.ToString();
         return box;
     }

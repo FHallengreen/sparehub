@@ -1,8 +1,9 @@
 using AutoMapper;
 using Domain.Models;
-using Domain.MySql;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using Persistence.MySql;
+using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
 
 namespace Repository.MySql;
@@ -32,7 +33,7 @@ public class DispatchMySqlRepository : IDispatchRepository
             return null;
 
         var dispatchEntity = await _dbContext.Dispatches
-            .Include(d => d.userEntity)
+            .Include(d => d.Orders)
             .FirstOrDefaultAsync(d => d.Id == id);
 
         return dispatchEntity != null ? _mapper.Map<Dispatch>(dispatchEntity) : null;
@@ -41,7 +42,7 @@ public class DispatchMySqlRepository : IDispatchRepository
     public async Task<IEnumerable<Dispatch>> GetDispatchesAsync()
     {
         var dispatchEntities = await _dbContext.Dispatches
-            .Include(d => d.userEntity)
+            .Include(d => d.Orders)
             .ToListAsync();
 
         return _mapper.Map<IEnumerable<Dispatch>>(dispatchEntities);

@@ -1,9 +1,7 @@
 using AutoMapper;
 using Domain.Models;
-using Domain.MySql;
 using Persistence.MySql;
 using Shared.DTOs.Order;
-using Shared.Order;
 
 namespace Service.Mapping;
 
@@ -64,13 +62,13 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.Boxes, opt => opt.MapFrom(src => src.Boxes));
 
         // Supplier mappings
-        CreateMap<SupplierEntity, Domain.Models.Supplier>()
+        CreateMap<SupplierEntity, Supplier>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
         CreateMap<BoxRequest, Box>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id ?? Guid.NewGuid().ToString()));
-        
+
         // Vessel mappings
         CreateMap<VesselEntity, Vessel>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
@@ -91,10 +89,10 @@ public class MappingMySqlProfile : Profile
                 string.IsNullOrEmpty(src.Id) ? 0 : int.Parse(src.Id)))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-        CreateMap<AgentEntity, Domain.Models.Agent>()
+        CreateMap<AgentEntity, Agent>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-        
+
         // Dispatch mappings
         CreateMap<DispatchEntity, Dispatch>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
@@ -106,8 +104,7 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
             .ForMember(dest => dest.DispatchDate, opt => opt.MapFrom(src => src.DispatchDate))
             .ForMember(dest => dest.DeliveryDate, opt => opt.MapFrom(src => src.DeliveryDate))
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.userEntity));
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
         
         // User mappings
         CreateMap<UserEntity, User>()

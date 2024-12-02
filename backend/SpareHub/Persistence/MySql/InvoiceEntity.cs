@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Domain.MySql;
+namespace Persistence.MySql;
 
 public class InvoiceEntity
 {
@@ -9,6 +9,6 @@ public class InvoiceEntity
 
     public int DispatchId { get; set; } 
 
-    public DispatchEntity dispatchEntity { get; set; } = null!;
+    public DispatchEntity DispatchEntity { get; set; } = null!;
 }
 

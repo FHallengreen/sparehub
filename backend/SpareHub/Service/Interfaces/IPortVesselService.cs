@@ -1,6 +1,6 @@
 using Shared;
 
-namespace Service;
+namespace Service.Interfaces;
 
 public interface IPortVesselService
 {

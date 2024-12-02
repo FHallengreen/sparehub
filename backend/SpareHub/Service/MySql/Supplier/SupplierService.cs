@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Persistence;
+using Persistence.MySql.SparehubDbContext;
+using Service.Interfaces;
 using Shared;
+using Shared.DTOs.Supplier;
 
-namespace Service.Supplier;
+namespace Service.MySql.Supplier;
 
 public class SupplierService(SpareHubDbContext dbContext) : ISupplierService
 {

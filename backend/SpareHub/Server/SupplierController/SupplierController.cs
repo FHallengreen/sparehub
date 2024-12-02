@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Service.Supplier;
+using Service.Interfaces;
 
 namespace Server.SupplierController;
 

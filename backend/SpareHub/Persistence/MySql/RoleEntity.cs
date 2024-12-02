@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Domain.MySql;
+namespace Persistence.MySql;
 
 public class RoleEntity
 {

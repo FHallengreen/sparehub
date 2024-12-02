@@ -3,7 +3,7 @@ using Domain.Models;
 using MongoDB.Driver;
 using Persistence.MongoDb;
 using Repository.Interfaces;
-using OrderStatus = Persistence.MongoDb.OrderStatus;
+using OrderStatus = Persistence.MongoDb.Enums.OrderStatus;
 
 namespace Repository.MongoDb;
 
@@ -11,8 +11,8 @@ public class OrderMongoDbRepository (IMongoCollection<OrderCollection> collectio
 {
     public async Task<IEnumerable<Order>> GetOrdersAsync()
     {
-            var orderCollection = await collection.Find(order => true).ToListAsync();
-            return mapper.Map<IEnumerable<Order>>(orderCollection);
+        var orderCollection = await collection.Find(order => true).ToListAsync();
+        return mapper.Map<IEnumerable<Order>>(orderCollection);
     }
 
     public async Task<Order?> GetOrderByIdAsync(string orderId)
@@ -26,9 +26,7 @@ public class OrderMongoDbRepository (IMongoCollection<OrderCollection> collectio
         var filter = Builders<OrderCollection>.Filter.Ne(order => order.OrderStatus, OrderStatus.Cancelled);
 
         var orderCollection = await collection.Find(filter).ToListAsync();
-
-        return mapper.Map<IEnumerable<Order>>(orderCollection);
-
+        return mapper.Map<List<Order>>(orderCollection);
     }
 
     public Task CreateOrderAsync(Order order)

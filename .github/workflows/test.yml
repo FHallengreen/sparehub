@@ -1,0 +1,54 @@
+name: Backend Tests
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'backend/SpareHub/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env File from Secrets
+        run: |
+          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+          echo "MYSQL_PORT=3306" >> .env
+          echo "MYSQL_HOST=mysql-sparehub" >> .env
+          echo "API_URL=http://localhost:8080" >> .env
+          echo "MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}" >> .env
+          echo "MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}" >> .env
+          echo "MONGO_INITDB_DATABASE=${{ secrets.MONGO_INITDB_DATABASE }}" >> .env
+          echo "NEO4J_URL=bolt://neo4j:7687" >> .env
+          echo "NEO4J_USERNAME=${{ secrets.NEO4J_USERNAME }}" >> .env
+          echo "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}" >> .env
+
+      - name: Set up Docker Compose
+        run: |
+          # Ensure .env file is in place
+          cat .env
+          # Start services using docker compose
+          docker compose up -d --build
+
+      - name: Wait for Services to Be Ready
+        run: |
+          echo "Waiting for MySQL..."
+          until docker exec mysql-sparehub mysqladmin ping -hlocalhost --silent; do sleep 2; done
+          echo "Waiting for MongoDB..."
+          until nc -z localhost 27017; do sleep 2; done
+          echo "Waiting for Neo4j..."
+          until nc -z localhost 7687; do sleep 2; done
+
+      - name: Run Tests
+        run: docker exec backend-sparehub dotnet test /app/SpareHub.sln --configuration Release
+
+      - name: Tear Down Docker Compose
+        run: docker compose down

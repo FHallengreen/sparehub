@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using Persistence;
-using Shared;
+using Persistence.MySql.SparehubDbContext;
+using Service.Interfaces;
+using Shared.DTOs.Order;
 
-namespace Service.Agent;
+namespace Service.MySql.Agent;
 
 public class AgentService (SpareHubDbContext dbContext) : IAgentService
 {

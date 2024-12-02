@@ -1,4 +1,5 @@
 using Shared;
+using Shared.DTOs.Warehouse;
 
 namespace Service.Interfaces;
 

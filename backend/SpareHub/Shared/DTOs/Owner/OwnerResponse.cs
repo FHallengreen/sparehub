@@ -1,4 +1,4 @@
-namespace Shared;
+namespace Shared.DTOs.Owner;
 
 public class OwnerResponse
 {

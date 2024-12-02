@@ -1,4 +1,4 @@
-namespace Domain.Models;
+namespace Persistence.MySql;
 
 public class DispatchStatusEntity
 {

@@ -4,29 +4,33 @@ using MongoDB.Driver;
 using Neo4j.Driver;
 using Persistence;
 using Persistence.MongoDb;
+using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
 using Repository.MongoDb;
 using Repository.MySql;
 using Server.Middleware;
 using Service;
-using Service.Agent;
 using Service.Interfaces;
 using Service.Mapping;
 using Service.MySql.Dispatch;
 using Service.MongoDb;
+using Service.MySql.Agent;
 using Service.MySql.Order;
+using Service.MySql.Supplier;
+using Service.MySql.Vessel;
 using Service.MySql.Warehouse;
+using Shared.DTOs.Order;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<AzureFileLoggerOptions>(builder.Configuration.GetSection("AzureLogging"));
 
 // Configure logging providers
-/*builder.Logging.ClearProviders();
+builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 builder.Logging.AddAzureWebAppDiagnostics();
-builder.Logging.SetMinimumLevel(LogLevel.Debug);*/
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 // Enables detailed logging in docker container
 // builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -44,33 +48,43 @@ builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("D
 // Add the DatabaseFactory with IOptionsMonitor
 builder.Services.AddScoped<IDatabaseFactory, DatabaseFactory>();
 
-// Register the repositories as concrete types
+builder.Services.AddScoped<IDispatchRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IDispatchRepository>();
+});
+
+builder.Services.AddScoped<IBoxRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IBoxRepository>();
+});
+
+builder.Services.AddScoped<IOrderRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IOrderRepository>();
+});
+
+// Register services directly
+builder.Services.AddScoped<IDispatchService, DispatchService>();
+builder.Services.AddScoped<IBoxService, BoxService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IVesselService, VesselService>();
+builder.Services.AddScoped<IAgentService, AgentService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+
+// Register MySQL repositories
 builder.Services.AddScoped<BoxMySqlRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
-builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
+
+// Register MongoDB repositories
+builder.Services.AddScoped<BoxMongoDbRepository>();
+builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMongoDbRepository>();
-builder.Services.AddScoped<WarehouseMySqlRepository>();
-builder.Services.AddScoped<AddressMySqlRepository>();
-builder.Services.AddScoped<AgentMySqlRepository>();
 
-// Register the services as concrete types
-builder.Services.AddScoped<BoxMySqlService>();
-builder.Services.AddScoped<OrderMySqlService>();
-builder.Services.AddScoped<OrderMongoDbService>();
-builder.Services.AddScoped<DispatchMySqlService>();
-builder.Services.AddScoped<DispatchMongoDbService>();
-builder.Services.AddScoped<WarehouseMySqlService>();
-
-// Dynamically resolve services using the factory
-builder.Services.AddScoped<IBoxService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetService<IBoxService>());
-builder.Services.AddScoped<IOrderService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetService<IOrderService>());
-builder.Services.AddScoped<IDispatchService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetService<IDispatchService>());
-builder.Services.AddScoped<IWarehouseService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetService<IWarehouseService>());
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(cfg =>
@@ -78,7 +92,6 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<MappingMySqlProfile>();
     cfg.AddProfile<MappingMongoDbProfile>();
 });
-
 
 // Configure the database connection string with SSL enabled
 var connectionString = string.Format("server={0};port={1};database={2};user={3};password={4};SslMode=Required",
@@ -111,19 +124,19 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<OrderCollection>("Order");
+    return database.GetCollection<OrderCollection>("orders");
 });
 
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<BoxCollection>("Box");
+    return database.GetCollection<BoxCollection>("boxes");
 });
 
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<DispatchCollection>("Dispatch");
+    return database.GetCollection<DispatchCollection>("dispatches");
 });
 
 
@@ -170,3 +183,5 @@ app.UseMiddleware<ValidationExceptionMiddleware>();
 app.MapControllers();
 
 await app.RunAsync();
+
+public partial class Program { }

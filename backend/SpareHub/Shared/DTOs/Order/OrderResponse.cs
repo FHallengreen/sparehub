@@ -1,9 +1,10 @@
-using Domain;
-using Shared.Order;
 
-namespace Shared;
+using Shared.DTOs.Supplier;
+using Shared.DTOs.Warehouse;
 
-public class OrderResponse
+namespace Shared.DTOs.Order;
+
+public record OrderResponse
 {
     public string Id { get; set; } = null!;
     public string OrderNumber { get; set; } = null!;
