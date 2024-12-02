@@ -14,6 +14,7 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
       <PackageReference Include="MongoDB.Driver" Version="2.29.0" />
       <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
+      <PackageReference Include="Neo4j.Driver" Version="5.25.0" />
     </ItemGroup>
 
 </Project>

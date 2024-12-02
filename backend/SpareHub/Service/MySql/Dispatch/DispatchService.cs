@@ -42,7 +42,6 @@ public class DispatchService(IDispatchRepository dispatchRepository) : IDispatch
             DispatchDate = createdDispatch.DispatchDate,
             DeliveryDate = createdDispatch.DeliveryDate,
             UserId = createdDispatch.UserId,
-            User = createdDispatch.User
         };
     }
 
@@ -66,7 +65,7 @@ public class DispatchService(IDispatchRepository dispatchRepository) : IDispatch
             DispatchDate = dispatch.DispatchDate,
             DeliveryDate = dispatch.DeliveryDate,
             UserId = dispatch.UserId,
-            User = dispatch.User
+            OrderIds = dispatch.Orders.Select(o => o.OrderNumber).ToList()
         };
     }
 
@@ -90,9 +89,10 @@ public class DispatchService(IDispatchRepository dispatchRepository) : IDispatch
             DispatchDate = d.DispatchDate,
             DeliveryDate = d.DeliveryDate,
             UserId = d.UserId,
-            User = d.User
+            OrderIds = d.Orders.Select(o => o.OrderNumber).ToList() // Map order numbers
         });
     }
+
 
     public async Task<DispatchResponse> UpdateDispatch(string dispatchId, DispatchRequest dispatchRequest)
     {
@@ -128,7 +128,6 @@ public class DispatchService(IDispatchRepository dispatchRepository) : IDispatch
             DispatchDate = updatedDispatch.DispatchDate,
             DeliveryDate = updatedDispatch.DeliveryDate,
             UserId = updatedDispatch.UserId,
-            User = updatedDispatch.User
         };
     }
 

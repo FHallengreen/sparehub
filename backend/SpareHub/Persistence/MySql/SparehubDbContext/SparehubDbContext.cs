@@ -256,12 +256,6 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.UserId)
                 .HasColumnName("user_id");
 
-            entity.HasOne(e => e.userEntity)
-                .WithMany()
-                .HasForeignKey(e => e.UserId)
-                .HasConstraintName("fk_dispatch_user1")
-                .OnDelete(DeleteBehavior.NoAction);
-
             // Configure many-to-many relationship with Order
             entity.HasMany(d => d.Orders)
                 .WithMany(o => o.Dispatches)

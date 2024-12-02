@@ -2,7 +2,7 @@ using Domain.Models;
 
 namespace Shared.DTOs.Dispatch;
 
-public class DispatchResponse
+public record DispatchResponse
 {
     public string Id { get; set; } = null!;
     public string OriginType { get; set; } = null!;
@@ -15,5 +15,5 @@ public class DispatchResponse
     public DateTime? DispatchDate { get; set; }
     public DateTime? DeliveryDate { get; set; }
     public int UserId { get; set; }
-    public User User { get; set; } = null!;
+    public List<string> OrderIds { get; set; } = new List<string>();
 }
