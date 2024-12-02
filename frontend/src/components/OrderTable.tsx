@@ -125,8 +125,9 @@ const OrderTable: React.FC = () => {
         vessel: order.vesselName,
         supplier: order.supplierName,
         poNumber: order.orderNumber,
-        pieces: order.boxes && order.boxes > 0 ? order.boxes : null, 
-      weight: order.totalWeight && order.totalWeight > 0 ? order.totalWeight : null,
+        pieces: order.boxes && order.boxes > 0 ? order.boxes : null,
+        weight: order.totalWeight && order.totalWeight > 0 ? order.totalWeight : null,
+        volume: order.totalVolume && order.totalVolume > 0 ? order.totalVolume : null, // Map volume here
         stockLocation: order.warehouseName,
         status: order.orderStatus,
       }));
