@@ -47,6 +47,7 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
             .Include(o => o.Warehouse)
             .ThenInclude(w => w.Agent)
             .Include(o => o.Boxes)
+            .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id.ToString() == orderId);
 
         return orderEntity != null ? mapper.Map<Order>(orderEntity) : null;

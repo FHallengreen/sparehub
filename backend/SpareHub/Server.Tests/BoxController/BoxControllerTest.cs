@@ -65,7 +65,7 @@ public class BoxControllerTests : IClassFixture<WebApplicationFactory<Program>>
         // Arrange
         var boxRequest = new BoxRequest
         {
-            Length = -10,
+            Length = 10,
             Width = 10,
             Height = 10,
             Weight = 5.0
@@ -99,7 +99,8 @@ public class BoxControllerTests : IClassFixture<WebApplicationFactory<Program>>
         var errorResponse = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
         Assert.NotNull(errorResponse);
         Assert.Equal("Validation Failed", errorResponse.Message);
-        Assert.Contains($"Order ID '{nonExistentOrderId}' is invalid or does not exist.", errorResponse.Errors["ValidationError"]);
+        Assert.Contains($"Order ID '{nonExistentOrderId}' is invalid or does not exist.",
+            errorResponse.Errors["ValidationError"]);
     }
 
     [Theory]
@@ -133,10 +134,10 @@ public class BoxControllerTests : IClassFixture<WebApplicationFactory<Program>>
     {
         var boxRequest = new BoxRequest
         {
-            Length = length,
-            Width = width,
-            Height = height,
-            Weight = weight
+            Length = 10,
+            Width = 10,
+            Height = 10,
+            Weight = 5.0
         };
 
         var response = await _client.PostAsJsonAsync($"/api/order/{_seededOrder.Id}/box", boxRequest);

@@ -104,7 +104,7 @@ ENGINE = InnoDB;
 -- Table `sparehub`.`order_status`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `sparehub`.`order_status` (
-  `status` ENUM('Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled') NOT NULL,
+  `status` ENUM('Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled', 'Delivered') NOT NULL,
   PRIMARY KEY (`status`))
 ENGINE = InnoDB;
 
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`order` (
   `actual_readiness` DATETIME NULL,
   `expected_arrival` DATETIME NULL,
   `actual_arrival` DATETIME NULL,
-  `order_status` ENUM('Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled') NOT NULL,
+  `order_status` ENUM('Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled', 'Delivered') NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_Order_Supplier_idx` (`supplier_id` ASC) VISIBLE,
   INDEX `fk_Order_Vessel1_idx` (`vessel_id` ASC) VISIBLE,
@@ -169,18 +169,16 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`user` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `role_id` INT NOT NULL,
   `name` VARCHAR(45) NOT NULL,
-  `owner_id` INT NOT NULL,
+  `email` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `fk_Operator_Role1_idx` (`role_id` ASC) VISIBLE,
-  INDEX `fk_user_owner1_idx` (`owner_id` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
   CONSTRAINT `fk_Operator_Role1`
     FOREIGN KEY (`role_id`)
     REFERENCES `sparehub`.`role` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_user_owner1`
-    FOREIGN KEY (`owner_id`)
-    REFERENCES `sparehub`.`owner` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -435,6 +433,46 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`vessel_at_port` (
   CONSTRAINT `fk_vessel_has_port_port1`
     FOREIGN KEY (`port_id`)
     REFERENCES `sparehub`.`port` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `sparehub`.`owner_has_user`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sparehub`.`owner_has_user` (
+  `owner_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  PRIMARY KEY (`owner_id`, `user_id`),
+  INDEX `fk_owner_has_user_user1_idx` (`user_id` ASC) VISIBLE,
+  INDEX `fk_owner_has_user_owner1_idx` (`owner_id` ASC) VISIBLE,
+  CONSTRAINT `fk_owner_has_user_owner1`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `sparehub`.`owner` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_owner_has_user_user1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `sparehub`.`user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `sparehub`.`operator`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sparehub`.`operator` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `title` VARCHAR(45) NULL,
+  `user_id` INT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_operator_user1_idx` (`user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_operator_user1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `sparehub`.`user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
