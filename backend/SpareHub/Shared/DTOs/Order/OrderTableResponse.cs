@@ -11,4 +11,5 @@ public record OrderTableResponse
     public string OrderStatus { get; set; } = null!;
     public int Boxes { get; set; }
     public double TotalWeight { get; set; }
+    public double TotalVolume { get; set; }
 }

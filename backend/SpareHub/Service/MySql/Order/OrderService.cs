@@ -170,7 +170,8 @@ public class OrderService(
             WarehouseName = o.Warehouse.Name,
             OrderStatus = o.OrderStatus,
             Boxes = o.Boxes.Count,
-            TotalWeight = Math.Round(o.Boxes.Sum(b => b.Weight), 2)
+            TotalWeight = Math.Round(o.Boxes.Sum(b => b.Weight), 2),
+            TotalVolume = o.Boxes.Sum(b => b.Length * b.Width * b.Height)
         }).ToList();
     }
 
