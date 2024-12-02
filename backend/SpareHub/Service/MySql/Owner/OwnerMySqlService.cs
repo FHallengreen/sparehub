@@ -57,7 +57,8 @@ public class OwnerMySqlService(OwnerMySqlRepository ownerMySqlRepository) : IOwn
         var owner = await ownerMySqlRepository.GetOwnerByIdAsync(ownerId);
         if (owner == null)
             throw new NotFoundException($"Owner with id '{ownerId}' not found");
-
+        
+        //Request the change of owner name
         owner.Name = ownerRequest.Name;
 
         await ownerMySqlRepository.UpdateOwnerAsync(ownerId, owner);

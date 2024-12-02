@@ -8,7 +8,7 @@ public class PortEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public required int Id { get; set; }
+    public required int Id { get; init; }
     public string Name { get; set; } = null!;
 
     public ICollection<VesselAtPortEntity> VesselAtPorts { get; set; } = new List<VesselAtPortEntity>();

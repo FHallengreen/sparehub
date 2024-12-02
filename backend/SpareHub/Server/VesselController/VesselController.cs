@@ -11,9 +11,19 @@ namespace Server.VesselController;
     public class VesselController(IDatabaseFactory databaseFactory) : ControllerBase
     {
         private readonly IVesselService _vesselService = databaseFactory.GetService<IVesselService>();
-        
     
+        [HttpGet("query")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+        public async Task<IActionResult> GetVesselsBySearchQuery(string? searchQuery = null)
+        {
+            
+            var vessels = await _vesselService.GetVesselsBySearchQuery(searchQuery);
 
+            return Ok(vessels);
+
+        }
+        
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(VesselResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

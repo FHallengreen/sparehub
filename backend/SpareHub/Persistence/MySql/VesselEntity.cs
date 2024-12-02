@@ -11,14 +11,12 @@ public class VesselEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public required int Id { get; set; }
     
-    public int OwnerId { get; init; } // Ensure this is set correctly when creating a VesselEntity
+    public int OwnerId { get; init; }
     
     public required string Name { get; init; }
     public string? ImoNumber { get; init; }
     public string? Flag { get; init; }
-    
-    // Consider making Owner nullable if you want to allow creation without it
-    public required OwnerEntity Owner { get; init; } // Ensure this is set correctly
+    public required OwnerEntity Owner { get; init; }
 
     [JsonIgnore]
     public ICollection<VesselAtPortEntity> VesselAtPorts { get; set; } = new List<VesselAtPortEntity>();

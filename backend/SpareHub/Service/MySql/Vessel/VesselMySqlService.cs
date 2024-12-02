@@ -9,25 +9,11 @@ namespace Service.MySql.Vessel;
 
 public class VesselMySqlService(VesselMySqlRepository vesselMySqlRepository, OwnerMySqlRepository ownerMySqlRepository) : IVesselService
 {
-    /*public async Task<List<VesselResponse>> GetVesselsBySearchQuery(string? searchQuery = "")
+
+    public async Task<List<VesselResponse>> GetVesselsBySearchQuery(string? searchQuery = "")
     {
-        return await dbContext.Vessels
-            .Where(v => string.IsNullOrEmpty(searchQuery) || v.Name.StartsWith(searchQuery))
-            .Include(v => v.Owner)
-            .Select(v => new VesselResponse
-            {
-                Id = v.Id.ToString(),
-                Name = v.Name,
-                ImoNumber = v.ImoNumber,
-                Flag = v.Flag,
-                Owner = new OwnerResponse
-                {
-                    Id = v.Owner.Id.ToString(),
-                    Name = v.Owner.Name
-                }
-            })
-            .ToListAsync();
-    }*/
+        return await vesselMySqlRepository.GetVesselsBySearchQueryAsync(searchQuery);
+    }
     
     public async Task<List<VesselResponse>> GetVessels()
     {
