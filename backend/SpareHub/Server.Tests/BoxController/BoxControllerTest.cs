@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
@@ -58,14 +57,13 @@ public class BoxControllerTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.False(string.IsNullOrEmpty(boxResponse.Id));
     }
 
-
     [Fact]
     public async Task CreateBox_ReturnsBadRequest_ForNegativeLength()
     {
         // Arrange
         var boxRequest = new BoxRequest
         {
-            Length = 10,
+            Length = -10,
             Width = 10,
             Height = 10,
             Weight = 5.0
@@ -134,10 +132,10 @@ public class BoxControllerTests : IClassFixture<WebApplicationFactory<Program>>
     {
         var boxRequest = new BoxRequest
         {
-            Length = 10,
-            Width = 10,
-            Height = 10,
-            Weight = 5.0
+            Length = length,
+            Width = width,
+            Height = height,
+            Weight = weight
         };
 
         var response = await _client.PostAsJsonAsync($"/api/order/{_seededOrder.Id}/box", boxRequest);

@@ -194,15 +194,6 @@ builder.Services.AddScoped(sp =>
     return driver.AsyncSession();
 });
 
-var jwtSettings = new
-{
-    SecretKey = builder.Configuration["JWT_SECRET_KEY"],
-    Issuer = builder.Configuration["JWT_ISSUER"],
-    Audience = builder.Configuration["JWT_AUDIENCE"]
-};
-
-var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey!);
-
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -216,9 +207,9 @@ builder.Services.AddAuthentication(options =>
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
-            ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET_KEY")!)),
+            ValidIssuer = builder.Configuration.GetValue<string>("JWT_ISSUER"),
+            ValidAudience = builder.Configuration.GetValue<string>("JWT_AUDIENCE"),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JWT_SECRET_KEY")!)),
             RoleClaimType = ClaimTypes.Role
         };
     });
