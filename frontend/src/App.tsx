@@ -4,7 +4,9 @@ import { GiHamburgerMenu } from 'react-icons/gi';
 import OrderPage from './components/OrderTable';
 import OrderDetailPage from './components/OrderDetailPage';
 import Sidebar from './components/SideBar';
-import { SnackbarProvider } from './components/SnackbarContext'; 
+import { SnackbarProvider } from './components/SnackbarContext';
+import DatabasePage from './components/DatabasePage';
+import MySQLTable from "./components/database/MySQLTable";
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -35,6 +37,8 @@ function App() {
               <Route path="/orders/:id" element={<OrderDetailPage />} />
               <Route path="/orders" element={<OrderPage />} />
               <Route path="/" element={<OrderPage />} />
+              <Route path="/database" element={<DatabasePage />} />
+              <Route path="/database/:table" element={<MySQLTable />} />
             </Routes>
           </div>
         </div>
