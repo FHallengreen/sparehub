@@ -90,11 +90,18 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`warehouse` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `agent_id` INT NOT NULL,
-  PRIMARY KEY (`id`),
+  `address_id` INT NOT NULL,
+  PRIMARY KEY (`id`, `address_id`),
   INDEX `fk_Warehouse_Agent1_idx` (`agent_id` ASC) VISIBLE,
+  INDEX `fk_warehouse_address1_idx` (`address_id` ASC) VISIBLE,
   CONSTRAINT `fk_Warehouse_Agent1`
     FOREIGN KEY (`agent_id`)
     REFERENCES `sparehub`.`agent` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_warehouse_address1`
+    FOREIGN KEY (`address_id`)
+    REFERENCES `sparehub`.`address` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -480,37 +487,22 @@ ENGINE = InnoDB;
 USE `sparehub` ;
 
 -- -----------------------------------------------------
--- Placeholder table for view `sparehub`.`non_cancelled_orders`
+-- Placeholder table for view `sparehub`.`not_active_orders`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sparehub`.`non_cancelled_orders` (`id` INT);
+CREATE TABLE IF NOT EXISTS `sparehub`.`not_active_orders` (`id` INT, `order_number` INT, `supplier_order_number` INT, `supplier_id` INT, `vessel_id` INT, `warehouse_id` INT, `expected_readiness` INT, `actual_readiness` INT, `expected_arrival` INT, `actual_arrival` INT, `order_status` INT);
 
 -- -----------------------------------------------------
--- View `sparehub`.`non_cancelled_orders`
+-- View `sparehub`.`not_active_orders`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `sparehub`.`non_cancelled_orders`;
+DROP TABLE IF EXISTS `sparehub`.`not_active_orders`;
 USE `sparehub`;
-DROP VIEW IF EXISTS `sparehub`.`non_cancelled_orders`;
-
-CREATE  OR REPLACE 
-    ALGORITHM = UNDEFINED 
-    SQL SECURITY INVOKER
-VIEW `non_cancelled_orders` AS
+CREATE  OR REPLACE VIEW `not_active_orders` AS
     SELECT 
-        `order`.`id` AS `id`,
-        `order`.`order_number` AS `order_number`,
-        `order`.`supplier_order_number` AS `supplier_order_number`,
-        `order`.`supplier_id` AS `supplier_id`,
-        `order`.`vessel_id` AS `vessel_id`,
-        `order`.`warehouse_id` AS `warehouse_id`,
-        `order`.`expected_readiness` AS `expected_readiness`,
-        `order`.`actual_readiness` AS `actual_readiness`,
-        `order`.`expected_arrival` AS `expected_arrival`,
-        `order`.`actual_arrival` AS `actual_arrival`,
-        `order`.`order_status` AS `order_status`
+        *
     FROM
         `order`
     WHERE
-        (`order`.`order_status` <> 'Cancelled');
+        `order_status` NOT IN ('Cancelled' , 'Delivered');
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

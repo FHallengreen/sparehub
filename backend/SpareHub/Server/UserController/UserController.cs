@@ -6,6 +6,7 @@ namespace Server.UserController;
 
 [ApiController]
 [Route("api/user")]
+[Authorize]
 public class UserController(IUserService userService) : ControllerBase
 {
     [HttpGet("{email}")]

@@ -1,4 +1,5 @@
 using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 using Service.Interfaces;
@@ -9,6 +10,7 @@ using Shared.Exceptions;
 namespace Server.OrderController;
 
 [ApiController]
+[Authorize]
 [Route("/api/order")]
 public class OrderController(IOrderService orderService) : ControllerBase
 {

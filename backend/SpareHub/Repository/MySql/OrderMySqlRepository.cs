@@ -23,10 +23,10 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
         return orders;
     }
 
-    public async Task<IEnumerable<Order>> GetNonCancelledOrdersAsync()
+    public async Task<IEnumerable<Order>> GetNotActiveOrders()
     {
-        var nonCancelledOrderEntities = await dbContext.Orders
-            .FromSqlRaw("SELECT * FROM non_cancelled_orders")
+        var notActiveOrderEntities = await dbContext.Orders
+            .FromSqlRaw("SELECT * FROM not_active_orders")
             .Include(o => o.Supplier)
             .Include(o => o.Vessel)
             .ThenInclude(v => v.Owner)
@@ -34,7 +34,7 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
             .Include(o => o.Boxes)
             .ToListAsync();
 
-        var orders = mapper.Map<IEnumerable<Order>>(nonCancelledOrderEntities);
+        var orders = mapper.Map<IEnumerable<Order>>(notActiveOrderEntities);
         return orders;
     }
 

@@ -56,13 +56,13 @@ INSERT INTO agent (name) VALUES
 -- -------------------------------
 -- Insert Data into warehouse
 -- -------------------------------
--- Naming warehouses based on agent locations
-INSERT INTO warehouse (name, agent_id) VALUES
-('Amsterdam Warehouse', 1),                        -- id = 1
-('Houston Warehouse', 2),                          -- id = 2
-('Berlin Warehouse', 3),                           -- id = 3
-('London Warehouse', 4),                           -- id = 4
-('Brussels Warehouse', 5);                         -- id = 5
+INSERT INTO warehouse (name, agent_id, address_id) VALUES
+('Amsterdam Warehouse', 1, 1),   -- id = 1, address_id = 1
+('Houston Warehouse', 2, 2),     -- id = 2, address_id = 2
+('Berlin Warehouse', 3, 3),      -- id = 3, address_id = 3
+('London Warehouse', 4, 4),      -- id = 4, address_id = 4
+('Brussels Warehouse', 5, 5);    -- id = 5, address_id = 5
+
 
 -- -------------------------------
 -- Insert Data into role

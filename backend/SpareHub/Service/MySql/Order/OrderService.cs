@@ -211,6 +211,6 @@ public class OrderService(
                 .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
         }
 
-        return await orderRepository.GetNonCancelledOrdersAsync();
+        return await orderRepository.GetNotActiveOrders();
     }
 }
