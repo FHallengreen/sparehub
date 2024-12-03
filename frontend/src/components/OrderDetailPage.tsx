@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CircularProgress, Typography, Button, TextField, IconButton } from '@mui/material';
-import axios from 'axios';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest, SupplierOption, Warehouse, Agent } from '../interfaces/order';
 import { useSnackbar } from './SnackbarContext';
 import { useDebounce } from '../hooks/useDebounce';
+import api from '../Api';
+import axios from 'axios';
 
 const OrderDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -36,11 +37,11 @@ const OrderDetailPage: React.FC = () => {
     React.useEffect(() => {
         const fetchOrder = async () => {
             try {
-                const statusResponse = await axios.get<string[]>(`${import.meta.env.VITE_API_URL}/api/order/status`);
+                const statusResponse = await api.get<string[]>(`${import.meta.env.VITE_API_URL}/api/order/status`);
                 setStatuses(statusResponse.data);
 
                 if (!isNewOrder) {
-                    const orderResponse = await axios.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/order/${id}`);
+                    const orderResponse = await api.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/order/${id}`);
 
                     setOrder({
                         ...orderResponse.data,
@@ -122,7 +123,7 @@ const OrderDetailPage: React.FC = () => {
 
         if (id && id !== 0) {
             try {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/api/order/${order.id}/box/${id}`);
+                await api.delete(`${import.meta.env.VITE_API_URL}/api/order/${order.id}/box/${id}`);
                 showSnackbar('Box deleted successfully!', 'success');
             } catch (err) {
                 showSnackbar('Failed to delete box. Please try again.', 'error');
@@ -146,7 +147,7 @@ const OrderDetailPage: React.FC = () => {
 
     const deleteOrder = async (orderId: number) => {
         try {
-            await axios.delete(`${import.meta.env.VITE_API_URL}/api/order/${orderId}`);
+            await api.delete(`${import.meta.env.VITE_API_URL}/api/order/${orderId}`);
             showSnackbar('Order deleted successfully!', 'success');
             navigate('/orders');
         } catch (err) {
@@ -188,14 +189,14 @@ const OrderDetailPage: React.FC = () => {
 
         try {
             if (isNewOrder) {
-                const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/order`, sanitizedOrder);
+                const response = await api.post(`${import.meta.env.VITE_API_URL}/api/order`, sanitizedOrder);
                 setOrder(response.data);
                 setEditableBoxes(Array(response.data.boxes?.length ?? 0).fill(false));
                 showSnackbar('Order created successfully!', 'success');
             } else {
-                await axios.put(`${import.meta.env.VITE_API_URL}/api/order/${id}`, sanitizedOrder);
+                await api.put(`${import.meta.env.VITE_API_URL}/api/order/${id}`, sanitizedOrder);
 
-                const response = await axios.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/order/${id}`);
+                const response = await api.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/order/${id}`);
                 setOrder(response.data);
                 setEditableBoxes(Array(response.data.boxes?.length ?? 0).fill(false));
 
@@ -209,7 +210,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedVesselQuery.length >= 3) {
-            axios.get<VesselOption[]>(`${import.meta.env.VITE_API_URL}/api/vessel`, {
+            api.get<VesselOption[]>(`${import.meta.env.VITE_API_URL}/api/vessel`, {
                 params: { searchQuery: debouncedVesselQuery }
             })
                 .then(response => {
@@ -224,7 +225,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedSupplierQuery.length >= 3) {
-            axios.get<SupplierOption[]>(`${import.meta.env.VITE_API_URL}/api/supplier`, {
+            api.get<SupplierOption[]>(`${import.meta.env.VITE_API_URL}/api/supplier`, {
                 params: { searchQuery: debouncedSupplierQuery }
             }).then(response => {
                 setSupplierOptions(response.data);
@@ -236,7 +237,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedWarehouseQuery.length >= 3) {
-            axios.get<Warehouse[]>(`${import.meta.env.VITE_API_URL}/api/warehouse/search`, {
+            api.get<Warehouse[]>(`${import.meta.env.VITE_API_URL}/api/warehouse/search`, {
                 params: { searchQuery: debouncedWarehouseQuery }
             }).then(response => {
                 setWarehouseOptions(response.data);
@@ -248,7 +249,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedAgentQuery.length >= 3) {
-            axios.get<Agent[]>(`${import.meta.env.VITE_API_URL}/api/agent/search`, {
+            api.get<Agent[]>(`${import.meta.env.VITE_API_URL}/api/agent/search`, {
                 params: { searchQuery: debouncedAgentQuery }
             }).then(response => {
                 setAgentOptions(response.data);

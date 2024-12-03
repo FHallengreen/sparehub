@@ -75,12 +75,25 @@ public class OrderService(
             throw new NotFoundException($"No order found with id {orderId}");
 
         mapper.Map(orderRequest, existingOrder);
-
         await orderRepository.UpdateOrderAsync(existingOrder);
 
         if (orderRequest.Boxes != null)
         {
-            await boxService.UpdateBoxes(orderId, orderRequest.Boxes);
+            var boxesToUpdate = orderRequest.Boxes.Where(b => !string.IsNullOrWhiteSpace(b.Id)).ToList();
+            var boxesToCreate = orderRequest.Boxes.Where(b => string.IsNullOrWhiteSpace(b.Id)).ToList();
+
+            if (boxesToUpdate.Any())
+            {
+                await boxService.UpdateBoxes(orderId, boxesToUpdate);
+            }
+
+            if (boxesToCreate.Any())
+            {
+                foreach (var newBox in boxesToCreate)
+                {
+                    await boxService.CreateBox(newBox, orderId);
+                }
+            }
         }
     }
 
@@ -198,6 +211,6 @@ public class OrderService(
                 .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
         }
 
-        return await orderRepository.GetNonCancelledOrdersAsync();
+        return await orderRepository.GetNotActiveOrders();
     }
 }
