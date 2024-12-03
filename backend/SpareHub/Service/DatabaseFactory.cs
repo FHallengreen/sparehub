@@ -16,7 +16,8 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
         { (typeof(IOrderRepository), DatabaseType.MySql), typeof(OrderMySqlRepository) },
         { (typeof(IOrderRepository), DatabaseType.MongoDb), typeof(OrderMongoDbRepository) },
         { (typeof(IDispatchRepository), DatabaseType.MySql), typeof(DispatchMySqlRepository) },
-        { (typeof(IDispatchRepository), DatabaseType.MongoDb), typeof(DispatchMongoDbRepository) }
+        { (typeof(IDispatchRepository), DatabaseType.MongoDb), typeof(DispatchMongoDbRepository) },
+        { (typeof(IDatabaseRepository), DatabaseType.MySql), typeof(DatabaseMySqlRepository) },
     };
 
     public T GetRepository<T>() where T : class

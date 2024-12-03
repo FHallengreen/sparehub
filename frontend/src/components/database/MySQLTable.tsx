@@ -11,29 +11,21 @@ import CancelIcon from "@mui/icons-material/Cancel";
 
 const MySqlTable: React.FC = () => {
     const { table } = useParams<{ table: string }>();
-    const [tableData, setTableData] = useState<Table | null>(null);
+    const [tableData, setTableData] = useState<any[] | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [editRowId, setEditRowId] = useState<number | null>(null); // Track which row is being edited
-    const [formData, setFormData] = useState<Record<string, any>>({}); // Track changes to the row
+    const [editRowId, setEditRowId] = useState<number | null>(null);
+    const [formData, setFormData] = useState<Record<string, any>>({});
 
+    const endpoint = tableApiMethodMapping(table);
+    if (endpoint === null) {
+        return <div>Table not implemented yet</div>;
+    }
     useEffect(() => {
         // Fetch the table data from the backend
-        /*
-        axios.get("/api/database/" + table)
+        axios.get(`${import.meta.env.VITE_API_URL}/${endpoint}`)
             .then(response => setTableData(response.data))
             .catch(err => setError(err.message));
-        */
 
-        // Temporary mock data with IDs
-        setTableData({
-            table: "table1",
-            data: [
-                { id: 1, name: "John", age: 30 },
-                { id: 2, name: "Jane", age: 25 },
-                { id: 3, name: "Jim", age: 40 }
-            ],
-            error: null
-        });
     }, [table]);
 
     const handleEditClick = (row: any) => {
@@ -76,18 +68,18 @@ const MySqlTable: React.FC = () => {
             <h1>Table: {table}</h1>
 
             {error && <p style={{ color: "red" }}>{error}</p>}
-            {tableData != null && tableData.data.length > 0 ? (
+            {tableData != null && tableData.length > 0 ? (
                 <table>
                     <thead>
                     <tr>
-                        {Object.keys(tableData.data[0]).map((key, index) => (
+                        {Object.keys(tableData[0]).map((key, index) => (
                             <th key={index}>{key}</th>
                         ))}
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {tableData.data.map((row) => (
+                    {tableData.map((row) => (
                         <tr key={row.id}>
                             {Object.entries(row).map(([key, value], index) => (
                                 <td key={index}>
@@ -129,4 +121,29 @@ const MySqlTable: React.FC = () => {
     );
 };
 
+function tableApiMethodMapping(table: string | undefined): string | null{
+
+    switch (table) {
+        case "address":
+            return "api/address/search";
+        case "agent":
+            return "api/agent/search";
+        case "box":
+            return "api/box/search";
+        case "dispatch":
+            return "api/dispatch";
+        case "order":
+            return "api/order";
+        case "port":
+            return "api/port";
+        case "warehouse":
+            return "api/warehouse/search";
+        case "supplier":
+            return "api/supplier";
+        case "vessel":
+            return "api/vessel";
+        default:
+            return null;
+    }
+}
 export default MySqlTable;

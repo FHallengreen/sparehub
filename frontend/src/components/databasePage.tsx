@@ -10,16 +10,12 @@ const Databasepage: React.FC = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        /*
-        axios.get("/api/database")
+
+        axios.get(`${import.meta.env.VITE_API_URL}/api/database/tableNames`)
             .then(response => setTables(response.data))
             .catch(err => setError(err.message));
 
-         */
-        setTables(["table1", "table2", "table3"]);
     }, []);
-
-    console.log(tables)
     return (
         <div>
             <h1>Database Tables</h1>

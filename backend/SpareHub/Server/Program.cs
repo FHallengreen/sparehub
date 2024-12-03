@@ -15,6 +15,7 @@ using Service.Mapping;
 using Service.MySql.Dispatch;
 using Service.MongoDb;
 using Service.MySql.Agent;
+using Service.MySql.Database;
 using Service.MySql.Order;
 using Service.MySql.Supplier;
 using Service.MySql.Vessel;
@@ -66,6 +67,12 @@ builder.Services.AddScoped<IOrderRepository>(sp =>
     return databaseFactory.GetRepository<IOrderRepository>();
 });
 
+builder.Services.AddScoped<IDatabaseRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IDatabaseRepository>();
+});
+
 // Register services directly
 builder.Services.AddScoped<IDispatchService, DispatchService>();
 builder.Services.AddScoped<IBoxService, BoxService>();
@@ -74,11 +81,13 @@ builder.Services.AddScoped<IVesselService, VesselService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 
 // Register MySQL repositories
 builder.Services.AddScoped<BoxMySqlRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
+builder.Services.AddScoped<DatabaseMySqlRepository>();
 
 // Register MongoDB repositories
 builder.Services.AddScoped<BoxMongoDbRepository>();
