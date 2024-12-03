@@ -17,15 +17,13 @@ using Service;
 using Service.Interfaces;
 using Service.Mapping;
 using Service.MySql.Dispatch;
-using Service.MongoDb;
 using Service.MySql.Agent;
 using Service.MySql.Login;
 using Service.MySql.Order;
 using Service.MySql.Owner;
-using Service.MySql.Port;
+using Service.MySql.Supplier;
 using Service.MySql.Vessel;
 using Service.MySql.VesselAtPort;
-using Service.MySql.Supplier;
 using Service.MySql.Warehouse;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -105,6 +103,8 @@ builder.Services.AddScoped<IDispatchService, DispatchService>();
 builder.Services.AddScoped<IBoxService, BoxService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IVesselService, VesselService>();
+builder.Services.AddScoped<IVesselAtPortService, VesselAtPortService>();
+builder.Services.AddScoped<IOwnerService, OwnerService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
@@ -115,40 +115,18 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 // Register MySQL repositories
 builder.Services.AddScoped<BoxMySqlRepository>();
-builder.Services.AddScoped<PortMySqlRepository>();
-builder.Services.AddScoped<VesselMySqlRepository>();
-builder.Services.AddScoped<VesselAtPortMySqlRepository>();
-builder.Services.AddScoped<BoxMongoDbRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
+builder.Services.AddScoped<OwnerMySqlRepository>();
+builder.Services.AddScoped<PortMySqlRepository>();
+builder.Services.AddScoped<VesselAtPortMySqlRepository>();
+builder.Services.AddScoped<VesselMySqlRepository>();
 
 // Register MongoDB repositories
 builder.Services.AddScoped<BoxMongoDbRepository>();
 builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMongoDbRepository>();
-builder.Services.AddScoped<OwnerMySqlRepository>();
 
-// Register the services as concrete types
-builder.Services.AddScoped<BoxService>();
-builder.Services.AddScoped<OrderService>();
-builder.Services.AddScoped<PortService>();
-builder.Services.AddScoped<VesselService>();
-builder.Services.AddScoped<VesselAtPortService>();
-builder.Services.AddScoped<DispatchService>();
-builder.Services.AddScoped<DispatchMongoDbService>();
-builder.Services.AddScoped<OwnerService>();
-
-// Dynamically resolve services using the factory
-builder.Services.AddScoped<IBoxService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetRepository<IBoxService>());
-builder.Services.AddScoped<IOrderService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetRepository<IOrderService>());
-builder.Services.AddScoped<IDispatchService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetRepository<IDispatchService>());
-builder.Services.AddScoped<IPortService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetRepository<IPortService>());
-builder.Services.AddScoped<IVesselService>(sp =>
-    sp.GetRequiredService<IDatabaseFactory>().GetRepository<IVesselService>());
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(cfg =>
