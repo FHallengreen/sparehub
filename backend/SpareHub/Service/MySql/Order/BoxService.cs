@@ -76,7 +76,7 @@ public class BoxService(IBoxRepository boxRepository, IOrderRepository orderRepo
 
         var boxes = boxRequests.Select(b => new Box
         {
-            Id = b.Id ?? throw new InvalidOperationException(),
+            Id = b.Id!,
             OrderId = orderId,
             Length = b.Length,
             Width = b.Width,

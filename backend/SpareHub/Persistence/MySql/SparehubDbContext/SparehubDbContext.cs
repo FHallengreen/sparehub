@@ -26,6 +26,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
     public DbSet<BoxEntity> Boxes => Set<BoxEntity>();
     public DbSet<PortEntity> Ports => Set<PortEntity>();
 
+    public DbSet<OperatorEntity> Operators { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -273,7 +274,6 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 
-// Owner Configuration
         modelBuilder.Entity<OwnerEntity>(entity =>
         {
             entity.ToTable("owner");
@@ -294,6 +294,10 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasForeignKey(v => v.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_vessel_owner");
+
+            entity.HasMany(o => o.Users)
+                .WithMany(u => u.Owners)
+                .UsingEntity(join => join.ToTable("owner_has_user"));
         });
 
 
@@ -417,7 +421,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("title")
                 .HasMaxLength(45)
                 .IsRequired();
-            
+
             entity.HasMany(r => r.Users)
                 .WithOne(u => u.Role)
                 .HasForeignKey(u => u.RoleId)
@@ -440,25 +444,43 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasMaxLength(45)
                 .IsRequired();
 
+            entity.Property(e => e.Email)
+                .HasColumnName("email")
+                .HasMaxLength(255)
+                .IsRequired();
+
+            entity.Property(e => e.Password)
+                .HasColumnName("password")
+                .HasMaxLength(45)
+                .IsRequired();
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .ValueGeneratedOnUpdate();
+
             entity.Property(e => e.RoleId)
-                .HasColumnName("role_id");
+                .HasColumnName("role_id")
+                .IsRequired();
 
             entity.HasOne(u => u.Role)
                 .WithMany(r => r.Users)
                 .HasForeignKey(u => u.RoleId)
-                .HasConstraintName("fk_User_Role")
+                .HasConstraintName("fk_Operator_Role1")
                 .OnDelete(DeleteBehavior.NoAction);
 
-            entity.Property(e => e.OwnerId)
-                .HasColumnName("owner_id")
-                .IsRequired();
-
-            entity.HasOne(u => u.Owner)
-                .WithMany(o => o.Users)
-                .HasForeignKey(u => u.OwnerId)
-                .HasConstraintName("fk_User_Owner")
-                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(u => u.Operator)
+                .WithOne(o => o.User)
+                .HasForeignKey<OperatorEntity>(o => o.UserId)
+                .HasConstraintName("fk_operator_user1")
+                .OnDelete(DeleteBehavior.Cascade);
         });
+
+
 // ContactInfo Configuration
         modelBuilder.Entity<ContactInfoEntity>(entity =>
         {
@@ -512,6 +534,39 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasConstraintName("fk_Invoice_Dispatch1")
                 .OnDelete(DeleteBehavior.NoAction);
         });
+
+        // Operator Configuration
+        modelBuilder.Entity<OperatorEntity>(entity =>
+        {
+            entity.ToTable("operator");
+
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.Name)
+                .HasColumnName("name")
+                .HasMaxLength(45)
+                .IsRequired();
+
+            entity.Property(e => e.Title)
+                .HasColumnName("title")
+                .HasMaxLength(45);
+
+            entity.Property(e => e.UserId)
+                .HasColumnName("user_id")
+                .IsRequired();
+
+            entity.HasOne(o => o.User)
+                .WithOne(u => u.Operator)
+                .HasForeignKey<OperatorEntity>(o => o.UserId)
+                .HasConstraintName("fk_operator_user1")
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+
 
 // CostType Configuration
         modelBuilder.Entity<CostTypeEntity>(entity =>

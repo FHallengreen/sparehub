@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 using Service.Interfaces;
@@ -8,6 +10,7 @@ namespace Server.BoxController;
 
 [ApiController]
 [Route("api/order/{orderId}/box")]
+[Authorize]
 public class BoxController(IBoxService boxService) : ControllerBase
 {
     [HttpPost]

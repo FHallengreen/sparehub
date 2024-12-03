@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Shared.DTOs.Vessel;
@@ -7,6 +8,15 @@ namespace Server.VesselController;
 
 [ApiController]
 [Route("api/vessel")]
+[Authorize]
+public class VesselController(IVesselService vesselService) : ControllerBase
+{
+    [HttpGet]
+    public async Task<IActionResult> GetVessels(string? searchQuery = null)
+    {
+        try
+        {
+            var vessels = await vesselService.GetVesselsBySearchQuery(searchQuery);
     public class VesselController(IDatabaseFactory databaseFactory) : ControllerBase
     {
         private readonly IVesselService _vesselService = databaseFactory.GetRepository<IVesselService>();
