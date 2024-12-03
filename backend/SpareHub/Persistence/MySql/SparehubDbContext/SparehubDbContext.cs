@@ -1,5 +1,4 @@
-﻿using Domain.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.MySql.SparehubDbContext;
 
@@ -10,6 +9,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
     public DbSet<SupplierEntity> Suppliers => Set<SupplierEntity>();
     public DbSet<OwnerEntity> Owners => Set<OwnerEntity>();
     public DbSet<VesselEntity> Vessels => Set<VesselEntity>();
+    public DbSet<VesselAtPortEntity> VesselAtPort => Set<VesselAtPortEntity>();
     public DbSet<AgentEntity> Agents => Set<AgentEntity>();
     public DbSet<WarehouseEntity> Warehouses => Set<WarehouseEntity>();
     public DbSet<RoleEntity> Roles => Set<RoleEntity>();
@@ -24,6 +24,8 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
     public DbSet<FinancialEntity> Financials => Set<FinancialEntity>();
     public DbSet<OrderStatusEntity> OrderStatus => Set<OrderStatusEntity>();
     public DbSet<BoxEntity> Boxes => Set<BoxEntity>();
+    public DbSet<PortEntity> Ports => Set<PortEntity>();
+
     public DbSet<OperatorEntity> Operators { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

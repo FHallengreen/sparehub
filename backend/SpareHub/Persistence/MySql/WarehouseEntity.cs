@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Persistence.MySql;
-
 public class WarehouseEntity
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

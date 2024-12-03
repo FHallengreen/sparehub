@@ -15,8 +15,6 @@ namespace Server;
 [Route("api/auth")]
 public class AuthController(JwtService jwtService, SpareHubDbContext dbContext) : ControllerBase
 {
-
-
     [HttpPost("login")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponse))]
@@ -67,5 +65,4 @@ public class AuthController(JwtService jwtService, SpareHubDbContext dbContext) 
             return Unauthorized(new { IsValid = false, Error = ex.Message });
         }
     }
-
 }

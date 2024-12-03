@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging.AzureAppServices;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Neo4j.Driver;
-using Persistence;
 using Persistence.MongoDb;
 using Persistence.MySql.SparehubDbContext;
 using Repository;
@@ -18,14 +17,14 @@ using Service;
 using Service.Interfaces;
 using Service.Mapping;
 using Service.MySql.Dispatch;
-using Service.MongoDb;
 using Service.MySql.Agent;
 using Service.MySql.Login;
 using Service.MySql.Order;
+using Service.MySql.Owner;
 using Service.MySql.Supplier;
 using Service.MySql.Vessel;
+using Service.MySql.VesselAtPort;
 using Service.MySql.Warehouse;
-using Shared.DTOs.Order;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,6 +103,8 @@ builder.Services.AddScoped<IDispatchService, DispatchService>();
 builder.Services.AddScoped<IBoxService, BoxService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IVesselService, VesselService>();
+builder.Services.AddScoped<IVesselAtPortService, VesselAtPortService>();
+builder.Services.AddScoped<IOwnerService, OwnerService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
@@ -116,6 +117,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<BoxMySqlRepository>();
 builder.Services.AddScoped<OrderMySqlRepository>();
 builder.Services.AddScoped<DispatchMySqlRepository>();
+builder.Services.AddScoped<OwnerMySqlRepository>();
+builder.Services.AddScoped<PortMySqlRepository>();
+builder.Services.AddScoped<VesselAtPortMySqlRepository>();
+builder.Services.AddScoped<VesselMySqlRepository>();
 
 // Register MongoDB repositories
 builder.Services.AddScoped<BoxMongoDbRepository>();
