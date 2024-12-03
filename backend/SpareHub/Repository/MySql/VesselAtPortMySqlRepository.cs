@@ -13,7 +13,7 @@ public class VesselAtPortMySqlRepository(SpareHubDbContext dbContext, IMapper ma
 {
     public async Task<List<VesselAtPort>> GetVesselAtPortAsync()
     {
-        var vesselAtPortEntities = await dbContext.VAP
+        var vesselAtPortEntities = await dbContext.VesselAtPort
             .Include(v => v.VesselEntity)
             .OrderBy(v => v.PortId)
             .ToListAsync();
@@ -25,7 +25,7 @@ public class VesselAtPortMySqlRepository(SpareHubDbContext dbContext, IMapper ma
     
     public async Task<VesselAtPort> GetVesselByIdAtPortAsync(string vesselId)
     {
-        var vesselAtPortEntity = await dbContext.VAP
+        var vesselAtPortEntity = await dbContext.VesselAtPort
             .Include(v => v.VesselEntity)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.VesselId.ToString() == vesselId);
@@ -37,7 +37,7 @@ public class VesselAtPortMySqlRepository(SpareHubDbContext dbContext, IMapper ma
     public async Task<VesselAtPort> AddVesselToPortAsync(VesselAtPort vesselAtPort)
     {
         var vesselAtPortEntity = mapper.Map<VesselAtPortEntity>(vesselAtPort);
-        await dbContext.VAP.AddAsync(vesselAtPortEntity);
+        await dbContext.VesselAtPort.AddAsync(vesselAtPortEntity);
         await dbContext.SaveChangesAsync();
         
         return mapper.Map<VesselAtPort>(vesselAtPortEntity);
@@ -55,12 +55,12 @@ public class VesselAtPortMySqlRepository(SpareHubDbContext dbContext, IMapper ma
     
     public async Task RemoveVesselFromPortAsync(string vesselId)
     {
-        var vesselAtPortEntity = await dbContext.VAP.FirstOrDefaultAsync(p => p.VesselId.ToString() == vesselId);
+        var vesselAtPortEntity = await dbContext.VesselAtPort.FirstOrDefaultAsync(p => p.VesselId.ToString() == vesselId);
         
         if (vesselAtPortEntity == null)
             throw new NotFoundException($"Vessel with id '{vesselId}' not found at port");
         
-        dbContext.VAP.Remove(vesselAtPortEntity);
+        dbContext.VesselAtPort.Remove(vesselAtPortEntity);
         await dbContext.SaveChangesAsync();
     }
 }

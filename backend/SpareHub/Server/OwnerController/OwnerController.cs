@@ -10,7 +10,7 @@ namespace Server.OwnerController;
 [Route("api/owner")]
 public class OwnerController(IDatabaseFactory databaseFactory) : ControllerBase
 {
-    private readonly IOwnerService _ownerService = databaseFactory.GetService<IOwnerService>();
+    private readonly IOwnerService _ownerService = databaseFactory.GetRepository<IOwnerService>();
     
     
     [HttpGet]

@@ -7,7 +7,7 @@ using Shared.Exceptions;
 
 namespace Service.MySql.Port;
 
-    public class PortMySqlService(PortMySqlRepository portMySqlRepository) : IPortService
+    public class PortService(PortMySqlRepository portMySqlRepository) : IPortService
     {
         
         public async Task<List<PortResponse>> GetPorts()

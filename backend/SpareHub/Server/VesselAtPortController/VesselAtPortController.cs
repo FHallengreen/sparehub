@@ -11,7 +11,7 @@ namespace Server.VesselAtPortController;
 [Route("api/vessel-at-port")]
 public class VesselAtPortController(IDatabaseFactory databaseFactory) : ControllerBase
 {
-    private readonly IVesselAtPortService _vesselAtPortService = databaseFactory.GetService<IVesselAtPortService>();
+    private readonly IVesselAtPortService _vesselAtPortService = databaseFactory.GetRepository<IVesselAtPortService>();
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]

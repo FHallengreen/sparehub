@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Service;
 using Service.Interfaces;
 using Shared.DTOs.Vessel;
 using Shared.Exceptions;
@@ -10,7 +9,7 @@ namespace Server.VesselController;
 [Route("api/vessel")]
     public class VesselController(IDatabaseFactory databaseFactory) : ControllerBase
     {
-        private readonly IVesselService _vesselService = databaseFactory.GetService<IVesselService>();
+        private readonly IVesselService _vesselService = databaseFactory.GetRepository<IVesselService>();
     
         [HttpGet("query")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]

@@ -10,7 +10,7 @@ namespace Server.PortController;
 [Route("api/port")]
     public class PortController(IDatabaseFactory databaseFactory) : ControllerBase
     {
-        private readonly IPortService _portService = databaseFactory.GetService<IPortService>();
+        private readonly IPortService _portService = databaseFactory.GetRepository<IPortService>();
         
         
         [HttpGet]

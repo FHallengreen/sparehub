@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Persistence.MongoDb.Enums;
 
 namespace Persistence.MongoDb;
 

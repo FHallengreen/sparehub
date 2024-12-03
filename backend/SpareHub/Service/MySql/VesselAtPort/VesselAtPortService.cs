@@ -9,7 +9,7 @@ using Shared.Exceptions;
 
 namespace Service.MySql.VesselAtPort;
 
-public class VesselAtPortMySqlService(VesselAtPortMySqlRepository vesselAtPortMySqlRepository) : IVesselAtPortService
+public class VesselAtPortService(VesselAtPortMySqlRepository vesselAtPortMySqlRepository) : IVesselAtPortService
 {
     public async Task<List<VesselAtPortResponse>> GetVesselAtPorts(VesselMySqlRepository vesselMySqlRepository)
     {

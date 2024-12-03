@@ -1,18 +1,20 @@
 using AutoMapper;
 using Microsoft.Extensions.Caching.Memory;
-using Repository.MySql;
+using Repository.Interfaces;
 using Service.Interfaces;
-using Shared;
 using Shared.DTOs.Order;
 using Shared.DTOs.Owner;
-using Shared.Exceptions;
-using Shared.Order;
+using Shared.DTOs.Supplier;
 using Shared.DTOs.Vessel;
+using Shared.DTOs.Warehouse;
+using Shared.Exceptions;
+
+
 
 namespace Service.MySql.Order;
 
-public class OrderMySqlService(
-    OrderMySqlRepository orderRepository,
+public class OrderService(
+    IOrderRepository orderRepository,
     IMemoryCache memoryCache,
     IBoxService boxService,
     IMapper mapper)
@@ -42,7 +44,6 @@ public class OrderMySqlService(
     }
 
 
-
     public async Task<OrderResponse> CreateOrder(OrderRequest orderRequest)
     {
         var order = mapper.Map<Domain.Models.Order>(orderRequest);
@@ -67,8 +68,6 @@ public class OrderMySqlService(
             return await GetOrderById(order.Id);
         }
     }
-
-
 
     public async Task UpdateOrder(string orderId, OrderRequest orderRequest)
     {

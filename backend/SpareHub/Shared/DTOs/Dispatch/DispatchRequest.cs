@@ -1,6 +1,6 @@
 namespace Shared.DTOs.Dispatch;
 
-public class DispatchRequest
+public record DispatchRequest
 {
     public string OriginType { get; set; } = null!;
     public int OriginId { get; set; }

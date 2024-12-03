@@ -8,12 +8,8 @@ namespace Server.DispatchController;
 
 [ApiController]
 [Route("/api/dispatch")]
-public class DispatchController(IServiceProvider serviceProvider) : ControllerBase
+public class DispatchController(IDispatchService dispatchService) : ControllerBase
 {
-    private IDatabaseFactory GetDatabaseFactory()
-    {
-        return serviceProvider.GetRequiredService<IDatabaseFactory>();
-    }
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(DispatchResponse))]
@@ -22,7 +18,6 @@ public class DispatchController(IServiceProvider serviceProvider) : ControllerBa
     public async Task<ActionResult<DispatchResponse>> CreateDispatch([FromBody] DispatchRequest dispatchRequest,
         [FromQuery] string orderId)
     {
-        var dispatchService = GetDatabaseFactory().GetService<IDispatchService>();
         var dispatchResponse = await dispatchService.CreateDispatch(dispatchRequest, orderId);
         return CreatedAtAction(nameof(GetDispatchById), new { dispatchId = dispatchResponse.Id }, dispatchResponse);
     }
@@ -33,7 +28,6 @@ public class DispatchController(IServiceProvider serviceProvider) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<ActionResult<DispatchResponse>> GetDispatchById(string dispatchId)
     {
-        var dispatchService = GetDatabaseFactory().GetService<IDispatchService>();
         var dispatch = await dispatchService.GetDispatchById(dispatchId);
         return Ok(dispatch);
     }
@@ -43,7 +37,6 @@ public class DispatchController(IServiceProvider serviceProvider) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<ActionResult<IEnumerable<DispatchResponse>>> GetDispatches()
     {
-        var dispatchService = GetDatabaseFactory().GetService<IDispatchService>();
         var dispatches = await dispatchService.GetDispatches();
         return Ok(dispatches);
     }
@@ -54,7 +47,6 @@ public class DispatchController(IServiceProvider serviceProvider) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<IActionResult> UpdateDispatch(string dispatchId, [FromBody] DispatchRequest dispatchRequest)
     {
-        var dispatchService = GetDatabaseFactory().GetService<IDispatchService>();
         await dispatchService.UpdateDispatch(dispatchId, dispatchRequest);
         return NoContent();
     }
@@ -65,7 +57,6 @@ public class DispatchController(IServiceProvider serviceProvider) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<IActionResult> DeleteDispatch(string dispatchId)
     {
-        var dispatchService = GetDatabaseFactory().GetService<IDispatchService>();
         await dispatchService.DeleteDispatch(dispatchId);
         return NoContent();
     }

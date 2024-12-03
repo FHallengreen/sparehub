@@ -3,7 +3,7 @@ using Domain.Models;
 using MongoDB.Driver;
 using Persistence.MongoDb;
 using Repository.Interfaces;
-using OrderStatus = Persistence.MongoDb.OrderStatus;
+using OrderStatus = Persistence.MongoDb.Enums.OrderStatus;
 
 namespace Repository.MongoDb;
 

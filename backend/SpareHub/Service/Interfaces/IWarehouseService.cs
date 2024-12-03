@@ -1,6 +1,7 @@
 using Shared;
+using Shared.DTOs.Warehouse;
 
-namespace Service.Warehouse;
+namespace Service.Interfaces;
 
 public interface IWarehouseService
 {

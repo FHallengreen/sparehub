@@ -5,7 +5,7 @@ using Shared.Exceptions;
 
 namespace Service.MySql.Owner;
 
-public class OwnerMySqlService(OwnerMySqlRepository ownerMySqlRepository) : IOwnerService
+public class OwnerService(OwnerMySqlRepository ownerMySqlRepository) : IOwnerService
 {
     
     public async Task<List<OwnerResponse>> GetOwners()

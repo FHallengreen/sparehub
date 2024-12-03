@@ -1,6 +1,6 @@
-﻿namespace Service;
+﻿namespace Service.Interfaces;
 
 public interface IDatabaseFactory
 {
-    T GetService<T>() where T : class;
+    T GetRepository<T>() where T : class;
 }

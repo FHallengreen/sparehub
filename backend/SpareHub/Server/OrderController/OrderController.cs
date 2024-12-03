@@ -5,16 +5,13 @@ using Service.Interfaces;
 using Shared;
 using Shared.DTOs.Order;
 using Shared.Exceptions;
-using Shared.Order;
 
 namespace Server.OrderController;
 
 [ApiController]
 [Route("/api/order")]
-public class OrderController(IDatabaseFactory databaseFactory) : ControllerBase
+public class OrderController(IOrderService orderService) : ControllerBase
 {
-    private readonly IOrderService _orderService = databaseFactory.GetService<IOrderService>();
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderTableResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
@@ -23,10 +20,9 @@ public class OrderController(IDatabaseFactory databaseFactory) : ControllerBase
     public async Task<ActionResult<IEnumerable<OrderTableResponse>>> GetOrders(
         [FromQuery] List<string>? searchTerms)
     {
-        var list = await _orderService.GetOrders(searchTerms);
+        var list = await orderService.GetOrders(searchTerms);
         return Ok(list);
     }
-
 
     [HttpPut("{orderId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -34,7 +30,7 @@ public class OrderController(IDatabaseFactory databaseFactory) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] OrderRequest orderRequest)
     {
-        await _orderService.UpdateOrder(orderId, orderRequest);
+        await orderService.UpdateOrder(orderId, orderRequest);
         return Ok();
     }
 
@@ -43,7 +39,7 @@ public class OrderController(IDatabaseFactory databaseFactory) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<ActionResult<OrderStatus>> GetOrderStatuses()
     {
-        var statuses = await _orderService.GetAllOrderStatusesAsync();
+        var statuses = await orderService.GetAllOrderStatusesAsync();
         return Ok(statuses);
     }
 
@@ -52,7 +48,7 @@ public class OrderController(IDatabaseFactory databaseFactory) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<ActionResult<OrderResponse>> GetOrderById(string orderId)
     {
-        var order = await _orderService.GetOrderById(orderId);
+        var order = await orderService.GetOrderById(orderId);
         return Ok(order);
     }
 
@@ -61,7 +57,7 @@ public class OrderController(IDatabaseFactory databaseFactory) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<IActionResult> CreateOrder([FromBody] OrderRequest orderTable)
     {
-        var createdOrder = await _orderService.CreateOrder(orderTable);
+        var createdOrder = await orderService.CreateOrder(orderTable);
         return CreatedAtAction(nameof(GetOrderById), new { orderId = createdOrder.Id }, createdOrder);
     }
 
@@ -72,7 +68,7 @@ public class OrderController(IDatabaseFactory databaseFactory) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<IActionResult> DeleteOrder(string orderId)
     {
-        await _orderService.DeleteOrder(orderId);
+        await orderService.DeleteOrder(orderId);
         return Ok("Order deleted successfully");
     }
 }

@@ -7,7 +7,7 @@ using Shared.Exceptions;
 
 namespace Service.MySql.Vessel;
 
-public class VesselMySqlService(VesselMySqlRepository vesselMySqlRepository, OwnerMySqlRepository ownerMySqlRepository) : IVesselService
+public class VesselService(VesselMySqlRepository vesselMySqlRepository, OwnerMySqlRepository ownerMySqlRepository) : IVesselService
 {
 
     public async Task<List<VesselResponse>> GetVesselsBySearchQuery(string? searchQuery = "")
