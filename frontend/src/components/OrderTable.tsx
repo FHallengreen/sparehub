@@ -207,7 +207,7 @@ const OrderTable: React.FC = () => {
       // Sort statuses in reverse order and add rows for each status
       Object.entries(statusGroups)
         .sort(([statusA], [statusB]) => statusB.localeCompare(statusA)) // Reverse the order
-        .forEach(([status, statusRows]) => {
+        .forEach(([, statusRows]) => {
           if (statusRows.length > 0) {
             groupHeaders.push(...statusRows);
           }
