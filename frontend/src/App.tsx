@@ -11,7 +11,6 @@ import NewDispatchPage from "./components/NewDispatchPage.tsx";
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './components/LoginPage';
 import NotFoundPage from './components/NotFoundPage';
-import { SnackbarProvider } from './components/SnackbarContext';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -63,6 +62,30 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <OrderPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dispatches/new"
+                element={
+                  <ProtectedRoute>
+                    <NewDispatchPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dispatches/:id"
+                element={
+                  <ProtectedRoute>
+                    <DispatchDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dispatches"
+                element={
+                  <ProtectedRoute>
+                    <DispatchPage />
                   </ProtectedRoute>
                 }
               />
