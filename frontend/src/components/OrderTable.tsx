@@ -15,7 +15,7 @@ import {
 import api from '../Api';
 import qs from 'qs';
 import { useNavigate } from 'react-router-dom';
-import { Order } from '../interfaces/order';
+import { Order } from '../interfaces/order.ts';
 import SummaryPanel from './SummaryPanel';
 
 const columns: GridColDef[] = [
@@ -125,7 +125,7 @@ const OrderTable: React.FC = () => {
         vessel: order.vesselName,
         supplier: order.supplierName,
         poNumber: order.orderNumber,
-        pieces: order.boxes && order.boxes > 0 ? order.boxes : null, 
+        pieces: order.boxes && order.boxes > 0 ? order.boxes : null,
       weight: order.totalWeight && order.totalWeight > 0 ? order.totalWeight : null,
         stockLocation: order.warehouseName,
         status: order.orderStatus,

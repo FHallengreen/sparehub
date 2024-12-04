@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CircularProgress, Typography, Button, TextField, IconButton } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest, SupplierOption, Warehouse, Agent } from '../interfaces/order';
+import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest, SupplierOption, Warehouse, Agent } from '../interfaces/order.ts';
 import { useSnackbar } from './SnackbarContext';
 import { useDebounce } from '../hooks/useDebounce';
 import api from '../Api';
