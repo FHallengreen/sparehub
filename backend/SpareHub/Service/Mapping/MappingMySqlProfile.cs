@@ -32,7 +32,10 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.ExpectedArrival, opt => opt.MapFrom(src => src.ExpectedArrival))
             .ForMember(dest => dest.ActualArrival, opt => opt.MapFrom(src => src.ActualArrival))
             .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.OrderStatus))
+            .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
+            .ForMember(dest => dest.Transporter, opt => opt.MapFrom(src => src.Transporter))
             .ForMember(dest => dest.Boxes, opt => opt.MapFrom(src => src.Boxes));
+
 
 
         CreateMap<BoxEntity, Box>()
@@ -56,10 +59,13 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.ExpectedArrival, opt => opt.MapFrom(src => src.ExpectedArrival))
             .ForMember(dest => dest.ActualArrival, opt => opt.MapFrom(src => src.ActualArrival))
             .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.OrderStatus))
+            .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
+            .ForMember(dest => dest.Transporter, opt => opt.MapFrom(src => src.Transporter))
             .ForMember(dest => dest.Boxes, opt => opt.Ignore())
             .ForMember(dest => dest.Supplier, opt => opt.Ignore())
             .ForMember(dest => dest.Vessel, opt => opt.Ignore())
             .ForMember(dest => dest.Warehouse, opt => opt.Ignore());
+
 
         CreateMap<OrderEntity, Order>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
@@ -76,8 +82,9 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.ExpectedArrival, opt => opt.MapFrom(src => src.ExpectedArrival))
             .ForMember(dest => dest.ActualArrival, opt => opt.MapFrom(src => src.ActualArrival))
             .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.OrderStatus))
+            .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
+            .ForMember(dest => dest.Transporter, opt => opt.MapFrom(src => src.Transporter))
             .ForMember(dest => dest.Boxes, opt => opt.MapFrom(src => src.Boxes));
-            
 
         CreateMap<SupplierEntity, Domain.Models.Supplier>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))  // Mapping integer to string

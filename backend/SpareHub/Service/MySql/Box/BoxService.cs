@@ -1,13 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AutoMapper;
-using Domain.Models;
 using Repository.Interfaces;
-using Repository.MySql;
 using Service.Interfaces;
 using Shared.DTOs.Order;
 using Shared.Exceptions;
 
-namespace Service.MySql.Order;
+namespace Service.MySql.Box;
 
 public class BoxService(IBoxRepository boxRepository, IOrderRepository orderRepository)
     : IBoxService
@@ -22,7 +19,7 @@ public class BoxService(IBoxRepository boxRepository, IOrderRepository orderRepo
             throw new ValidationException($"Order ID '{orderId}' is invalid or does not exist.");
 
 
-        var box = new Box
+        var box = new Domain.Models.Box
         {
             Id = Guid.NewGuid().ToString(),
             OrderId = orderId,
@@ -74,7 +71,7 @@ public class BoxService(IBoxRepository boxRepository, IOrderRepository orderRepo
             throw new ValidationException("Box ID is required for updating a box.");
         }
 
-        var boxes = boxRequests.Select(b => new Box
+        var boxes = boxRequests.Select(b => new Domain.Models.Box
         {
             Id = b.Id!,
             OrderId = orderId,
@@ -95,7 +92,7 @@ public class BoxService(IBoxRepository boxRepository, IOrderRepository orderRepo
         if (string.IsNullOrWhiteSpace(boxId))
             throw new ValidationException("Box ID cannot be null or empty.");
 
-        var box = new Box
+        var box = new Domain.Models.Box
         {
             Id = boxId,
             OrderId = orderId,

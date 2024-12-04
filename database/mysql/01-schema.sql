@@ -112,7 +112,17 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `sparehub`.`order_status` (
   `status` ENUM('Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled', 'Delivered') NOT NULL,
-  PRIMARY KEY (`status`))
+  PRIMARY KEY (`status`),
+  UNIQUE INDEX `status_UNIQUE` (`status` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `sparehub`.`transporter`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sparehub`.`transporter` (
+  `transporter` ENUM('DHL', 'FEDEX', 'GLS') NOT NULL,
+  PRIMARY KEY (`transporter`))
 ENGINE = InnoDB;
 
 
@@ -131,11 +141,14 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`order` (
   `expected_arrival` DATETIME NULL,
   `actual_arrival` DATETIME NULL,
   `order_status` ENUM('Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled', 'Delivered') NOT NULL,
+  `transporter` ENUM('DHL', 'FEDEX', 'GLS') NULL,
+  `tracking_number` VARCHAR(45) NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_Order_Supplier_idx` (`supplier_id` ASC) VISIBLE,
   INDEX `fk_Order_Vessel1_idx` (`vessel_id` ASC) VISIBLE,
   INDEX `fk_Order_Warehouse1_idx` (`warehouse_id` ASC) VISIBLE,
   INDEX `fk_order_order_status1_idx` (`order_status` ASC) VISIBLE,
+  INDEX `fk_order_transporter1_idx` (`transporter` ASC) VISIBLE,
   CONSTRAINT `fk_Order_Supplier`
     FOREIGN KEY (`supplier_id`)
     REFERENCES `sparehub`.`supplier` (`id`)
@@ -154,6 +167,11 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`order` (
   CONSTRAINT `fk_order_order_status1`
     FOREIGN KEY (`order_status`)
     REFERENCES `sparehub`.`order_status` (`status`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_order_transporter1`
+    FOREIGN KEY (`transporter`)
+    REFERENCES `sparehub`.`transporter` (`transporter`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -489,7 +507,7 @@ USE `sparehub` ;
 -- -----------------------------------------------------
 -- Placeholder table for view `sparehub`.`not_active_orders`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sparehub`.`not_active_orders` (`id` INT, `order_number` INT, `supplier_order_number` INT, `supplier_id` INT, `vessel_id` INT, `warehouse_id` INT, `expected_readiness` INT, `actual_readiness` INT, `expected_arrival` INT, `actual_arrival` INT, `order_status` INT);
+CREATE TABLE IF NOT EXISTS `sparehub`.`not_active_orders` (`id` INT, `order_number` INT, `supplier_order_number` INT, `supplier_id` INT, `vessel_id` INT, `warehouse_id` INT, `expected_readiness` INT, `actual_readiness` INT, `expected_arrival` INT, `actual_arrival` INT, `order_status` INT, `transporter` INT, `tracking_number` INT);
 
 -- -----------------------------------------------------
 -- View `sparehub`.`not_active_orders`

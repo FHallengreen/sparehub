@@ -4,7 +4,7 @@ using Repository.MongoDb;
 using Repository.MySql;
 using Service.Interfaces;
 
-namespace Service;
+namespace Service.Utils;
 
 public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<DatabaseSettings> databaseSettings)
     : IDatabaseFactory

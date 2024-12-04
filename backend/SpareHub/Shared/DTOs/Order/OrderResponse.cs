@@ -14,6 +14,8 @@ public record OrderResponse
     public DateTime? ExpectedArrival { get; set; }
     public DateTime? ActualArrival { get; set; }
     public string OrderStatus { get; set; } = null!;
+    public string? TrackingNumber { get; set; } // New property
+    public string? Transporter { get; set; } // New property
     public SupplierResponse Supplier { get; set; } = null!;
     public VesselResponse Vessel { get; set; } = null!;
     public WarehouseResponse Warehouse { get; set; } = null!;
