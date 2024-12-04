@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Domain.Models;
 using Moq;
 using Repository.Interfaces;
+using Service.MySql.Box;
 using Service.MySql.Order;
 using Shared.DTOs.Order;
 using Shared.Exceptions;
