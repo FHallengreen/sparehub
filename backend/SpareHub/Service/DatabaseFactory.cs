@@ -1,46 +1,46 @@
 ﻿using Microsoft.Extensions.Options;
+using Repository.Interfaces;
+using Repository.MongoDb;
+using Repository.MySql;
 using Service.Interfaces;
-using Service.MySql.Dispatch;
-using Service.MongoDb;
-using Service.MySql.Order;
 
 namespace Service;
 
 public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<DatabaseSettings> databaseSettings)
     : IDatabaseFactory
 {
-    private readonly Dictionary<(Type serviceType, DatabaseType dbType), Type> _serviceMappings = new()
+    private readonly Dictionary<(Type repositoryType, DatabaseType dbType), Type> _repositoryMappings = new()
     {
-        { (typeof(IBoxService), DatabaseType.MySql), typeof(BoxMySqlService) },
-        { (typeof(IBoxService), DatabaseType.MongoDb), typeof(BoxMongoDbService) },
-        { (typeof(IOrderService), DatabaseType.MongoDb), typeof(OrderMongoDbService) },
-        { (typeof(IOrderService), DatabaseType.MySql), typeof(OrderMySqlService) },
-        { (typeof(IDispatchService), DatabaseType.MySql), typeof(DispatchMySqlService) },
-        { (typeof(IDispatchService), DatabaseType.MongoDb), typeof(DispatchMongoDbService) }
+        { (typeof(IBoxRepository), DatabaseType.MySql), typeof(BoxMySqlRepository) },
+        { (typeof(IBoxRepository), DatabaseType.MongoDb), typeof(BoxMongoDbRepository) },
+        { (typeof(IOrderRepository), DatabaseType.MySql), typeof(OrderMySqlRepository) },
+        { (typeof(IOrderRepository), DatabaseType.MongoDb), typeof(OrderMongoDbRepository) },
+        { (typeof(IDispatchRepository), DatabaseType.MySql), typeof(DispatchMySqlRepository) },
+        { (typeof(IDispatchRepository), DatabaseType.MongoDb), typeof(DispatchMongoDbRepository) },
+    { (typeof(IPortService), DatabaseType.MySql), typeof(PortMySqlRepository) },
+    { (typeof(IVesselService), DatabaseType.MySql), typeof(VesselMySqlRepository) },
+    { (typeof(IOwnerService), DatabaseType.MySql), typeof(OwnerMySqlRepository) },
+    { (typeof(IVesselAtPortService), DatabaseType.MySql), typeof(VesselAtPortMySqlRepository) }
     };
 
-    // Add other service mappings as needed
-
-    public T GetService<T>() where T : class
+    public T GetRepository<T>() where T : class
     {
-        var serviceType = typeof(T);
+        var repositoryType = typeof(T);
         var dbType = databaseSettings.CurrentValue.DefaultDatabaseType;
 
-        if (_serviceMappings.TryGetValue((serviceType, dbType), out var implementationType))
+        if (_repositoryMappings.TryGetValue((repositoryType, dbType), out var implementationType))
         {
-            var service = serviceProvider.GetService(implementationType) as T;
-            if (service == null)
+            var repository = serviceProvider.GetService(implementationType) as T;
+            if (repository == null)
             {
                 throw new InvalidOperationException(
-                    $"Failed to resolve service '{implementationType.Name}'. Ensure it is registered.");
+                    $"Failed to resolve repository '{implementationType.Name}'. Ensure it is registered.");
             }
 
-            return service;
+            return repository;
         }
-        else
-        {
-            throw new InvalidOperationException(
-                $"No service mapping found for type '{serviceType.Name}' and database '{dbType}'.");
-        }
+
+        throw new InvalidOperationException(
+            $"No repository mapping found for type '{repositoryType.Name}' and database '{dbType}'.");
     }
 }

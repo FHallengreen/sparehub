@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service.Supplier;
+using Service.Interfaces;
 
 namespace Server.SupplierController;
 
 [ApiController]
 [Route("api/supplier")]
+[Authorize]
 public class SupplierController(ISupplierService supplierService) : ControllerBase
 {
     

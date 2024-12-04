@@ -1,4 +1,4 @@
-﻿namespace Persistence.MongoDb;
+﻿namespace Persistence.MongoDb.Enums;
 
 public enum Currency
 {

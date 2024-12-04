@@ -1,6 +1,6 @@
 using Shared.DTOs.Order;
 
-namespace Shared;
+namespace Shared.DTOs.Warehouse;
 
 public class WarehouseResponse
 {

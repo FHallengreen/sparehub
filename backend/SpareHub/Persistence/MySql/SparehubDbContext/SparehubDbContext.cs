@@ -1,6 +1,4 @@
-﻿using Domain.Models;
-using Domain.MySql;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.MySql.SparehubDbContext;
 
@@ -11,6 +9,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
     public DbSet<SupplierEntity> Suppliers => Set<SupplierEntity>();
     public DbSet<OwnerEntity> Owners => Set<OwnerEntity>();
     public DbSet<VesselEntity> Vessels => Set<VesselEntity>();
+    public DbSet<VesselAtPortEntity> VesselAtPort => Set<VesselAtPortEntity>();
     public DbSet<AgentEntity> Agents => Set<AgentEntity>();
     public DbSet<WarehouseEntity> Warehouses => Set<WarehouseEntity>();
     public DbSet<RoleEntity> Roles => Set<RoleEntity>();
@@ -25,6 +24,9 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
     public DbSet<FinancialEntity> Financials => Set<FinancialEntity>();
     public DbSet<OrderStatusEntity> OrderStatus => Set<OrderStatusEntity>();
     public DbSet<BoxEntity> Boxes => Set<BoxEntity>();
+    public DbSet<PortEntity> Ports => Set<PortEntity>();
+
+    public DbSet<OperatorEntity> Operators { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -257,12 +259,6 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.UserId)
                 .HasColumnName("user_id");
 
-            entity.HasOne(e => e.userEntity)
-                .WithMany()
-                .HasForeignKey(e => e.UserId)
-                .HasConstraintName("fk_dispatch_user1")
-                .OnDelete(DeleteBehavior.NoAction);
-
             // Configure many-to-many relationship with Order
             entity.HasMany(d => d.Orders)
                 .WithMany(o => o.Dispatches)
@@ -278,7 +274,6 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
         });
 
 
-// Owner Configuration
         modelBuilder.Entity<OwnerEntity>(entity =>
         {
             entity.ToTable("owner");
@@ -299,6 +294,10 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasForeignKey(v => v.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_vessel_owner");
+
+            entity.HasMany(o => o.Users)
+                .WithMany(u => u.Owners)
+                .UsingEntity(join => join.ToTable("owner_has_user"));
         });
 
 
@@ -320,7 +319,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.AddressId)
                 .HasColumnName("address_id");
 
-            entity.HasOne(e => e.addressEntity)
+            entity.HasOne(e => e.AddressEntity)
                 .WithMany()
                 .HasForeignKey(e => e.AddressId)
                 .HasConstraintName("fk_Supplier_Address1")
@@ -422,7 +421,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("title")
                 .HasMaxLength(45)
                 .IsRequired();
-            
+
             entity.HasMany(r => r.Users)
                 .WithOne(u => u.Role)
                 .HasForeignKey(u => u.RoleId)
@@ -445,25 +444,43 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasMaxLength(45)
                 .IsRequired();
 
+            entity.Property(e => e.Email)
+                .HasColumnName("email")
+                .HasMaxLength(255)
+                .IsRequired();
+
+            entity.Property(e => e.Password)
+                .HasColumnName("password")
+                .HasMaxLength(45)
+                .IsRequired();
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .ValueGeneratedOnUpdate();
+
             entity.Property(e => e.RoleId)
-                .HasColumnName("role_id");
+                .HasColumnName("role_id")
+                .IsRequired();
 
             entity.HasOne(u => u.Role)
                 .WithMany(r => r.Users)
                 .HasForeignKey(u => u.RoleId)
-                .HasConstraintName("fk_User_Role")
+                .HasConstraintName("fk_Operator_Role1")
                 .OnDelete(DeleteBehavior.NoAction);
 
-            entity.Property(e => e.OwnerId)
-                .HasColumnName("owner_id")
-                .IsRequired();
-
-            entity.HasOne(u => u.Owner)
-                .WithMany(o => o.Users)
-                .HasForeignKey(u => u.OwnerId)
-                .HasConstraintName("fk_User_Owner")
-                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(u => u.Operator)
+                .WithOne(o => o.User)
+                .HasForeignKey<OperatorEntity>(o => o.UserId)
+                .HasConstraintName("fk_operator_user1")
+                .OnDelete(DeleteBehavior.Cascade);
         });
+
+
 // ContactInfo Configuration
         modelBuilder.Entity<ContactInfoEntity>(entity =>
         {
@@ -511,12 +528,45 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasColumnName("dispatch_id");
 
             // Map the relationship
-            entity.HasOne(e => e.dispatchEntity)
+            entity.HasOne(e => e.DispatchEntity)
                 .WithMany(d => d.Invoices)
                 .HasForeignKey(e => e.DispatchId)
                 .HasConstraintName("fk_Invoice_Dispatch1")
                 .OnDelete(DeleteBehavior.NoAction);
         });
+
+        // Operator Configuration
+        modelBuilder.Entity<OperatorEntity>(entity =>
+        {
+            entity.ToTable("operator");
+
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.Name)
+                .HasColumnName("name")
+                .HasMaxLength(45)
+                .IsRequired();
+
+            entity.Property(e => e.Title)
+                .HasColumnName("title")
+                .HasMaxLength(45);
+
+            entity.Property(e => e.UserId)
+                .HasColumnName("user_id")
+                .IsRequired();
+
+            entity.HasOne(o => o.User)
+                .WithOne(u => u.Operator)
+                .HasForeignKey<OperatorEntity>(o => o.UserId)
+                .HasConstraintName("fk_operator_user1")
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+
 
 // CostType Configuration
         modelBuilder.Entity<CostTypeEntity>(entity =>
@@ -567,21 +617,21 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
             entity.Property(e => e.CurrencyId)
                 .HasColumnName("currency_id");
 
-            entity.HasOne(e => e.invoiceEntity)
+            entity.HasOne(e => e.InvoiceEntity)
                 .WithMany()
                 .HasForeignKey(e => e.InvoiceId)
                 .HasConstraintName("fk_financial_invoice1")
                 .OnDelete(DeleteBehavior.NoAction);
 
 
-            entity.HasOne(e => e.costTypeEntity)
+            entity.HasOne(e => e.CostTypeEntity)
                 .WithMany()
                 .HasForeignKey(e => e.CostTypeId)
                 .HasConstraintName("fk_financial_cost_type1")
                 .OnDelete(DeleteBehavior.NoAction);
 
 
-            entity.HasOne(e => e.currencyEntity)
+            entity.HasOne(e => e.CurrencyEntity)
                 .WithMany()
                 .HasForeignKey(e => e.CurrencyId)
                 .HasConstraintName("fk_financial_currency1")

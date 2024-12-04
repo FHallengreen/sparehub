@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service.Agent;
+using Service.Interfaces;
 
-namespace Server;
+namespace Server.AgentController;
 
 [ApiController]
 [Route("api/agents")]
+[Authorize]
 public class AgentController(IAgentService agentService) : ControllerBase
 {
     [HttpGet("search")]

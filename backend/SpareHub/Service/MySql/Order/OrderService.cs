@@ -1,16 +1,20 @@
 using AutoMapper;
 using Microsoft.Extensions.Caching.Memory;
-using Repository.MySql;
+using Repository.Interfaces;
 using Service.Interfaces;
-using Shared;
 using Shared.DTOs.Order;
+using Shared.DTOs.Owner;
+using Shared.DTOs.Supplier;
+using Shared.DTOs.Vessel;
+using Shared.DTOs.Warehouse;
 using Shared.Exceptions;
-using Shared.Order;
+
+
 
 namespace Service.MySql.Order;
 
-public class OrderMySqlService(
-    OrderMySqlRepository orderRepository,
+public class OrderService(
+    IOrderRepository orderRepository,
     IMemoryCache memoryCache,
     IBoxService boxService,
     IMapper mapper)
@@ -40,7 +44,6 @@ public class OrderMySqlService(
     }
 
 
-
     public async Task<OrderResponse> CreateOrder(OrderRequest orderRequest)
     {
         var order = mapper.Map<Domain.Models.Order>(orderRequest);
@@ -66,8 +69,6 @@ public class OrderMySqlService(
         }
     }
 
-
-
     public async Task UpdateOrder(string orderId, OrderRequest orderRequest)
     {
         var existingOrder = await orderRepository.GetOrderByIdAsync(orderId);
@@ -75,12 +76,25 @@ public class OrderMySqlService(
             throw new NotFoundException($"No order found with id {orderId}");
 
         mapper.Map(orderRequest, existingOrder);
-
         await orderRepository.UpdateOrderAsync(existingOrder);
 
         if (orderRequest.Boxes != null)
         {
-            await boxService.UpdateBoxes(orderId, orderRequest.Boxes);
+            var boxesToUpdate = orderRequest.Boxes.Where(b => !string.IsNullOrWhiteSpace(b.Id)).ToList();
+            var boxesToCreate = orderRequest.Boxes.Where(b => string.IsNullOrWhiteSpace(b.Id)).ToList();
+
+            if (boxesToUpdate.Any())
+            {
+                await boxService.UpdateBoxes(orderId, boxesToUpdate);
+            }
+
+            if (boxesToCreate.Any())
+            {
+                foreach (var newBox in boxesToCreate)
+                {
+                    await boxService.CreateBox(newBox, orderId);
+                }
+            }
         }
     }
 
@@ -198,6 +212,6 @@ public class OrderMySqlService(
                 .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
         }
 
-        return await orderRepository.GetNonCancelledOrdersAsync();
+        return await orderRepository.GetNotActiveOrders();
     }
 }

@@ -2,7 +2,6 @@
 using Domain.Models;
 using Persistence.MongoDb;
 using Shared.DTOs.Order;
-using Shared.Order;
 
 namespace Service.Mapping;
 

@@ -1,13 +1,17 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Domain.MySql;
+namespace Persistence.MySql;
 
 public class VesselEntity
 {
+    [Key] 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; init; }
+    public required int Id { get; set; }
+    
     public int OwnerId { get; init; }
+    
     public required string Name { get; init; }
     public string? ImoNumber { get; init; }
     public string? Flag { get; init; }
