@@ -13,6 +13,15 @@ public class WarehouseService(IWarehouseRepository warehouseRepo, IAgentReposito
     public async Task<List<WarehouseResponse>> GetWarehouses()
     {
         var warehouses = await warehouseRepo.GetWarehousesAsync();
+
+        foreach (var w in warehouses)
+        {
+            //Print all values in warehouse
+            Console.WriteLine(w.Id + ": " + w.Name);
+            Console.WriteLine(w.Address);
+            Console.WriteLine(w.Agent);
+            
+        }
         return warehouses.Select(w => new WarehouseResponse
         {
             Id = w.Id,

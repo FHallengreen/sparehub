@@ -31,6 +31,7 @@ public class AgentMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
             throw new ArgumentException("Invalid agent ID format.");
 
         var agentEntity = await dbContext.Agents
+            .AsNoTracking()
             .FirstOrDefaultAsync(a => a.Id == parsedId);
 
         if (agentEntity == null)

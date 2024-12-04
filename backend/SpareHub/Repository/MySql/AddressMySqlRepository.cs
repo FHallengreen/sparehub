@@ -34,6 +34,7 @@ public class AddressMySqlRepository(SpareHubDbContext dbContext, IMapper mapper)
             throw new ArgumentException("Invalid address ID format.");
 
         var addressEntity = await dbContext.Addresses
+            .AsNoTracking()
             .FirstOrDefaultAsync(a => a.Id == parsedId);
 
         if (addressEntity == null)

@@ -12,7 +12,10 @@ public class WarehouseMySqlRepository(SpareHubDbContext dbContext, IMapper mappe
 {
     public async Task<List<Warehouse>> GetWarehousesAsync()
     {
-        var warehouses = await dbContext.Warehouses.ToListAsync();
+        var warehouses = await dbContext.Warehouses
+            .Include(w => w.Address)
+            .Include(w => w.Agent)
+            .ToListAsync();
         return mapper.Map<List<Warehouse>>(warehouses);
     }
     public async Task<List<Warehouse>> GetWarehousesBySearchQueryAsync(string? searchQuery)
@@ -56,6 +59,7 @@ public class WarehouseMySqlRepository(SpareHubDbContext dbContext, IMapper mappe
             throw new ArgumentException("Invalid warehouse ID format.");
 
         var warehouseEntity = await dbContext.Warehouses
+            .AsNoTracking()
             .Include(w => w.Agent)
             .Include(w => w.Address)
             .FirstOrDefaultAsync(w => w.Id == parsedWarehouseId);
