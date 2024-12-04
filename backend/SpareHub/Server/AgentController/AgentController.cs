@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Shared.DTOs.Agent;
 using Shared.DTOs.Order;
@@ -6,7 +8,8 @@ using Shared.DTOs.Order;
 namespace Server.AgentController;
 
 [ApiController]
-[Route("api/agent")]
+[Route("api/agents")]
+[Authorize]
 public class AgentController(IAgentService agentService) : ControllerBase
 {
     
@@ -16,13 +19,20 @@ public class AgentController(IAgentService agentService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<IActionResult> GetAgents(string? searchQuery = null)
     {
+        List<AgentResponse> agents;
         if (!string.IsNullOrEmpty(searchQuery))
         {
-            var agents = await agentService.GetAgentsBySearchQuery(searchQuery);
-            return Ok(agents);
+            agents = await agentService.GetAgentsBySearchQuery(searchQuery);
         }
-        var allAgents = await agentService.GetAgents();
-        return Ok(allAgents);
+        else
+        {
+            agents = await agentService.GetAgents();
+        }
+        if (agents.Count == 0)
+        {
+            return NotFound("No agents found matching the search criteria.");
+        }
+        return Ok(agents);
     }
 
     [HttpGet("{agentId}")]

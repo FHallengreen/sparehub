@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`warehouse` (
   `name` VARCHAR(45) NOT NULL,
   `agent_id` INT NOT NULL,
   `address_id` INT NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`, `address_id`),
   INDEX `fk_Warehouse_Agent1_idx` (`agent_id` ASC) VISIBLE,
   INDEX `fk_warehouse_address1_idx` (`address_id` ASC) VISIBLE,
   CONSTRAINT `fk_Warehouse_Agent1`
@@ -111,7 +111,7 @@ ENGINE = InnoDB;
 -- Table `sparehub`.`order_status`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `sparehub`.`order_status` (
-  `status` ENUM('Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled') NOT NULL,
+  `status` ENUM('Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled', 'Delivered') NOT NULL,
   PRIMARY KEY (`status`))
 ENGINE = InnoDB;
 
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`order` (
   `actual_readiness` DATETIME NULL,
   `expected_arrival` DATETIME NULL,
   `actual_arrival` DATETIME NULL,
-  `order_status` ENUM('Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled') NOT NULL,
+  `order_status` ENUM('Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled', 'Delivered') NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_Order_Supplier_idx` (`supplier_id` ASC) VISIBLE,
   INDEX `fk_Order_Vessel1_idx` (`vessel_id` ASC) VISIBLE,
@@ -176,8 +176,13 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`user` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `role_id` INT NOT NULL,
   `name` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `fk_Operator_Role1_idx` (`role_id` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
   CONSTRAINT `fk_Operator_Role1`
     FOREIGN KEY (`role_id`)
     REFERENCES `sparehub`.`role` (`id`)
@@ -274,28 +279,6 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`dispatch_has_order` (
   CONSTRAINT `fk_Dispatch_has_Order_Order1`
     FOREIGN KEY (`order_id`)
     REFERENCES `sparehub`.`order` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `sparehub`.`owner_has_user`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sparehub`.`owner_has_user` (
-  `owner_id` INT NOT NULL,
-  `operator_id` INT NOT NULL,
-  PRIMARY KEY (`owner_id`, `operator_id`),
-  INDEX `fk_owner_has_user_user1_idx` (`operator_id` ASC) VISIBLE,
-  INDEX `fk_owner_has_user_owner1_idx` (`owner_id` ASC) VISIBLE,
-  CONSTRAINT `fk_owner_has_user_owner1`
-    FOREIGN KEY (`owner_id`)
-    REFERENCES `sparehub`.`owner` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_owner_has_user_user1`
-    FOREIGN KEY (`operator_id`)
-    REFERENCES `sparehub`.`user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -461,40 +444,65 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`vessel_at_port` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+
+-- -----------------------------------------------------
+-- Table `sparehub`.`owner_has_user`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sparehub`.`owner_has_user` (
+  `owner_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  PRIMARY KEY (`owner_id`, `user_id`),
+  INDEX `fk_owner_has_user_user1_idx` (`user_id` ASC) VISIBLE,
+  INDEX `fk_owner_has_user_owner1_idx` (`owner_id` ASC) VISIBLE,
+  CONSTRAINT `fk_owner_has_user_owner1`
+    FOREIGN KEY (`owner_id`)
+    REFERENCES `sparehub`.`owner` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_owner_has_user_user1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `sparehub`.`user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `sparehub`.`operator`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sparehub`.`operator` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `title` VARCHAR(45) NULL,
+  `user_id` INT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_operator_user1_idx` (`user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_operator_user1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `sparehub`.`user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
 USE `sparehub` ;
 
 -- -----------------------------------------------------
--- Placeholder table for view `sparehub`.`non_cancelled_orders`
+-- Placeholder table for view `sparehub`.`not_active_orders`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sparehub`.`non_cancelled_orders` (`id` INT);
+CREATE TABLE IF NOT EXISTS `sparehub`.`not_active_orders` (`id` INT, `order_number` INT, `supplier_order_number` INT, `supplier_id` INT, `vessel_id` INT, `warehouse_id` INT, `expected_readiness` INT, `actual_readiness` INT, `expected_arrival` INT, `actual_arrival` INT, `order_status` INT);
 
 -- -----------------------------------------------------
--- View `sparehub`.`non_cancelled_orders`
+-- View `sparehub`.`not_active_orders`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `sparehub`.`non_cancelled_orders`;
+DROP TABLE IF EXISTS `sparehub`.`not_active_orders`;
 USE `sparehub`;
-DROP VIEW IF EXISTS `sparehub`.`non_cancelled_orders`;
-
-CREATE 
-     OR REPLACE ALGORITHM = UNDEFINED 
-    SQL SECURITY INVOKER
-VIEW `non_cancelled_orders` AS
+CREATE  OR REPLACE VIEW `not_active_orders` AS
     SELECT 
-        `order`.`id` AS `id`,
-        `order`.`order_number` AS `order_number`,
-        `order`.`supplier_order_number` AS `supplier_order_number`,
-        `order`.`supplier_id` AS `supplier_id`,
-        `order`.`vessel_id` AS `vessel_id`,
-        `order`.`warehouse_id` AS `warehouse_id`,
-        `order`.`expected_readiness` AS `expected_readiness`,
-        `order`.`actual_readiness` AS `actual_readiness`,
-        `order`.`expected_arrival` AS `expected_arrival`,
-        `order`.`actual_arrival` AS `actual_arrival`,
-        `order`.`order_status` AS `order_status`
+        *
     FROM
         `order`
     WHERE
-        (`order`.`order_status` <> 'Cancelled');
+        `order_status` NOT IN ('Cancelled' , 'Delivered');
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
@@ -534,7 +542,5 @@ ALTER USER 'app_user'@'%' DEFAULT ROLE 'app_role';
 ALTER USER 'admin_user'@'%' DEFAULT ROLE 'admin_role';
 ALTER USER 'readonly_user'@'%' DEFAULT ROLE 'readonly_role';
 ALTER USER 'restricted_user'@'%' DEFAULT ROLE 'restricted_role';
-
-FLUSH PRIVILEGES;
 
 -- end attached script 'script'

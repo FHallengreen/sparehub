@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 using Service.Interfaces;
@@ -8,6 +9,7 @@ namespace Server.DispatchController;
 
 [ApiController]
 [Route("/api/dispatch")]
+[Authorize]
 public class DispatchController(IDispatchService dispatchService) : ControllerBase
 {
 

@@ -1,3 +1,4 @@
+
 namespace Domain.Models;
 
 public class Vessel

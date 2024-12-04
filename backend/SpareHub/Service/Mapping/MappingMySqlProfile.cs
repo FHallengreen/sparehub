@@ -2,6 +2,7 @@ using AutoMapper;
 using Domain.Models;
 using Persistence.MySql;
 using Shared.DTOs.Order;
+using Shared.DTOs.User;
 
 namespace Service.Mapping;
 
@@ -60,10 +61,10 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.ActualArrival, opt => opt.MapFrom(src => src.ActualArrival))
             .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.OrderStatus))
             .ForMember(dest => dest.Boxes, opt => opt.MapFrom(src => src.Boxes));
+            
 
-        // Supplier mappings
         CreateMap<SupplierEntity, Supplier>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))  // Mapping integer to string
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
         CreateMap<BoxRequest, Box>()
@@ -76,15 +77,53 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.ImoNumber, opt => opt.MapFrom(src => src.ImoNumber))
             .ForMember(dest => dest.Flag, opt => opt.MapFrom(src => src.Flag))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner));
-
         
-        // Owner mappings
+        CreateMap<Vessel, VesselEntity>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.ImoNumber, opt => opt.MapFrom(src => src.ImoNumber))
+            .ForMember(dest => dest.Flag, opt => opt.MapFrom(src => src.Flag))
+            .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => int.Parse(src.Owner.Id)))
+            .ForMember(dest => dest.Owner, opt => opt.Ignore());
+        //Owner mappings
         CreateMap<OwnerEntity, Owner>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-
+        
+        CreateMap<Owner, OwnerEntity>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+        
+        // Port mappings
+        CreateMap<PortEntity, Port>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+        
+        CreateMap<Port, PortEntity>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+        
+        // VesselAtPort mappings
+        CreateMap<VesselAtPortEntity, VesselAtPort>()
+            .ForMember(dest => dest.VesselId, opt => opt.MapFrom(src => src.VesselId.ToString()))
+            .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => src.PortId.ToString()))
+            .ForMember(dest => dest.ArrivalDate, opt => opt.MapFrom(src => src.ArrivalDate))
+            .ForMember(dest => dest.DepartureDate, opt => opt.MapFrom(src => src.DepartureDate));
+        
+        CreateMap<VesselAtPort, VesselAtPortEntity>()
+            .ForMember(dest => dest.VesselId, opt => opt.MapFrom(src => int.Parse(src.VesselId)))
+            .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => int.Parse(src.PortId)))
+            .ForMember(dest => dest.VesselEntity, opt => opt.Ignore())
+            .ForMember(dest => dest.PortEntity, opt => opt.Ignore());
+        
+        // Warehouse mappings
+        CreateMap<WarehouseEntity, Warehouse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Agent, opt => opt.MapFrom(src => src.Agent));
+        
         // Agent mappings
-        CreateMap<Domain.Models.Agent, AgentEntity>()
+        CreateMap<Agent, AgentEntity>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => 
                 string.IsNullOrEmpty(src.Id) ? 0 : int.Parse(src.Id)))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
@@ -110,10 +149,21 @@ public class MappingMySqlProfile : Profile
         CreateMap<UserEntity, User>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.RoleId))
-            .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => src.OwnerId))
-            .ForMember(dest => dest.Role, opt => opt.Ignore())
-            .ForMember(dest => dest.Owner, opt => opt.Ignore());
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.Password))
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.Title))
+            .ForMember(dest => dest.Operator, opt => opt.MapFrom(src => src.Operator))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt));
+
+
+        CreateMap<OperatorEntity, Operator>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
+
+        CreateMap<UserEntity, UserResponse>()
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.Title));
         
         // Address mappings
         CreateMap<AddressEntity, Address>()
