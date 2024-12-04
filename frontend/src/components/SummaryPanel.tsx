@@ -5,7 +5,6 @@ import { OrderRow, StockLocationSummary } from '../interfaces/order.ts';
 interface SummaryPanelProps {
   selectedRows: Set<string>;
   allRows: OrderRow[];
-  dimensionalFactor?: number; // Add dimensional factor
 }
 
 type StockLocationData = {
