@@ -19,6 +19,8 @@ export interface OrderDetail {
   expectedArrival?: Date | null;
   actualArrival?: Date | null;
   boxes: Box[] | null;
+  transporter: '',  
+  trackingNumber: '',
 }
 
 
@@ -35,6 +37,8 @@ export interface OrderRequest {
   warehouseId: number;
   orderStatus: string;
   boxes?: Box[];
+  transporter?: string; 
+  trackingNumber?: string; 
 }
 
 

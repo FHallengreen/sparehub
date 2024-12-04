@@ -6,6 +6,7 @@ export default defineConfig({
     outDir: 'build',
     assetsDir: 'assets',
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1000,
   },
   server: {
     host: '0.0.0.0',

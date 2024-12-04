@@ -18,6 +18,7 @@ using Service.Interfaces;
 using Service.Mapping;
 using Service.MySql.Dispatch;
 using Service.MySql.Agent;
+using Service.MySql.Box;
 using Service.MySql.Login;
 using Service.MySql.Order;
 using Service.MySql.Owner;
@@ -25,6 +26,7 @@ using Service.MySql.Supplier;
 using Service.MySql.Vessel;
 using Service.MySql.VesselAtPort;
 using Service.MySql.Warehouse;
+using Service.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -111,6 +113,7 @@ builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddHttpClient<ITrackingService, TrackingService>();
 
 
 // Register MySQL repositories
