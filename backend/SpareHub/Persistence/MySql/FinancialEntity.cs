@@ -1,7 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Persistence.MySql;
-
 public class FinancialEntity
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -12,7 +10,7 @@ public class FinancialEntity
     public int CurrencyId { get; init; }
 
     // Navigation properties
-    public required InvoiceEntity InvoiceEntity { get; init; }
-    public required CostTypeEntity CostTypeEntity { get; init; }
-    public required CurrencyEntity CurrencyEntity { get; init; }
+    public required InvoiceEntity InvoiceEntity { get; init; } 
+    public required CostTypeEntity CostTypeEntity { get; init; } 
+    public required CurrencyEntity CurrencyEntity { get; init; } 
 }

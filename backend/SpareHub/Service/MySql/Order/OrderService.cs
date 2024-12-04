@@ -1,14 +1,15 @@
 using AutoMapper;
 using Microsoft.Extensions.Caching.Memory;
 using Repository.Interfaces;
-using Repository.MySql;
 using Service.Interfaces;
-using Shared;
 using Shared.DTOs.Order;
 using Shared.DTOs.Owner;
 using Shared.DTOs.Supplier;
+using Shared.DTOs.Vessel;
 using Shared.DTOs.Warehouse;
 using Shared.Exceptions;
+
+
 
 namespace Service.MySql.Order;
 
@@ -75,12 +76,25 @@ public class OrderService(
             throw new NotFoundException($"No order found with id {orderId}");
 
         mapper.Map(orderRequest, existingOrder);
-
         await orderRepository.UpdateOrderAsync(existingOrder);
 
         if (orderRequest.Boxes != null)
         {
-            await boxService.UpdateBoxes(orderId, orderRequest.Boxes);
+            var boxesToUpdate = orderRequest.Boxes.Where(b => !string.IsNullOrWhiteSpace(b.Id)).ToList();
+            var boxesToCreate = orderRequest.Boxes.Where(b => string.IsNullOrWhiteSpace(b.Id)).ToList();
+
+            if (boxesToUpdate.Any())
+            {
+                await boxService.UpdateBoxes(orderId, boxesToUpdate);
+            }
+
+            if (boxesToCreate.Any())
+            {
+                foreach (var newBox in boxesToCreate)
+                {
+                    await boxService.CreateBox(newBox, orderId);
+                }
+            }
         }
     }
 
@@ -171,7 +185,8 @@ public class OrderService(
             OrderStatus = o.OrderStatus,
             Boxes = o.Boxes.Count,
             TotalWeight = Math.Round(o.Boxes.Sum(b => b.Weight), 2),
-            TotalVolume = o.Boxes.Sum(b => b.Length * b.Width * b.Height)
+            TotalVolume = o.Boxes.Sum(b => b.Length * b.Width * b.Height),
+            TotalVolumetricWeight = o.Boxes.Sum(b => b.Length * b.Width * b.Height / 6000)
         }).ToList();
     }
 
@@ -199,6 +214,6 @@ public class OrderService(
                 .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
         }
 
-        return await orderRepository.GetNonCancelledOrdersAsync();
+        return await orderRepository.GetNotActiveOrders();
     }
 }

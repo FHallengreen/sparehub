@@ -1,9 +1,11 @@
-﻿namespace Persistence.MySql;
+﻿
+
+namespace Persistence.MySql;
 
 public class VesselAtPortEntity
 {
-    public int VesselId { get; init; }
-    public int PortId { get; init; }
+    public required int VesselId { get; init; } 
+    public required int PortId { get; init; }
     public DateTime? ArrivalDate { get; set; }
     public DateTime? DepartureDate { get; set; }
 

@@ -12,10 +12,10 @@ import {
   Button,
   Chip,
 } from '@mui/material';
-import axios from 'axios';
+import api from '../Api';
 import qs from 'qs';
 import { useNavigate } from 'react-router-dom';
-import { Order } from '../interfaces/order';
+import { Order } from '../interfaces/order.ts';
 import SummaryPanel from './SummaryPanel';
 
 const columns: GridColDef[] = [
@@ -112,7 +112,7 @@ const OrderTable: React.FC = () => {
 
   const fetchOrders = async (tags: string[] = []) => {
     try {
-      const response = await axios.get<Order[]>(`${import.meta.env.VITE_API_URL}/api/order`, {
+      const response = await api.get<Order[]>(`${import.meta.env.VITE_API_URL}/api/order`, {
         params: { searchTerms: tags },
         paramsSerializer: (params) => {
           return qs.stringify(params, { arrayFormat: 'repeat' });
@@ -182,23 +182,37 @@ const OrderTable: React.FC = () => {
 
   const groupedRows = React.useMemo(() => {
     const groupHeaders: any[] = [];
-    const rowGroups: Record<string, any[]> = {};
+    const rowGroups: Record<string, Record<string, any[]>> = {};
 
     rows.forEach((row) => {
       const location = row.stockLocation;
+      const status = row.status;
+
       if (!rowGroups[location]) {
-        rowGroups[location] = [];
+        rowGroups[location] = {};
       }
-      rowGroups[location].push(row);
+      if (!rowGroups[location][status]) {
+        rowGroups[location][status] = [];
+      }
+      rowGroups[location][status].push(row);
     });
 
-    Object.entries(rowGroups).forEach(([location, locationRows]) => {
+    Object.entries(rowGroups).forEach(([location, statusGroups]) => {
+      // Add group header for the stock location
       groupHeaders.push({
         id: `header-${location}`,
         stockLocation: location,
         isGroupHeader: true,
       });
-      groupHeaders.push(...locationRows);
+
+      // Sort statuses in reverse order and add rows for each status
+      Object.entries(statusGroups)
+        .sort(([statusA], [statusB]) => statusB.localeCompare(statusA)) // Reverse the order
+        .forEach(([, statusRows]) => {
+          if (statusRows.length > 0) {
+            groupHeaders.push(...statusRows);
+          }
+        });
     });
 
     return groupHeaders;

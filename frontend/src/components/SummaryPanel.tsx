@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Button } from '@mui/material';
-import { OrderRow, StockLocationSummary } from '../interfaces/order';
+import { OrderRow, StockLocationSummary } from '../interfaces/order.ts';
 
 interface SummaryPanelProps {
   selectedRows: Set<string>;
