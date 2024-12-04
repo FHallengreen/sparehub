@@ -100,6 +100,7 @@ export interface OrderRow {
   pieces: number;
   weight: number;
   volume: number;
+  volumetricWeight: number;
 }
 
 export interface StockLocationSummary {

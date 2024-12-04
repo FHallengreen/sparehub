@@ -15,7 +15,6 @@ type StockLocationData = {
 const SummaryPanel: React.FC<SummaryPanelProps> = ({
  selectedRows,
  allRows,
- dimensionalFactor = 6000, // Default to 6,000 cm³/kg
 }) => {
   const selectedData = allRows.filter((row) => selectedRows.has(row.id));
 
@@ -36,9 +35,7 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({
     acc[loc].pieces += row.pieces || 0;
     acc[loc].weight += row.weight || 0;
     acc[loc].volume += row.volume || 0;
-    acc[loc].volumetricWeight += row.volume
-      ? (row.volume * 1_000_000) / dimensionalFactor
-      : 0;
+    acc[loc].volumetricWeight += row.volumetricWeight || 0;
     return acc;
   }, {} as StockLocationData);
 
