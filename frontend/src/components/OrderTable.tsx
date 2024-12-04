@@ -126,7 +126,8 @@ const OrderTable: React.FC = () => {
         supplier: order.supplierName,
         poNumber: order.orderNumber,
         pieces: order.boxes && order.boxes > 0 ? order.boxes : null,
-      weight: order.totalWeight && order.totalWeight > 0 ? order.totalWeight : null,
+        weight: order.totalWeight && order.totalWeight > 0 ? order.totalWeight : null,
+        volume: order.totalVolume && order.totalVolume > 0 ? order.totalVolume : null, // Map volume here
         stockLocation: order.warehouseName,
         status: order.orderStatus,
       }));
@@ -182,11 +183,11 @@ const OrderTable: React.FC = () => {
   const groupedRows = React.useMemo(() => {
     const groupHeaders: any[] = [];
     const rowGroups: Record<string, Record<string, any[]>> = {};
-  
+
     rows.forEach((row) => {
       const location = row.stockLocation;
       const status = row.status;
-  
+
       if (!rowGroups[location]) {
         rowGroups[location] = {};
       }
@@ -195,7 +196,7 @@ const OrderTable: React.FC = () => {
       }
       rowGroups[location][status].push(row);
     });
-  
+
     Object.entries(rowGroups).forEach(([location, statusGroups]) => {
       // Add group header for the stock location
       groupHeaders.push({
@@ -203,7 +204,7 @@ const OrderTable: React.FC = () => {
         stockLocation: location,
         isGroupHeader: true,
       });
-  
+
       // Sort statuses in reverse order and add rows for each status
       Object.entries(statusGroups)
         .sort(([statusA], [statusB]) => statusB.localeCompare(statusA)) // Reverse the order
@@ -213,11 +214,9 @@ const OrderTable: React.FC = () => {
           }
         });
     });
-  
+
     return groupHeaders;
   }, [rows]);
-  
-  
 
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
     const groupHeaderIds = groupedRows

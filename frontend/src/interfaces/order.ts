@@ -1,5 +1,5 @@
 export interface Box {
-  id?: number; 
+  id?: number;
   length: number;
   width: number;
   height: number;
@@ -48,6 +48,7 @@ export interface Order {
   ownerName: Owner;
   totalWeight: number;
   boxes: number;
+  totalVolume: number;
 }
 
 export interface Supplier {
@@ -98,12 +99,16 @@ export interface OrderRow {
   stockLocation: string;
   pieces: number;
   weight: number;
+  volume: number;
+  volumetricWeight: number;
 }
 
 export interface StockLocationSummary {
   orders: number;
   pieces: number;
   weight: number;
+  volume: number;
+  volumetricWeight: number;
 }
 
 export interface LoginRequest {
