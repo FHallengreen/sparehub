@@ -31,7 +31,6 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
         
         //Address
         { (typeof(IAddressRepository), DatabaseType.MySql), typeof(AddressMySqlRepository) },
-        { (typeof(IDispatchRepository), DatabaseType.MongoDb), typeof(DispatchMongoDbRepository) },
         
         //Port
         { (typeof(IPortService), DatabaseType.MySql), typeof(PortMySqlRepository) },
