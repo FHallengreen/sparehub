@@ -231,7 +231,8 @@ try
     app.UseCors(corsPolicyBuilder =>
         corsPolicyBuilder.WithOrigins(
                 "http://localhost:5173",
-                "https://sparehub.fhallengreen.com"
+                "https://sparehub.fhallengreen.com",
+                "https://calm-glacier-0be18fe03.4.azurestaticapps.net/"
             )
             .AllowAnyMethod()
             .AllowAnyHeader());
