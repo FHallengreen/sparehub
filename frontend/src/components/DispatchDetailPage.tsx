@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { DispatchDetail } from '../interfaces/dispatch';
 import { useSnackbar } from './SnackbarContext';
+import api from '../Api';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -21,7 +22,7 @@ const DispatchDetailPage: React.FC = () => {
     const fetchDispatch = async () => {
       try {
         if (!isNewDispatch) {
-          const dispatchResponse = await axios.get<DispatchDetail>(
+          const dispatchResponse = await api.get<DispatchDetail>(
             `${API_URL}/api/dispatch/${id}`
           );
           setDispatch(dispatchResponse.data);
@@ -64,7 +65,7 @@ const DispatchDetailPage: React.FC = () => {
 
   const deleteDispatch = async (dispatchId: number) => {
     try {
-      await axios.delete(`${API_URL}/api/dispatch/${dispatchId}`);
+      await api.delete(`${API_URL}/api/dispatch/${dispatchId}`);
       showSnackbar('Dispatch deleted successfully!', 'success');
       navigate('/dispatches');
     } catch (err) {
@@ -88,14 +89,14 @@ const DispatchDetailPage: React.FC = () => {
 
     try {
       if (isNewDispatch) {
-        const response = await axios.post(
+        const response = await api.post(
           `${API_URL}/api/dispatch`,
           sanitizedDispatch
         );
         setDispatch(response.data);
         showSnackbar('Dispatch created successfully!', 'success');
       } else {
-        await axios.put(`${API_URL}/api/dispatch/${id}`, sanitizedDispatch);
+        await api.put(`${API_URL}/api/dispatch/${id}`, sanitizedDispatch);
         showSnackbar('Dispatch updated successfully!', 'success');
       }
     } catch (err) {

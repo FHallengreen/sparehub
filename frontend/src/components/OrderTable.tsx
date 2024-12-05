@@ -59,14 +59,14 @@ const columns: GridColDef[] = [
   {
     field: 'stockLocation',
     headerName: 'Stock Location',
-    flex: 0.9,
+    flex: 0.8,
     headerAlign: 'center',
     align: 'center',
   },
   {
     field: 'status',
     headerName: 'Status',
-    flex: 0.5,
+    flex: 0.45,
     headerAlign: 'center',
     align: 'center',
     renderCell: (params) => {
@@ -273,6 +273,17 @@ const OrderTable: React.FC = () => {
           onChange={(_, newValue) => {
             setSearchTags(newValue);
           }}
+          onInputChange={(_, inputValue) => {
+            if (inputValue.length >= 3) {
+              setSuggestions(
+                suggestions.filter((option) =>
+                  option.toLowerCase().includes(inputValue.toLowerCase())
+                )
+              );
+            } else {
+              setSuggestions([]);
+            }
+          }}
           renderTags={(value: string[], getTagProps) =>
             value.map((option: string, index: number) => {
               const { key, ...restTagProps } = getTagProps({ index });
@@ -299,6 +310,7 @@ const OrderTable: React.FC = () => {
           )}
           style={{ width: "40vw" }}
         />
+
         <Button onClick={() => navigate(`/orders/new`)} variant="contained" color="primary" className="pr-5">
           New Order
         </Button>
