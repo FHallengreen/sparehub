@@ -3,10 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaLink } from 'react-icons/fa6';
 import { CircularProgress, Typography, Button, TextField, IconButton } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest, SupplierOption, Warehouse, Agent } from '../../interfaces/order.ts';
-import { useSnackbar } from '../../context/SnackbarContext.tsx';
-import { useDebounce } from '../../hooks/useDebounce.ts';
-import api from '../../api/api.ts';
+import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest, SupplierOption, Warehouse, Agent } from '../../../interfaces/order.ts';
+import { useSnackbar } from '../../../context/SnackbarContext.tsx';
+import { useDebounce } from '../../../hooks/useDebounce.ts';
+import api from '../../../api/api.ts';
 import axios from 'axios';
 
 const OrderDetailPage: React.FC = () => {

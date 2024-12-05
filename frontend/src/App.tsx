@@ -2,7 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import OrderPage from './features/order/pages/OrderPage.tsx';
-import OrderDetailPage from './features/order/OrderDetailPage.tsx';
+import OrderDetailPage from './features/order/pages/OrderDetailPage.tsx';
 import Sidebar from './components/SideBar';
 import { SnackbarProvider } from './context/SnackbarContext.tsx';
 import DispatchPage from "./features/dispatch/pages/DispatchPage.tsx";
