@@ -250,7 +250,7 @@ const OrderDetailPage: React.FC = () => {
 
     React.useEffect(() => {
         if (debouncedVesselQuery.length >= 3) {
-            api.get<VesselOption[]>(`${import.meta.env.VITE_API_URL}/api/vessel`, {
+            api.get<VesselOption[]>(`${import.meta.env.VITE_API_URL}/api/vessel/query`, {
                 params: { searchQuery: debouncedVesselQuery }
             })
                 .then(response => {
