@@ -224,36 +224,36 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-
-var app = builder.Build();
-
-app.UseCors(corsPolicyBuilder =>
-    corsPolicyBuilder.WithOrigins(
-            "http://localhost:5173",
-            "https://sparehub.fhallengreen.com"
-        )
-        .AllowAnyMethod()
-        .AllowAnyHeader());
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
-
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseMiddleware<ValidationExceptionMiddleware>();
-
-app.MapControllers();
-
 try
 {
+    var app = builder.Build();
+
+    app.UseCors(corsPolicyBuilder =>
+        corsPolicyBuilder.WithOrigins(
+                "http://localhost:5173",
+                "https://sparehub.fhallengreen.com"
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHttpsRedirection();
+    }
+
+    app.UseRouting();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.UseMiddleware<ValidationExceptionMiddleware>();
+
+    app.MapControllers();
+
+
     await app.RunAsync();
 }
 catch (Exception ex)
