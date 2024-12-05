@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FaBox, FaTruck, FaFileInvoice, FaCogs, FaDatabase, FaSignOutAlt  } from 'react-icons/fa';
+import { FaBox, FaTruck, FaFileInvoice, FaCogs, FaDatabase, FaSignOutAlt } from 'react-icons/fa';
 import sparehubLogo from '../assets/Sparehublogo_white_noname.svg';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
@@ -37,9 +37,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className={`fixed top-0 left-0 h-full bg-[#1d2b31] text-white flex flex-col items-center py-4 z-50 transform transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      } md:translate-x-0 sm:w-16 md:w-16`}
+      className={`fixed top-0 left-0 h-full bg-[#1d2b31] text-white flex flex-col items-center py-4 z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
+        } md:translate-x-0 sm:w-16 md:w-14`}
     >
       <button onClick={onClose} className="md:hidden mb-5 text-2xl">
         &times;
@@ -50,27 +49,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       </NavLink>
 
       <NavLink to="/orders" className="mb-5">
-        <FaBox size={32} />
+        <FaBox size={28} />
       </NavLink>
       <NavLink to="/dispatches" className="mb-5">
-        <FaTruck size={32} />
+        <FaTruck size={28} />
       </NavLink>
       <NavLink to="/invoices" className="mb-5">
-        <FaFileInvoice size={32} />
+        <FaFileInvoice size={28} />
       </NavLink>
       <NavLink to="/settings" className="mb-5">
-        <FaCogs size={32} />
+        <FaCogs size={28} />
       </NavLink>
       <NavLink to="/database" className="mb-5">
-        <FaDatabase size={32} />
+        <FaDatabase size={28} />
       </NavLink>
 
       <button
-  className="mb-5 flex flex-col items-center text-white hover:text-gray-300 focus:outline-none"
-  onClick={handleLogout}
->
-  <FaSignOutAlt size={32} />
-</button>
+        className="mb-5 flex flex-col items-center text-white hover:text-gray-300 focus:outline-none"
+        onClick={handleLogout}
+      >
+        <FaSignOutAlt size={28} />
+      </button>
     </div>
   );
 };

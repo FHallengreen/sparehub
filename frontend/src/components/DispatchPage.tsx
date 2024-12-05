@@ -12,11 +12,11 @@ import {
   Button,
   Chip,
 } from '@mui/material';
-import axios from 'axios';
 import qs from 'qs';
 import { useNavigate } from 'react-router-dom';
 import { Dispatch } from '../interfaces/dispatch';
 import { format } from 'date-fns';
+import api from '../Api';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -79,7 +79,7 @@ const DispatchTable: React.FC = () => {
 
   const fetchDispatches = async (tags: string[] = []) => {
     try {
-      const response = await axios.get<Dispatch[]>(`${API_URL}/api/dispatch`, {
+      const response = await api.get<Dispatch[]>(`${API_URL}/api/dispatch`, {
         params: { searchTerms: tags },
         paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
       });
