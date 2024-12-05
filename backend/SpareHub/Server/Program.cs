@@ -151,12 +151,11 @@ builder.Services.AddDbContext<SpareHubDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
             mySqlOptions => mySqlOptions.EnableStringComparisonTranslations()
         )
-        .EnableSensitiveDataLogging()
-        .LogTo(Console.WriteLine, LogLevel.Information)
+        /*.EnableSensitiveDataLogging()
+        .LogTo(Console.WriteLine, LogLevel.Information)*/
 );
 
 // MongoDB configuration
-/*
 var mongoConnectionString = builder.Configuration.GetValue<string>("MONGODB_URI");
 
 builder.Services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(mongoConnectionString));
@@ -166,9 +165,7 @@ builder.Services.AddScoped(sp =>
     var mongoClient = sp.GetRequiredService<IMongoClient>();
     return mongoClient.GetDatabase(builder.Configuration.GetValue<string>("MONGO_INITDB_DATABASE"));
 });
-*/
 
-/*
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
@@ -186,10 +183,8 @@ builder.Services.AddScoped(sp =>
     var database = sp.GetRequiredService<IMongoDatabase>();
     return database.GetCollection<DispatchCollection>("dispatches");
 });
-*/
 
 
-/*
 // Neo4j configuration
 var neo4JUrl = builder.Configuration.GetValue<string>("NEO4J_URL");
 var neo4JUsername = builder.Configuration.GetValue<string>("NEO4J_USERNAME");
@@ -206,7 +201,6 @@ builder.Services.AddScoped(sp =>
     var driver = sp.GetRequiredService<IDriver>();
     return driver.AsyncSession();
 });
-*/
 
 builder.Services.AddAuthentication(options =>
     {
@@ -230,44 +224,37 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-try
+
+var app = builder.Build();
+
+app.UseCors(corsPolicyBuilder =>
+    corsPolicyBuilder.WithOrigins(
+            "http://localhost:5173",
+            "https://sparehub.fhallengreen.com",
+            "https://calm-glacier-0be18fe03.4.azurestaticapps.net/"
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+if (!app.Environment.IsDevelopment())
 {
-    var app = builder.Build();
-
-    app.UseCors(corsPolicyBuilder =>
-        corsPolicyBuilder.WithOrigins(
-                "http://localhost:5173",
-                "https://sparehub.fhallengreen.com",
-                "https://calm-glacier-0be18fe03.4.azurestaticapps.net/"
-            )
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
-    if (!app.Environment.IsDevelopment())
-    {
-        app.UseHttpsRedirection();
-    }
-
-    app.UseRouting();
-
-    app.UseAuthentication();
-    app.UseAuthorization();
-
-    app.UseMiddleware<ValidationExceptionMiddleware>();
-
-    app.MapControllers();
-
-
-    await app.RunAsync();
+    app.UseHttpsRedirection();
 }
-catch (Exception ex)
-{
-    Console.WriteLine($"Unhandled exception during startup: {ex}");
-    throw;
-}
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseMiddleware<ValidationExceptionMiddleware>();
+
+app.MapControllers();
+
+
+await app.RunAsync();
 
 public partial class Program
 {
