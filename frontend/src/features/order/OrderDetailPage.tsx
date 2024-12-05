@@ -3,10 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaLink } from 'react-icons/fa6';
 import { CircularProgress, Typography, Button, TextField, IconButton } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest, SupplierOption, Warehouse, Agent } from '../interfaces/order.ts';
-import { useSnackbar } from './SnackbarContext';
-import { useDebounce } from '../hooks/useDebounce';
-import api from '../Api';
+import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest, SupplierOption, Warehouse, Agent } from '../../interfaces/order.ts';
+import { useSnackbar } from '../../context/SnackbarContext.tsx';
+import { useDebounce } from '../../hooks/useDebounce.ts';
+import api from '../../api/api.ts';
 import axios from 'axios';
 
 const OrderDetailPage: React.FC = () => {
@@ -550,7 +550,7 @@ const OrderDetailPage: React.FC = () => {
                             </Typography>
                             <div className="flex flex-col gap-6">
                                 <div className="w-full">
-                              
+
                                     <select
                                         value={selectedTransporter}
                                         onChange={(e) => setSelectedTransporter(e.target.value)}
@@ -568,7 +568,7 @@ const OrderDetailPage: React.FC = () => {
                                 </div>
 
                                 <div className="w-full">
-                                 
+
                                     <div className="flex items-center">
                                         <TextField
                                             label="Tracking Number"

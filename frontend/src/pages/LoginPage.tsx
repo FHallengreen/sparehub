@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../Api';
-import { useAuth } from '../context/AuthContext';
-import { LoginResponse } from '../interfaces/order';
+import { useAuth } from '../context/AuthContext.tsx';
+import { login as loginApi } from '../api/authApi';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -13,17 +12,12 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     try {
-      const response = await api.post<LoginResponse>(
-        `${import.meta.env.VITE_API_URL}/api/auth/login`,
-        { email, password }
-      );
-  
-      const { token, user } = response.data;
-  
+      const { user, token } = await loginApi(email, password);
+
       login(user, token);
-  
+
       navigate('/orders');
     } catch (err) {
       console.error(err);
