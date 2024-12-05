@@ -74,9 +74,10 @@ public class OrderService(
         if (existingOrder == null)
             throw new NotFoundException($"No order found with id {orderId}");
 
+        orderRequest.Transporter = string.IsNullOrWhiteSpace(orderRequest.Transporter) ? null : orderRequest.Transporter;
+
         mapper.Map(orderRequest, existingOrder);
         await orderRepository.UpdateOrderAsync(existingOrder);
-
 
         if (orderRequest.Boxes != null)
         {

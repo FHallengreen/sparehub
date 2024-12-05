@@ -43,10 +43,11 @@ public record OrderRequest
     public string OrderStatus { get; init; } = null!;
 
     [MaxLength(45, ErrorMessage = "TrackingNumber cannot exceed 45 characters.")]
-    public string? TrackingNumber { get; init; } // New property
+    public string? TrackingNumber { get; init; }
 
-    [RegularExpression("DHL|FEDEX|GLS", ErrorMessage = "Invalid transporter.")]
-    public string? Transporter { get; init; } // New property
+    [RegularExpression(@"^(DHL|FEDEX|GLS)?$", ErrorMessage = "Invalid transporter.")]
+    public string? Transporter { get; set; }
+
 
     public List<BoxRequest>? Boxes { get; init; }
 }
