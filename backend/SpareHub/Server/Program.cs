@@ -148,11 +148,11 @@ var connectionString = string.Format("server={0};port={1};database={2};user={3};
 
 // Register the DbContext with MySQL configuration
 builder.Services.AddDbContext<SpareHubDbContext>(options =>
-        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
             mySqlOptions => mySqlOptions.EnableStringComparisonTranslations()
         )
-// .EnableSensitiveDataLogging()
-// .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging()
+        .LogTo(Console.WriteLine, LogLevel.Information)
 );
 
 // MongoDB configuration
@@ -217,7 +217,9 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration.GetValue<string>("JWT_ISSUER"),
             ValidAudience = builder.Configuration.GetValue<string>("JWT_AUDIENCE"),
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JWT_SECRET_KEY")!)),
+            IssuerSigningKey =
+                new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JWT_SECRET_KEY")!)),
             RoleClaimType = ClaimTypes.Role
         };
     });
@@ -250,7 +252,15 @@ app.UseMiddleware<ValidationExceptionMiddleware>();
 
 app.MapControllers();
 
-await app.RunAsync();
+try
+{
+    await app.RunAsync();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Unhandled exception during startup: {ex}");
+    throw;
+}
 
 public partial class Program
 {
