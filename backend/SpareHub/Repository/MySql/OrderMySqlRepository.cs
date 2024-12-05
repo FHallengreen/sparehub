@@ -1,9 +1,11 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Persistence.MySql;
 using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
+using Shared.Exceptions;
 
 namespace Repository.MySql;
 
@@ -73,10 +75,21 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
 
     public async Task DeleteOrderAsync(string orderId)
     {
-        var orderEntity = await dbContext.Orders.FindAsync(orderId);
-        if (orderEntity != null) dbContext.Orders.Remove(orderEntity);
+        if (!int.TryParse(orderId, out var id))
+        {
+            throw new ValidationException($"Invalid order ID: {orderId}. Must be a valid integer.");
+        }
+
+        var orderEntity = await dbContext.Orders.FindAsync(id);
+        if (orderEntity == null)
+        {
+            throw new NotFoundException($"Order with ID {id} not found.");
+        }
+
+        dbContext.Orders.Remove(orderEntity);
         await dbContext.SaveChangesAsync();
     }
+
 
 
     public Task<List<string>> GetAllOrderStatusesAsync()
