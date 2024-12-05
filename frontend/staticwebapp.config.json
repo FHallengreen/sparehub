@@ -1,8 +1,14 @@
 {
-    "routes": [
-      {
-        "route": "/*",
-        "rewrite": "/index.html"
+  "routes": [
+    {
+      "route": "/assets/*",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
       }
-    ]
-  }
+    },
+    {
+      "route": "/*",
+      "rewrite": "/index.html"
+    }
+  ]
+}
