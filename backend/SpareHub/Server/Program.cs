@@ -156,6 +156,7 @@ builder.Services.AddDbContext<SpareHubDbContext>(options =>
 );
 
 // MongoDB configuration
+/*
 var mongoConnectionString = builder.Configuration.GetValue<string>("MONGODB_URI");
 
 builder.Services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(mongoConnectionString));
@@ -165,7 +166,9 @@ builder.Services.AddScoped(sp =>
     var mongoClient = sp.GetRequiredService<IMongoClient>();
     return mongoClient.GetDatabase(builder.Configuration.GetValue<string>("MONGO_INITDB_DATABASE"));
 });
+*/
 
+/*
 builder.Services.AddScoped(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
@@ -183,8 +186,10 @@ builder.Services.AddScoped(sp =>
     var database = sp.GetRequiredService<IMongoDatabase>();
     return database.GetCollection<DispatchCollection>("dispatches");
 });
+*/
 
 
+/*
 // Neo4j configuration
 var neo4JUrl = builder.Configuration.GetValue<string>("NEO4J_URL");
 var neo4JUsername = builder.Configuration.GetValue<string>("NEO4J_USERNAME");
@@ -201,6 +206,7 @@ builder.Services.AddScoped(sp =>
     var driver = sp.GetRequiredService<IDriver>();
     return driver.AsyncSession();
 });
+*/
 
 builder.Services.AddAuthentication(options =>
     {
