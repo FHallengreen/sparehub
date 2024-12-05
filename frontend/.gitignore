@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 ../DS_Store
+
+build/
