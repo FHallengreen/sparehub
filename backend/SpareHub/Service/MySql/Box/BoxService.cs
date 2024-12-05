@@ -47,9 +47,6 @@ public class BoxService(IBoxRepository boxRepository, IOrderRepository orderRepo
     {
         var boxes = await boxRepository.GetBoxesByOrderIdAsync(orderId);
 
-        if (boxes == null || boxes.Count == 0)
-            throw new NotFoundException($"No boxes found for order ID '{orderId}'.");
-
         return boxes.Select(b => new BoxResponse
         {
             Id = b.Id,
