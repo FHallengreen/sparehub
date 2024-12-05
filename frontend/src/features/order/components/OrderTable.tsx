@@ -41,7 +41,10 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
         autoHeight
       />
       {selectionModel.length > 0 && (
-        <SummaryPanel selectedRows={new Set(selectionModel)} allRows={rows} />
+        <SummaryPanel
+          selectedRows={new Set(Array.from(selectionModel).map(String))}
+          allRows={rows}
+        />
       )}
     </>
   );

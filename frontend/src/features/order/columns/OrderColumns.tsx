@@ -1,6 +1,15 @@
 import { GridColDef } from '@mui/x-data-grid';
 import { Chip } from '@mui/material';
 
+const getStatusColor = (status: string) => {
+  if (status === 'Inbound') return 'warning';
+  if (status === 'Stock') return 'success';
+  if (status === 'Pending') return 'default';
+  if (status === 'Ready') return 'primary';
+  if (status === 'Cancelled') return 'error';
+  return 'default';
+};
+
 export const columns: GridColDef[] = [
   { field: 'id', headerName: 'Id', flex: 0.1, headerAlign: 'center', align: 'center' },
   { field: 'owner', headerName: 'Owner', flex: 0.5, headerAlign: 'center', align: 'center' },
@@ -15,15 +24,7 @@ export const columns: GridColDef[] = [
       <Chip
         label={params.value}
         variant="outlined"
-        color={
-          params.value === 'Inbound'
-            ? 'warning'
-            : params.value === 'Stock'
-            ? 'success'
-            : params.value === 'Cancelled'
-            ? 'error'
-            : 'default'
-        }
+        color={getStatusColor(params.value as string)}
       />
     ),
   },

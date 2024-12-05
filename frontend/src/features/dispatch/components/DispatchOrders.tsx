@@ -11,9 +11,9 @@ const DispatchOrders: React.FC<DispatchOrdersProps> = ({ orders }) => {
       <Typography variant="h5" className="font-bold mb-4 pb-4">RELATED ORDERS:</Typography>
       <div className="flex flex-wrap gap-2">
         {orders.length > 0 ? (
-          orders.map((order, index) => (
+          orders.map((order) => (
             <Typography
-              key={index}
+              key={order.toString()}
               variant="body1"
               className="bg-gray-100 px-4 py-2 rounded-md"
             >

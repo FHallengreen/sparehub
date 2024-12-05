@@ -18,9 +18,9 @@ const DispatchDetailForm: React.FC<DispatchDetailFormProps> = ({ title, fields }
     <div className="shadow-lg p-6 rounded-md bg-white">
       <Typography variant="h5" className="font-bold mb-4 pb-4">{title}</Typography>
       <div className="flex flex-col gap-4">
-        {fields.map((field, index) => (
+        {fields.map((field) => (
           <TextField
-            key={index}
+            key={field.label}
             label={field.label}
             value={field.value ?? ''} // Use an empty string if value is `null`
             onChange={(e) => field.onChange(field.type === 'number' ? +e.target.value : e.target.value)}

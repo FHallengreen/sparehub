@@ -38,8 +38,8 @@ export const dispatchColumns: GridColDef[] = [
       const orders = params.value as number[];
       return orders.length > 0 ? (
         <div>
-          {orders.map((order, index) => (
-            <Chip key={index} label={order} variant="outlined" sx={{ margin: 0.5 }} />
+          {orders.map((order) => (
+            <Chip key={order.toString()} label={order} variant="outlined" sx={{ margin: 0.5 }} />
           ))}
         </div>
       ) : (
