@@ -12,6 +12,7 @@ using Repository;
 using Repository.Interfaces;
 using Repository.MongoDb;
 using Repository.MySql;
+using Repository.Neo4J;
 using Server.Middleware;
 using Service;
 using Service.Interfaces;
@@ -100,6 +101,12 @@ builder.Services.AddScoped<IOrderRepository>(sp =>
     return databaseFactory.GetRepository<IOrderRepository>();
 });
 
+builder.Services.AddScoped<IVesselAtPortRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IVesselAtPortRepository>();
+});
+
 // Register services directly
 builder.Services.AddScoped<IDispatchService, DispatchService>();
 builder.Services.AddScoped<IBoxService, BoxService>();
@@ -130,6 +137,8 @@ builder.Services.AddScoped<BoxMongoDbRepository>();
 builder.Services.AddScoped<OrderMongoDbRepository>();
 builder.Services.AddScoped<DispatchMongoDbRepository>();
 
+// Register Neo4j repositories
+builder.Services.AddScoped<VesselAtPortNeo4jRepository>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(cfg =>

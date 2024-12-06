@@ -9,4 +9,8 @@ public class VesselAtPortRequest
     
     [Required (ErrorMessage = "Vessel Id is required.")]
     public required string VesselId { get; set; }
+    
+    public DateTime ArrivalDate { get; set; }
+    
+    public DateTime DepartureDate { get; set; }
 }

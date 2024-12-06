@@ -2,6 +2,7 @@
 using Repository.Interfaces;
 using Repository.MongoDb;
 using Repository.MySql;
+using Repository.Neo4J;
 using Service.Interfaces;
 
 namespace Service.Utils;
@@ -17,10 +18,11 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
         { (typeof(IOrderRepository), DatabaseType.MongoDb), typeof(OrderMongoDbRepository) },
         { (typeof(IDispatchRepository), DatabaseType.MySql), typeof(DispatchMySqlRepository) },
         { (typeof(IDispatchRepository), DatabaseType.MongoDb), typeof(DispatchMongoDbRepository) },
-    { (typeof(IPortService), DatabaseType.MySql), typeof(PortMySqlRepository) },
-    { (typeof(IVesselService), DatabaseType.MySql), typeof(VesselMySqlRepository) },
-    { (typeof(IOwnerService), DatabaseType.MySql), typeof(OwnerMySqlRepository) },
-    { (typeof(IVesselAtPortService), DatabaseType.MySql), typeof(VesselAtPortMySqlRepository) }
+    { (typeof(IPortRepository), DatabaseType.MySql), typeof(PortMySqlRepository) },
+    { (typeof(IVesselRepository), DatabaseType.MySql), typeof(VesselMySqlRepository) },
+    { (typeof(IOwnerRepository), DatabaseType.MySql), typeof(OwnerMySqlRepository) },
+    { (typeof(IVesselAtPortRepository), DatabaseType.MySql), typeof(VesselAtPortMySqlRepository) },
+    { (typeof(IVesselAtPortRepository), DatabaseType.Neo4j), typeof(VesselAtPortNeo4jRepository)}
     };
 
     public T GetRepository<T>() where T : class

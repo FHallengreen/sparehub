@@ -7,11 +7,11 @@ using AutoMapper;
 
 namespace Repository.Neo4J;
 
-public class VesselAtPortNeo4JRepository(IDriver driver, IMapper mapper) : IVesselAtPortRepository
+public class VesselAtPortNeo4jRepository(IAsyncSession asyncSession, IDriver driver, IMapper mapper) : IVesselAtPortRepository
 {
     public async Task<List<VesselAtPort>> GetVesselAtPortAsync()
     {
-        using var session = driver.AsyncSession();
+        await using var session = driver.AsyncSession();
 
         var query = @"
             MATCH (v:Vessel)-[:DOCKED_AT]->(p:Port)
@@ -36,7 +36,7 @@ public class VesselAtPortNeo4JRepository(IDriver driver, IMapper mapper) : IVess
         if (string.IsNullOrEmpty(vesselId))
             throw new ArgumentNullException(nameof(vesselId));
 
-        using var session = driver.AsyncSession();
+        await using var session = driver.AsyncSession();
         
         var query = @"
             MATCH (v:Vessel)-[:DOCKED_AT]->(p:Port)
@@ -61,7 +61,7 @@ public class VesselAtPortNeo4JRepository(IDriver driver, IMapper mapper) : IVess
         if (vesselAtPort == null)
             throw new ArgumentNullException(nameof(vesselAtPort));
 
-        using var session = driver.AsyncSession();
+        await using var session = driver.AsyncSession();
         
         // First check if the vessel already exists
         var checkQuery = @"
@@ -120,7 +120,7 @@ public class VesselAtPortNeo4JRepository(IDriver driver, IMapper mapper) : IVess
         if (string.IsNullOrEmpty(vesselId))
             throw new ArgumentNullException(nameof(vesselId));
 
-        using var session = driver.AsyncSession();
+        await using var session = driver.AsyncSession();
 
         // First check if vessel exists
         var checkQuery = @"
