@@ -1,26 +1,16 @@
 ﻿import * as React from 'react';
-import { useState, useEffect } from 'react';
-import axios from "axios";
+import { useState } from 'react';
 import {Link} from "react-router-dom";
 import {Button} from "@mui/material";
+import { supportedTables} from "../helpers/FrontendDatabase"
 
 const Databasepage: React.FC = () => {
 
-    const [tables, setTables] = useState<string[] | null>(null);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-
-        axios.get(`${import.meta.env.VITE_API_URL}/api/database/tableNames`)
-            .then(response => setTables(response.data))
-            .catch(err => setError(err.message));
-
-    }, []);
+    const tables = supportedTables
     return (
         <div>
             <h1>Database Tables</h1>
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            {tables != null && tables.length > 0 ? (
+            {tables.length > 0 ? (
                 <ul>
                     {tables.map(table => (
                         <li key={table}>

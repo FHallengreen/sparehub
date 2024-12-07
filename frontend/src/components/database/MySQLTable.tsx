@@ -2,12 +2,12 @@
 import { useState, useEffect } from 'react';
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { Table } from "../../interfaces/database";
-import { Button, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { tableApiMethodMapping } from "../../helpers/FrontendDatabase"
 
 const MySqlTable: React.FC = () => {
     const { table } = useParams<{ table: string }>();
@@ -47,7 +47,7 @@ const MySqlTable: React.FC = () => {
         // Simulate a successful save by updating local state
         setTableData((prev) => {
             if (!prev) return prev;
-            const updatedData = prev.data.map((row) =>
+            const updatedData = prev.map((row) =>
                 row.id === formData.id ? { ...formData } : row
             );
             return { ...prev, data: updatedData };
@@ -121,29 +121,4 @@ const MySqlTable: React.FC = () => {
     );
 };
 
-function tableApiMethodMapping(table: string | undefined): string | null{
-
-    switch (table) {
-        case "address":
-            return "api/address/search";
-        case "agent":
-            return "api/agent/search";
-        case "box":
-            return "api/box/search";
-        case "dispatch":
-            return "api/dispatch";
-        case "order":
-            return "api/order";
-        case "port":
-            return "api/port";
-        case "warehouse":
-            return "api/warehouse/search";
-        case "supplier":
-            return "api/supplier";
-        case "vessel":
-            return "api/vessel";
-        default:
-            return null;
-    }
-}
 export default MySqlTable;
