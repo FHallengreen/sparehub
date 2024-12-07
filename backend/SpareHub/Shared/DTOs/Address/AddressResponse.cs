@@ -1,8 +1,8 @@
-namespace Domain.Models;
+﻿namespace Shared.DTOs.Address;
 
-public class Address
+public class AddressResponse
 {
-    public string Id { get; set; } = null!;
+    public required string Id { get; set; }
     public required string AddressLine { get; set; }
     public required string PostalCode { get; set; }
     public required string Country { get; set; }

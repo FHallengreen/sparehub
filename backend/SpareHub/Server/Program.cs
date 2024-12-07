@@ -16,6 +16,7 @@ using Server.Middleware;
 using Service;
 using Service.Interfaces;
 using Service.Mapping;
+using Service.MySql.Address;
 using Service.MySql.Dispatch;
 using Service.MySql.Agent;
 using Service.MySql.Box;
@@ -100,6 +101,24 @@ builder.Services.AddScoped<IOrderRepository>(sp =>
     return databaseFactory.GetRepository<IOrderRepository>();
 });
 
+builder.Services.AddScoped<IAgentRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IAgentRepository>();
+});
+
+builder.Services.AddScoped<IWarehouseRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IWarehouseRepository>();
+});
+
+builder.Services.AddScoped<IAddressRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IAddressRepository>();
+});
+
 // Register services directly
 builder.Services.AddScoped<IDispatchService, DispatchService>();
 builder.Services.AddScoped<IBoxService, BoxService>();
@@ -115,6 +134,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddHttpClient<ITrackingService, TrackingService>();
 
+builder.Services.AddScoped<IAddressService, AddressService>();
 
 // Register MySQL repositories
 builder.Services.AddScoped<BoxMySqlRepository>();
@@ -124,6 +144,9 @@ builder.Services.AddScoped<OwnerMySqlRepository>();
 builder.Services.AddScoped<PortMySqlRepository>();
 builder.Services.AddScoped<VesselAtPortMySqlRepository>();
 builder.Services.AddScoped<VesselMySqlRepository>();
+builder.Services.AddScoped<AgentMySqlRepository>();
+builder.Services.AddScoped<WarehouseMySqlRepository>();
+builder.Services.AddScoped<AddressMySqlRepository>();
 
 // Register MongoDB repositories
 builder.Services.AddScoped<BoxMongoDbRepository>();
@@ -227,6 +250,7 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+// Configure CORS policy
 app.UseCors(corsPolicyBuilder =>
     corsPolicyBuilder.WithOrigins(
             "http://localhost:5173",

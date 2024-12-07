@@ -11,16 +11,37 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
 {
     private readonly Dictionary<(Type repositoryType, DatabaseType dbType), Type> _repositoryMappings = new()
     {
+        //Box
         { (typeof(IBoxRepository), DatabaseType.MySql), typeof(BoxMySqlRepository) },
         { (typeof(IBoxRepository), DatabaseType.MongoDb), typeof(BoxMongoDbRepository) },
+
+        //Order
         { (typeof(IOrderRepository), DatabaseType.MySql), typeof(OrderMySqlRepository) },
         { (typeof(IOrderRepository), DatabaseType.MongoDb), typeof(OrderMongoDbRepository) },
+
+        //Dispatch
         { (typeof(IDispatchRepository), DatabaseType.MySql), typeof(DispatchMySqlRepository) },
         { (typeof(IDispatchRepository), DatabaseType.MongoDb), typeof(DispatchMongoDbRepository) },
-    { (typeof(IPortService), DatabaseType.MySql), typeof(PortMySqlRepository) },
-    { (typeof(IVesselService), DatabaseType.MySql), typeof(VesselMySqlRepository) },
-    { (typeof(IOwnerService), DatabaseType.MySql), typeof(OwnerMySqlRepository) },
-    { (typeof(IVesselAtPortService), DatabaseType.MySql), typeof(VesselAtPortMySqlRepository) }
+
+        //Warehouse
+        { (typeof(IWarehouseRepository), DatabaseType.MySql), typeof(WarehouseMySqlRepository) },
+
+        //Agent
+        { (typeof(IAgentRepository), DatabaseType.MySql), typeof(AgentMySqlRepository) },
+        
+        //Address
+        { (typeof(IAddressRepository), DatabaseType.MySql), typeof(AddressMySqlRepository) },
+        
+        //Port
+        { (typeof(IPortService), DatabaseType.MySql), typeof(PortMySqlRepository) },
+        
+        //Vessel
+        { (typeof(IVesselService), DatabaseType.MySql), typeof(VesselMySqlRepository) },
+        { (typeof(IVesselAtPortService), DatabaseType.MySql), typeof(VesselAtPortMySqlRepository) },
+
+        //Owner
+        { (typeof(IOwnerService), DatabaseType.MySql), typeof(OwnerMySqlRepository) },
+        
     };
 
     public T GetRepository<T>() where T : class
