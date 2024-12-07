@@ -18,11 +18,14 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
         { (typeof(IOrderRepository), DatabaseType.MongoDb), typeof(OrderMongoDbRepository) },
         { (typeof(IDispatchRepository), DatabaseType.MySql), typeof(DispatchMySqlRepository) },
         { (typeof(IDispatchRepository), DatabaseType.MongoDb), typeof(DispatchMongoDbRepository) },
-    { (typeof(IPortRepository), DatabaseType.MySql), typeof(PortMySqlRepository) },
-    { (typeof(IVesselRepository), DatabaseType.MySql), typeof(VesselMySqlRepository) },
-    { (typeof(IOwnerRepository), DatabaseType.MySql), typeof(OwnerMySqlRepository) },
-    { (typeof(IVesselAtPortRepository), DatabaseType.MySql), typeof(VesselAtPortMySqlRepository) },
-    { (typeof(IVesselAtPortRepository), DatabaseType.Neo4j), typeof(VesselAtPortNeo4jRepository)}
+        { (typeof(IPortRepository), DatabaseType.MySql), typeof(PortMySqlRepository) },
+        { (typeof(IPortRepository), DatabaseType.Neo4j), typeof(PortNeo4jRepository)},
+        { (typeof(IVesselRepository), DatabaseType.MySql), typeof(VesselMySqlRepository) },
+        { (typeof(IVesselRepository), DatabaseType.Neo4j), typeof(VesselNeo4jRepository)},
+        { (typeof(IOwnerRepository), DatabaseType.MySql), typeof(OwnerMySqlRepository) },
+        { (typeof(IOwnerRepository), DatabaseType.Neo4j), typeof(OwnerNeo4jRepository)},
+        { (typeof(IVesselAtPortRepository), DatabaseType.MySql), typeof(VesselAtPortMySqlRepository) },
+        { (typeof(IVesselAtPortRepository), DatabaseType.Neo4j), typeof(VesselAtPortNeo4jRepository)}
     };
 
     public T GetRepository<T>() where T : class

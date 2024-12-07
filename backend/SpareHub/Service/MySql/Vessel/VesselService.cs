@@ -1,23 +1,22 @@
-using Repository.MySql;
+using Repository.Interfaces;
 using Service.Interfaces;
-using Shared;
 using Shared.DTOs.Owner;
 using Shared.DTOs.Vessel;
 using Shared.Exceptions;
 
 namespace Service.MySql.Vessel;
 
-public class VesselService(VesselMySqlRepository vesselMySqlRepository, OwnerMySqlRepository ownerMySqlRepository) : IVesselService
+public class VesselService(IVesselRepository vesselRepository,IOwnerRepository ownerRepository) : IVesselService
 {
 
     public async Task<List<VesselResponse>> GetVesselsBySearchQuery(string? searchQuery = "")
     {
-        return await vesselMySqlRepository.GetVesselsBySearchQueryAsync(searchQuery);
+        return await vesselRepository.GetVesselsBySearchQueryAsync(searchQuery);
     }
     
     public async Task<List<VesselResponse>> GetVessels()
     {
-        var vessels = await vesselMySqlRepository.GetVesselsAsync();
+        var vessels = await vesselRepository.GetVesselsAsync();
 
         if (vessels == null || vessels.Count == 0)
             throw new NotFoundException("No vessels found");
@@ -37,7 +36,7 @@ public class VesselService(VesselMySqlRepository vesselMySqlRepository, OwnerMyS
     }
     public async Task<VesselResponse> GetVesselById(string vesselId)
     {
-        var vessel = await vesselMySqlRepository.GetVesselByIdAsync(vesselId);
+        var vessel = await vesselRepository.GetVesselByIdAsync(vesselId);
         
         if (vessel == null)
             throw new NotFoundException($"Vessel with id '{vesselId}' not found");
@@ -58,7 +57,7 @@ public class VesselService(VesselMySqlRepository vesselMySqlRepository, OwnerMyS
 
     public async Task<VesselResponse> CreateVessel(VesselRequest vesselRequest)
     {
-        var owner = await ownerMySqlRepository.GetOwnerByIdAsync(vesselRequest.OwnerId);
+        var owner = await ownerRepository.GetOwnerByIdAsync(vesselRequest.OwnerId);
         if (owner == null)
             throw new NotFoundException($"Owner with id '{vesselRequest.OwnerId}' not found");
 
@@ -70,7 +69,7 @@ public class VesselService(VesselMySqlRepository vesselMySqlRepository, OwnerMyS
             Owner = owner
         };
 
-        var createdVessel = await vesselMySqlRepository.CreateVesselAsync(vessel);
+        var createdVessel = await vesselRepository.CreateVesselAsync(vessel);
 
         return new VesselResponse
         {
@@ -90,11 +89,11 @@ public class VesselService(VesselMySqlRepository vesselMySqlRepository, OwnerMyS
 
     public async Task<VesselResponse> UpdateVessel(string vesselId, VesselRequest vesselRequest)
     {
-        var vessel = await vesselMySqlRepository.GetVesselByIdAsync(vesselId);
+        var vessel = await vesselRepository.GetVesselByIdAsync(vesselId);
         if (vessel == null)
             throw new NotFoundException($"Vessel with id '{vesselId}' not found");
         
-        var owner = await ownerMySqlRepository.GetOwnerByIdAsync(vesselRequest.OwnerId);
+        var owner = await ownerRepository.GetOwnerByIdAsync(vesselRequest.OwnerId);
         if (owner == null)
             throw new NotFoundException($"Owner with id '{vesselRequest.OwnerId}' not found");
         
@@ -103,7 +102,7 @@ public class VesselService(VesselMySqlRepository vesselMySqlRepository, OwnerMyS
         if (vesselRequest.Flag != null) vessel.Flag = vesselRequest.Flag;
         vessel.Owner = owner;
         
-        await vesselMySqlRepository.UpdateVesselAsync(vesselId, vessel);
+        await vesselRepository.UpdateVesselAsync(vesselId, vessel);
         
         return new VesselResponse
         {
@@ -122,11 +121,14 @@ public class VesselService(VesselMySqlRepository vesselMySqlRepository, OwnerMyS
 
     public async Task DeleteVessel(string vesselId)
     {
-        var vessel = await vesselMySqlRepository.GetVesselByIdAsync(vesselId);
+        var vessel = await vesselRepository.GetVesselByIdAsync(vesselId);
         if (vessel == null)
             throw new NotFoundException($"Vessel with id '{vesselId}' not found");
         
-        await vesselMySqlRepository.DeleteVesselAsync(vesselId);
+        await vesselRepository.DeleteVesselAsync(vesselId);
     }
+    
+    
+    
 
 }

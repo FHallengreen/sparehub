@@ -1,5 +1,6 @@
 ﻿using Domain.Models;
 using Neo4j.Driver;
+using Persistence.Neo4j;
 using Repository.Interfaces;
 using Shared.Exceptions;
 

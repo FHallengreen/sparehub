@@ -1,4 +1,4 @@
-// Create Docking Relationships for Vessels stored in MySQL
+// Create Docking Relationships for Vessels stored in Neo4j
 
 // Docking at Rotterdam
 MATCH (p1:Port {name: 'Rotterdam'})

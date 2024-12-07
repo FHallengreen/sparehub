@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 using Service.Interfaces;
+using Service.MySql.Port;
 using Shared.DTOs.Port;
 using Shared.Exceptions;
 
@@ -8,17 +10,16 @@ namespace Server.PortController;
 
 [ApiController] 
 [Route("api/port")]
-    public class PortController(IDatabaseFactory databaseFactory) : ControllerBase
+[Authorize]
+    public class PortController(IPortService portService) : ControllerBase
     {
-        private readonly IPortService _portService = databaseFactory.GetRepository<IPortService>();
-        
         
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
         public async Task<IActionResult> GetPorts()
         {
-            var ports = await _portService.GetPorts();
+            var ports = await portService.GetPorts();
             return Ok(ports);
         }
         
@@ -27,7 +28,7 @@ namespace Server.PortController;
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
         public async Task<IActionResult> GetPortById(string portId)
         {
-            var port = await _portService.GetPortById(portId);
+            var port = await portService.GetPortById(portId);
             return Ok(port);
         }
         
@@ -37,7 +38,7 @@ namespace Server.PortController;
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
         public async Task<IActionResult> CreatePort(PortRequest portRequest)
         {
-            var port = await _portService.CreatePort(portRequest);
+            var port = await portService.CreatePort(portRequest);
             return CreatedAtAction(nameof(GetPortById), new { portId = port.Id }, port);
         }
         
@@ -47,7 +48,7 @@ namespace Server.PortController;
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
         public async Task<IActionResult> UpdatePort(string portId, [FromBody]PortRequest portRequest)
         {
-            var port = await _portService.UpdatePort(portId, portRequest);
+            var port = await portService.UpdatePort(portId, portRequest);
             return Ok(port);
         }
         
@@ -57,7 +58,7 @@ namespace Server.PortController;
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         public async Task<IActionResult> DeletePort(string portId)
         {
-            await _portService.DeletePort(portId);
+            await portService.DeletePort(portId);
             
             return Ok("Port deleted successfully");
             

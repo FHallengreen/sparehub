@@ -14,7 +14,6 @@ using Repository.MongoDb;
 using Repository.MySql;
 using Repository.Neo4J;
 using Server.Middleware;
-using Service;
 using Service.Interfaces;
 using Service.Mapping;
 using Service.MySql.Dispatch;
@@ -23,6 +22,7 @@ using Service.MySql.Box;
 using Service.MySql.Login;
 using Service.MySql.Order;
 using Service.MySql.Owner;
+using Service.MySql.Port;
 using Service.MySql.Supplier;
 using Service.MySql.Vessel;
 using Service.MySql.VesselAtPort;
@@ -107,6 +107,24 @@ builder.Services.AddScoped<IVesselAtPortRepository>(sp =>
     return databaseFactory.GetRepository<IVesselAtPortRepository>();
 });
 
+builder.Services.AddScoped<IVesselRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IVesselRepository>();
+});
+
+builder.Services.AddScoped<IPortRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IPortRepository>();
+});
+
+builder.Services.AddScoped<IOwnerRepository>(sp =>
+{
+    var databaseFactory = sp.GetRequiredService<IDatabaseFactory>();
+    return databaseFactory.GetRepository<IOwnerRepository>();
+});
+
 // Register services directly
 builder.Services.AddScoped<IDispatchService, DispatchService>();
 builder.Services.AddScoped<IBoxService, BoxService>();
@@ -114,6 +132,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IVesselService, VesselService>();
 builder.Services.AddScoped<IVesselAtPortService, VesselAtPortService>();
 builder.Services.AddScoped<IOwnerService, OwnerService>();
+builder.Services.AddScoped<IPortService, PortService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
@@ -139,6 +158,10 @@ builder.Services.AddScoped<DispatchMongoDbRepository>();
 
 // Register Neo4j repositories
 builder.Services.AddScoped<VesselAtPortNeo4jRepository>();
+builder.Services.AddScoped<PortNeo4jRepository>();
+builder.Services.AddScoped<VesselNeo4jRepository>();
+builder.Services.AddScoped<OwnerNeo4jRepository>();
+
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(cfg =>

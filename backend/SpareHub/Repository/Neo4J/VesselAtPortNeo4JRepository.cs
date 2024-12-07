@@ -7,7 +7,7 @@ using AutoMapper;
 
 namespace Repository.Neo4J;
 
-public class VesselAtPortNeo4jRepository(IAsyncSession asyncSession, IDriver driver, IMapper mapper) : IVesselAtPortRepository
+public class VesselAtPortNeo4jRepository(IDriver driver, IMapper mapper) : IVesselAtPortRepository
 {
     public async Task<List<VesselAtPort>> GetVesselAtPortAsync()
     {

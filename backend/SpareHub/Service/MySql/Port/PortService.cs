@@ -1,5 +1,5 @@
 
-using Repository.MySql;
+using Repository.Interfaces;
 using Service.Interfaces;
 using Shared.DTOs.Port;
 using Shared.Exceptions;
@@ -7,12 +7,12 @@ using Shared.Exceptions;
 
 namespace Service.MySql.Port;
 
-    public class PortService(PortMySqlRepository portMySqlRepository) : IPortService
+    public class PortService(IPortRepository portRepository) : IPortService
     {
         
         public async Task<List<PortResponse>> GetPorts()
         {
-            var ports = await portMySqlRepository.GetPortsAsync();
+            var ports = await portRepository.GetPortsAsync();
 
             if (ports == null || ports.Count == 0)
                 throw new NotFoundException("No ports found");
@@ -26,7 +26,7 @@ namespace Service.MySql.Port;
 
         public async Task<PortResponse> GetPortById(string portId)
         {
-            var port = await portMySqlRepository.GetPortByIdAsync(portId);
+            var port = await portRepository.GetPortByIdAsync(portId);
 
             if (port == null)
                 throw new NotFoundException($"Port with id '{portId}' not found");
@@ -45,7 +45,7 @@ namespace Service.MySql.Port;
                 Name = portRequest.Name
             };
 
-            var createdPort = await portMySqlRepository.CreatePortAsync(port);
+            var createdPort = await portRepository.CreatePortAsync(port);
 
             return new PortResponse
             {
@@ -57,7 +57,7 @@ namespace Service.MySql.Port;
 
         public async Task<PortResponse> UpdatePort(string portId, PortRequest portRequest)
         {
-            var port = await portMySqlRepository.GetPortByIdAsync(portId);
+            var port = await portRepository.GetPortByIdAsync(portId);
             if (port == null)
                 throw new NotFoundException($"Port with id '{portId}' not found");
 
@@ -65,7 +65,7 @@ namespace Service.MySql.Port;
             port.Name = portRequest.Name;
 
             // Save changes through the repository
-             await portMySqlRepository.UpdatePortAsync(portId, port);
+             await portRepository.UpdatePortAsync(portId, port);
 
             // Prepare the response
             return new PortResponse
@@ -78,11 +78,11 @@ namespace Service.MySql.Port;
 
         public async Task DeletePort(string portId)
         {
-            var port = await portMySqlRepository.GetPortByIdAsync(portId);
+            var port = await portRepository.GetPortByIdAsync(portId);
             if (port == null)
                 throw new NotFoundException($"Port with id '{portId}' not found");
 
-            await portMySqlRepository.DeletePortAsync(portId);
+            await portRepository.DeletePortAsync(portId);
         }
     }
 

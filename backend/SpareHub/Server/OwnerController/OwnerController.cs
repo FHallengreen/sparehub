@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Service;
 using Service.Interfaces;
 using Shared.DTOs.Owner;
@@ -8,9 +9,9 @@ namespace Server.OwnerController;
 
 [ApiController]
 [Route("api/owner")]
-public class OwnerController(IDatabaseFactory databaseFactory) : ControllerBase
+[Authorize]
+public class OwnerController(IOwnerService ownerService) : ControllerBase
 {
-    private readonly IOwnerService _ownerService = databaseFactory.GetRepository<IOwnerService>();
     
     
     [HttpGet]
@@ -18,7 +19,7 @@ public class OwnerController(IDatabaseFactory databaseFactory) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
     public async Task<IActionResult> GetOwners()
     {
-        var owners = await _ownerService.GetOwners();
+        var owners = await ownerService.GetOwners();
         return Ok(owners);
     }
     
@@ -27,7 +28,7 @@ public class OwnerController(IDatabaseFactory databaseFactory) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
     public async Task<IActionResult> GetOwnerById(string ownerId)
     {
-        var owner = await _ownerService.GetOwnerById(ownerId);
+        var owner = await ownerService.GetOwnerById(ownerId);
         return Ok(owner);
     }
 
@@ -37,7 +38,7 @@ public class OwnerController(IDatabaseFactory databaseFactory) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
     public async Task<IActionResult> CreateOwner(OwnerRequest ownerRequest)
     {
-        var owner = await _ownerService.CreateOwner(ownerRequest);
+        var owner = await ownerService.CreateOwner(ownerRequest);
         return CreatedAtAction(nameof(GetOwnerById), new { ownerId = owner.Id }, owner);
     }
     
@@ -47,7 +48,7 @@ public class OwnerController(IDatabaseFactory databaseFactory) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
     public async Task<IActionResult> UpdateOwner(string ownerId, [FromBody]OwnerRequest ownerRequest)
     {
-        var owner = await _ownerService.UpdateOwner(ownerId, ownerRequest);
+        var owner = await ownerService.UpdateOwner(ownerId, ownerRequest);
         return Ok(owner);
     }
     
@@ -57,7 +58,7 @@ public class OwnerController(IDatabaseFactory databaseFactory) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<IActionResult> DeleteOwner(string ownerId)
     {
-        await _ownerService.DeleteOwner(ownerId);
+        await ownerService.DeleteOwner(ownerId);
         return Ok("Owner deleted");
     }
 }

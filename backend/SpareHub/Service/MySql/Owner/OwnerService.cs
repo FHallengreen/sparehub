@@ -1,16 +1,16 @@
-﻿using Repository.MySql;
+﻿using Repository.Interfaces;
 using Service.Interfaces;
 using Shared.DTOs.Owner;
 using Shared.Exceptions;
 
 namespace Service.MySql.Owner;
 
-public class OwnerService(OwnerMySqlRepository ownerMySqlRepository) : IOwnerService
+public class OwnerService(IOwnerRepository ownerRepository) : IOwnerService
 {
     
     public async Task<List<OwnerResponse>> GetOwners()
     {
-        var owners = await ownerMySqlRepository.GetOwnersAsync();
+        var owners = await ownerRepository.GetOwnersAsync();
 
         if (owners == null || owners.Count == 0)
             throw new NotFoundException("No owners found");
@@ -24,7 +24,7 @@ public class OwnerService(OwnerMySqlRepository ownerMySqlRepository) : IOwnerSer
 
     public async Task<OwnerResponse> GetOwnerById(string ownerId)
     {
-        var owner = await ownerMySqlRepository.GetOwnerByIdAsync(ownerId);
+        var owner = await ownerRepository.GetOwnerByIdAsync(ownerId);
         
         if (owner == null)
             throw new NotFoundException($"Owner with id '{ownerId}' not found");
@@ -43,7 +43,7 @@ public class OwnerService(OwnerMySqlRepository ownerMySqlRepository) : IOwnerSer
             Name = ownerRequest.Name
         };
 
-        var createdOwner = await ownerMySqlRepository.CreateOwnerAsync(owner);
+        var createdOwner = await ownerRepository.CreateOwnerAsync(owner);
 
         return new OwnerResponse
         {
@@ -54,14 +54,14 @@ public class OwnerService(OwnerMySqlRepository ownerMySqlRepository) : IOwnerSer
     
     public async Task<OwnerResponse> UpdateOwner(string ownerId, OwnerRequest ownerRequest)
     {
-        var owner = await ownerMySqlRepository.GetOwnerByIdAsync(ownerId);
+        var owner = await ownerRepository.GetOwnerByIdAsync(ownerId);
         if (owner == null)
             throw new NotFoundException($"Owner with id '{ownerId}' not found");
         
         //Request the change of owner name
         owner.Name = ownerRequest.Name;
 
-        await ownerMySqlRepository.UpdateOwnerAsync(ownerId, owner);
+        await ownerRepository.UpdateOwnerAsync(ownerId, owner);
 
         return new OwnerResponse
         {
@@ -72,11 +72,11 @@ public class OwnerService(OwnerMySqlRepository ownerMySqlRepository) : IOwnerSer
 
     public async Task DeleteOwner(string ownerId)
     {
-        var owner = await ownerMySqlRepository.GetOwnerByIdAsync(ownerId);
+        var owner = await ownerRepository.GetOwnerByIdAsync(ownerId);
         if (owner == null)
             throw new NotFoundException($"Owner with id '{ownerId}' not found");
 
-        await ownerMySqlRepository.DeleteOwnerAsync(ownerId);
+        await ownerRepository.DeleteOwnerAsync(ownerId);
     }
 
     

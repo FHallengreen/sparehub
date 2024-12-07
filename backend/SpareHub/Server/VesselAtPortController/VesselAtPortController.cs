@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Repository.MySql;
 using Service;
 using Service.Interfaces;
@@ -9,6 +10,7 @@ namespace Server.VesselAtPortController;
 
 [ApiController]
 [Route("api/vessel-at-port")]
+[Authorize]
 public class VesselAtPortController(IVesselAtPortService vesselAtPortService) : ControllerBase
 {
     
