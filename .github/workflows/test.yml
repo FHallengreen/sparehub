@@ -30,6 +30,11 @@ jobs:
           echo "NEO4J_URL=bolt://neo4j:7687" >> .env
           echo "NEO4J_USERNAME=${{ secrets.NEO4J_USERNAME }}" >> .env
           echo "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "JWT_ISSUER=${{ secrets.JWT_ISSUER }}" >> .env
+          echo "JWT_AUDIENCE=${{ secrets.JWT_AUDIENCE }}" >> .env
+          echo "JWT_AUDIENCE=${{ secrets.DHL_API_KEY }}" >> .env
+          echo "JWT_AUDIENCE=${{ secrets.DHL_API_SECRET }}" >> .env
 
       - name: Set up Docker Compose
         run: |

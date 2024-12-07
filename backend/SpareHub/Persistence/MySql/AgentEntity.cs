@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Persistence.MySql;
-
 // Agent
 public class AgentEntity
 {

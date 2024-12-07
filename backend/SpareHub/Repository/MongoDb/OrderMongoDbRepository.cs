@@ -21,7 +21,7 @@ public class OrderMongoDbRepository (IMongoCollection<OrderCollection> collectio
         return mapper.Map<Order>(order);
     }
 
-    public async Task<IEnumerable<Order>> GetNonCancelledOrdersAsync()
+    public async Task<IEnumerable<Order>> GetNotActiveOrders()
     {
         var filter = Builders<OrderCollection>.Filter.Ne(order => order.OrderStatus, OrderStatus.Cancelled);
 

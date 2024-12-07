@@ -1,9 +1,11 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Persistence.MySql;
 using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
+using Shared.Exceptions;
 
 namespace Repository.MySql;
 
@@ -23,10 +25,10 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
         return orders;
     }
 
-    public async Task<IEnumerable<Order>> GetNonCancelledOrdersAsync()
+    public async Task<IEnumerable<Order>> GetNotActiveOrders()
     {
-        var nonCancelledOrderEntities = await dbContext.Orders
-            .FromSqlRaw("SELECT * FROM non_cancelled_orders")
+        var notActiveOrderEntities = await dbContext.Orders
+            .FromSqlRaw("SELECT * FROM not_active_orders")
             .Include(o => o.Supplier)
             .Include(o => o.Vessel)
             .ThenInclude(v => v.Owner)
@@ -34,7 +36,7 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
             .Include(o => o.Boxes)
             .ToListAsync();
 
-        var orders = mapper.Map<IEnumerable<Order>>(nonCancelledOrderEntities);
+        var orders = mapper.Map<IEnumerable<Order>>(notActiveOrderEntities);
         return orders;
     }
 
@@ -47,6 +49,7 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
             .Include(o => o.Warehouse)
             .ThenInclude(w => w.Agent)
             .Include(o => o.Boxes)
+            .AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id.ToString() == orderId);
 
         return orderEntity != null ? mapper.Map<Order>(orderEntity) : null;
@@ -72,10 +75,21 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
 
     public async Task DeleteOrderAsync(string orderId)
     {
-        var orderEntity = await dbContext.Orders.FindAsync(orderId);
-        if (orderEntity != null) dbContext.Orders.Remove(orderEntity);
+        if (!int.TryParse(orderId, out var id))
+        {
+            throw new ValidationException($"Invalid order ID: {orderId}. Must be a valid integer.");
+        }
+
+        var orderEntity = await dbContext.Orders.FindAsync(id);
+        if (orderEntity == null)
+        {
+            throw new NotFoundException($"Order with ID {id} not found.");
+        }
+
+        dbContext.Orders.Remove(orderEntity);
         await dbContext.SaveChangesAsync();
     }
+
 
 
     public Task<List<string>> GetAllOrderStatusesAsync()

@@ -1,14 +1,14 @@
 using AutoMapper;
 using Microsoft.Extensions.Caching.Memory;
 using Repository.Interfaces;
-using Repository.MySql;
 using Service.Interfaces;
-using Shared;
 using Shared.DTOs.Order;
 using Shared.DTOs.Owner;
 using Shared.DTOs.Supplier;
+using Shared.DTOs.Vessel;
 using Shared.DTOs.Warehouse;
 using Shared.Exceptions;
+
 
 namespace Service.MySql.Order;
 
@@ -74,13 +74,28 @@ public class OrderService(
         if (existingOrder == null)
             throw new NotFoundException($"No order found with id {orderId}");
 
-        mapper.Map(orderRequest, existingOrder);
+        orderRequest.Transporter = string.IsNullOrWhiteSpace(orderRequest.Transporter) ? null : orderRequest.Transporter;
 
+        mapper.Map(orderRequest, existingOrder);
         await orderRepository.UpdateOrderAsync(existingOrder);
 
         if (orderRequest.Boxes != null)
         {
-            await boxService.UpdateBoxes(orderId, orderRequest.Boxes);
+            var boxesToUpdate = orderRequest.Boxes.Where(b => !string.IsNullOrWhiteSpace(b.Id)).ToList();
+            var boxesToCreate = orderRequest.Boxes.Where(b => string.IsNullOrWhiteSpace(b.Id)).ToList();
+
+            if (boxesToUpdate.Any())
+            {
+                await boxService.UpdateBoxes(orderId, boxesToUpdate);
+            }
+
+            if (boxesToCreate.Any())
+            {
+                foreach (var newBox in boxesToCreate)
+                {
+                    await boxService.CreateBox(newBox, orderId);
+                }
+            }
         }
     }
 
@@ -101,6 +116,8 @@ public class OrderService(
             ActualReadiness = order.ActualReadiness,
             ExpectedArrival = order.ExpectedArrival,
             ActualArrival = order.ActualArrival,
+            TrackingNumber = order.TrackingNumber,
+            Transporter = order.Transporter,
             OrderStatus = order.OrderStatus,
             Supplier = new SupplierResponse
             {
@@ -145,16 +162,31 @@ public class OrderService(
     public async Task<List<string>> GetAllOrderStatusesAsync()
     {
         if (memoryCache.TryGetValue(OrderStatusCacheKey, out List<string>? cachedStatuses))
+        {
+            if (cachedStatuses == null || !cachedStatuses.Any())
+            {
+                cachedStatuses = await FetchAndCacheStatusesAsync();
+            }
+
             return cachedStatuses!;
+        }
 
-        cachedStatuses = await orderRepository.GetAllOrderStatusesAsync();
+        return await FetchAndCacheStatusesAsync();
+    }
 
-        var cacheEntryOptions = new MemoryCacheEntryOptions()
-            .SetAbsoluteExpiration(TimeSpan.FromHours(24));
+    private async Task<List<string>> FetchAndCacheStatusesAsync()
+    {
+        var statuses = await orderRepository.GetAllOrderStatusesAsync();
 
-        memoryCache.Set(OrderStatusCacheKey, cachedStatuses, cacheEntryOptions);
+        if (statuses.Count != 0)
+        {
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromHours(24));
 
-        return cachedStatuses;
+            memoryCache.Set(OrderStatusCacheKey, statuses, cacheEntryOptions);
+        }
+
+        return statuses;
     }
 
 
@@ -170,7 +202,9 @@ public class OrderService(
             WarehouseName = o.Warehouse.Name,
             OrderStatus = o.OrderStatus,
             Boxes = o.Boxes.Count,
-            TotalWeight = Math.Round(o.Boxes.Sum(b => b.Weight), 2)
+            TotalWeight = Math.Round(o.Boxes.Sum(b => b.Weight), 2),
+            TotalVolume = o.Boxes.Sum(b => b.Length * b.Width * b.Height),
+            TotalVolumetricWeight = o.Boxes.Sum(b => b.Length * b.Width * b.Height / 6000)
         }).ToList();
     }
 
@@ -198,6 +232,6 @@ public class OrderService(
                 .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
         }
 
-        return await orderRepository.GetNonCancelledOrdersAsync();
+        return await orderRepository.GetNotActiveOrders();
     }
 }

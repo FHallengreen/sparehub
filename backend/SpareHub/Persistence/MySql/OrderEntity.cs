@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
+
 namespace Persistence.MySql;
 
 public class OrderEntity
@@ -19,7 +20,8 @@ public class OrderEntity
     public DateTime? ExpectedArrival { get; set; }
     public DateTime? ActualArrival { get; set; }
     public string OrderStatus { get; set; } = null!;
-
+    public string? TrackingNumber { get; set; }
+    public string? Transporter { get; set; }
     public SupplierEntity Supplier { get; set; } = null!;
     public VesselEntity Vessel { get; set; } = null!;
     public WarehouseEntity Warehouse { get; set; } = null!;

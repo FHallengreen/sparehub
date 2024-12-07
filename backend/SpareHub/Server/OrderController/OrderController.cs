@@ -1,4 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
 using Service.Interfaces;
@@ -9,8 +11,9 @@ using Shared.Exceptions;
 namespace Server.OrderController;
 
 [ApiController]
+[Authorize]
 [Route("/api/order")]
-public class OrderController(IOrderService orderService) : ControllerBase
+public class OrderController(IOrderService orderService, ITrackingService trackingService) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderTableResponse>))]
@@ -70,5 +73,22 @@ public class OrderController(IOrderService orderService) : ControllerBase
     {
         await orderService.DeleteOrder(orderId);
         return Ok("Order deleted successfully");
+    }
+
+    [HttpGet("{orderId}/tracking/{trackingNumber}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
+    public async Task<IActionResult> GetOrderTrackingStatus(string orderId, string trackingNumber)
+    {
+        var order = await orderService.GetOrderById(orderId);
+        if (order == null)
+            throw new NotFoundException($"No order found with id {orderId}");
+        if (string.IsNullOrWhiteSpace(order.Transporter))
+            throw new ValidationException("Transporter is not set for this order.");
+
+        var trackingStatus = await trackingService.GetTrackingStatusAsync(trackingNumber, order.Transporter);
+
+        return Ok(trackingStatus);
     }
 }
