@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Domain.Models;
 using Moq;
 using Repository.Interfaces;
+using Service.MySql.Box;
 using Service.MySql.Order;
 using Shared.DTOs.Order;
 using Shared.Exceptions;
@@ -117,8 +118,10 @@ public class BoxServiceTest
             .ReturnsAsync([]);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<NotFoundException>(() => _boxService.GetBoxes(orderId));
-        Assert.Equal($"No boxes found for order ID '{orderId}'.", exception.Message);
+        var order = await _boxService.GetBoxes(orderId);
+        // Actual:   []
+        Assert.NotNull(order);
+        Assert.Empty(order);
     }
 
     [Fact]

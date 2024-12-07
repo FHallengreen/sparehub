@@ -1,5 +1,5 @@
 export interface Box {
-  id?: number; 
+  id?: number;
   length: number;
   width: number;
   height: number;
@@ -19,6 +19,8 @@ export interface OrderDetail {
   expectedArrival?: Date | null;
   actualArrival?: Date | null;
   boxes: Box[] | null;
+  transporter: '',  
+  trackingNumber: '',
 }
 
 
@@ -35,6 +37,8 @@ export interface OrderRequest {
   warehouseId: number;
   orderStatus: string;
   boxes?: Box[];
+  transporter?: string; 
+  trackingNumber?: string; 
 }
 
 
@@ -48,6 +52,7 @@ export interface Order {
   ownerName: Owner;
   totalWeight: number;
   boxes: number;
+  totalVolume: number;
 }
 
 export interface Supplier {
@@ -98,12 +103,16 @@ export interface OrderRow {
   stockLocation: string;
   pieces: number;
   weight: number;
+  volume: number;
+  volumetricWeight: number;
 }
 
 export interface StockLocationSummary {
   orders: number;
   pieces: number;
   weight: number;
+  volume: number;
+  volumetricWeight: number;
 }
 
 export interface LoginRequest {

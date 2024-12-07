@@ -48,6 +48,15 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasMaxLength(45)
                 .HasColumnName("supplier_order_number");
 
+            entity.Property(e => e.TrackingNumber)
+                .HasMaxLength(45)
+                .HasColumnName("tracking_number");
+
+            entity.Property(e => e.Transporter)
+                .HasColumnName("transporter")
+                .IsRequired(false);
+
+
             entity.HasOne(o => o.Supplier)
                 .WithMany()
                 .HasForeignKey(o => o.SupplierId)
@@ -83,6 +92,7 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasConstraintName("fk_box_order1")
                 .OnDelete(DeleteBehavior.NoAction);
         });
+
 
         modelBuilder.Entity<BoxEntity>(entity =>
         {
@@ -574,7 +584,6 @@ public class SpareHubDbContext(DbContextOptions<SpareHubDbContext> options) : Db
                 .HasConstraintName("fk_operator_user1")
                 .OnDelete(DeleteBehavior.Cascade);
         });
-
 
 
 // CostType Configuration

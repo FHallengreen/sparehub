@@ -19,6 +19,7 @@ using Service.Mapping;
 using Service.MySql.Address;
 using Service.MySql.Dispatch;
 using Service.MySql.Agent;
+using Service.MySql.Box;
 using Service.MySql.Login;
 using Service.MySql.Order;
 using Service.MySql.Owner;
@@ -26,6 +27,7 @@ using Service.MySql.Supplier;
 using Service.MySql.Vessel;
 using Service.MySql.VesselAtPort;
 using Service.MySql.Warehouse;
+using Service.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -130,6 +132,8 @@ builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddHttpClient<ITrackingService, TrackingService>();
+
 builder.Services.AddScoped<IAddressService, AddressService>();
 
 // Register MySQL repositories
@@ -167,11 +171,11 @@ var connectionString = string.Format("server={0};port={1};database={2};user={3};
 
 // Register the DbContext with MySQL configuration
 builder.Services.AddDbContext<SpareHubDbContext>(options =>
-        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
             mySqlOptions => mySqlOptions.EnableStringComparisonTranslations()
         )
-// .EnableSensitiveDataLogging()
-// .LogTo(Console.WriteLine, LogLevel.Information)
+        /*.EnableSensitiveDataLogging()
+        .LogTo(Console.WriteLine, LogLevel.Information)*/
 );
 
 // MongoDB configuration
@@ -236,7 +240,9 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration.GetValue<string>("JWT_ISSUER"),
             ValidAudience = builder.Configuration.GetValue<string>("JWT_AUDIENCE"),
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JWT_SECRET_KEY")!)),
+            IssuerSigningKey =
+                new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JWT_SECRET_KEY")!)),
             RoleClaimType = ClaimTypes.Role
         };
     });
@@ -248,7 +254,8 @@ var app = builder.Build();
 app.UseCors(corsPolicyBuilder =>
     corsPolicyBuilder.WithOrigins(
             "http://localhost:5173",
-            "https://sparehub.fhallengreen.com"
+            "https://sparehub.fhallengreen.com",
+            "https://calm-glacier-0be18fe03.4.azurestaticapps.net/"
         )
         .AllowAnyMethod()
         .AllowAnyHeader());
@@ -269,6 +276,7 @@ app.UseAuthorization();
 app.UseMiddleware<ValidationExceptionMiddleware>();
 
 app.MapControllers();
+
 
 await app.RunAsync();
 

@@ -2,9 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Shared.DTOs.Order;
 
+using System.ComponentModel.DataAnnotations;
+
 public record OrderRequest
 {
-     [Required(ErrorMessage = "OrderNumber is required.")]
+    [Required(ErrorMessage = "OrderNumber is required.")]
     [MaxLength(45, ErrorMessage = "OrderNumber cannot exceed 45 characters.")]
     public string OrderNumber { get; init; } = null!;
 
@@ -39,6 +41,13 @@ public record OrderRequest
     [Required(ErrorMessage = "OrderStatus is required.")]
     [MaxLength(20, ErrorMessage = "OrderStatus cannot exceed 20 characters.")]
     public string OrderStatus { get; init; } = null!;
+
+    [MaxLength(45, ErrorMessage = "TrackingNumber cannot exceed 45 characters.")]
+    public string? TrackingNumber { get; init; }
+
+    [RegularExpression(@"^(DHL|FEDEX|GLS)?$", ErrorMessage = "Invalid transporter.")]
+    public string? Transporter { get; set; }
+
 
     public List<BoxRequest>? Boxes { get; init; }
 }

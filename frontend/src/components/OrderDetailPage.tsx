@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaLink } from 'react-icons/fa6';
 import { CircularProgress, Typography, Button, TextField, IconButton } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { OrderDetail, Box as OrderBox, VesselOption, OrderRequest, SupplierOption, Warehouse, Agent } from '../interfaces/order.ts';
@@ -34,6 +35,17 @@ const OrderDetailPage: React.FC = () => {
     const debouncedWarehouseQuery = useDebounce(warehouseQuery, 300);
     const debouncedAgentQuery = useDebounce(agentQuery, 300);
 
+    const [transporters] = React.useState<string[]>(['DHL', 'FEDEX', 'GLS']);
+    const [selectedTransporter, setSelectedTransporter] = React.useState<string>('');
+    const [trackingNumber, setTrackingNumber] = React.useState<string>('');
+    const [trackingStatus, setTrackingStatus] = React.useState<{
+        currentStep: string;
+        statusDescription: string;
+        location: string;
+        timestamp: string;
+        estimatedDelivery: string;
+    } | null>(null);
+
     React.useEffect(() => {
         const fetchOrder = async () => {
             try {
@@ -43,12 +55,17 @@ const OrderDetailPage: React.FC = () => {
                 if (!isNewOrder) {
                     const orderResponse = await api.get<OrderDetail>(`${import.meta.env.VITE_API_URL}/api/order/${id}`);
 
-                    setOrder({
-                        ...orderResponse.data,
-                        boxes: orderResponse.data.boxes ?? []
-                    });
-                    setEditableBoxes(Array(orderResponse.data.boxes?.length ?? 0).fill(false));
+                    const fetchedOrder = orderResponse.data;
 
+                    setOrder({
+                        ...fetchedOrder,
+                        boxes: fetchedOrder.boxes ?? []
+                    });
+
+                    setSelectedTransporter(fetchedOrder.transporter || '');
+                    setTrackingNumber(fetchedOrder.trackingNumber || '');
+
+                    setEditableBoxes(Array(fetchedOrder.boxes?.length ?? 0).fill(false));
                 } else {
                     setOrder({
                         id: 0,
@@ -63,6 +80,8 @@ const OrderDetailPage: React.FC = () => {
                         warehouse: { id: 0, name: '', agent: { id: 0, name: '' } },
                         orderStatus: 'Pending',
                         boxes: [],
+                        transporter: '',
+                        trackingNumber: '',
                     });
                     setEditableBoxes([]);
                 }
@@ -164,6 +183,7 @@ const OrderDetailPage: React.FC = () => {
         }
     };
 
+
     const handleSave = async () => {
         if (!order) return;
 
@@ -185,6 +205,8 @@ const OrderDetailPage: React.FC = () => {
                 height: box.height,
                 weight: box.weight,
             })) || [],
+            transporter: selectedTransporter,
+            trackingNumber: trackingNumber,
         };
 
         try {
@@ -206,11 +228,29 @@ const OrderDetailPage: React.FC = () => {
             showSnackbar('Failed to save order.', 'error');
         }
     };
+    const refreshTrackingStatus = async () => {
+        if (!selectedTransporter || !trackingNumber) {
+            showSnackbar('Please select a transporter and enter a tracking number.', 'warning');
+            return;
+        }
 
+        try {
+            const response = await api.get(`${import.meta.env.VITE_API_URL}/api/order/${order?.id}/tracking/${trackingNumber}`);
+
+            setTrackingStatus(response.data);
+            showSnackbar('Tracking status updated.', 'success');
+        } catch (error) {
+            console.error('Failed to fetch tracking status', error);
+            showSnackbar('Failed to fetch tracking status. Please try again.', 'error');
+        }
+    };
+
+    const getDhlTrackingUrl = (trackingNumber: string) =>
+        `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${trackingNumber}&submit=1&inputsource=flyout`;
 
     React.useEffect(() => {
         if (debouncedVesselQuery.length >= 3) {
-            api.get<VesselOption[]>(`${import.meta.env.VITE_API_URL}/api/vessel`, {
+            api.get<VesselOption[]>(`${import.meta.env.VITE_API_URL}/api/vessel/query`, {
                 params: { searchQuery: debouncedVesselQuery }
             })
                 .then(response => {
@@ -504,7 +544,84 @@ const OrderDetailPage: React.FC = () => {
                                 </div>
                             </div>
                         </div>
+                        <div className="shadow-lg p-6 rounded-md bg-white">
+                            <Typography variant="h5" className="font-bold mb-4 pb-4 text-gray-800">
+                                Transport and Tracking
+                            </Typography>
+                            <div className="flex flex-col gap-6">
+                                <div className="w-full">
+                              
+                                    <select
+                                        value={selectedTransporter}
+                                        onChange={(e) => setSelectedTransporter(e.target.value)}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                                    >
+                                        <option value="" disabled>
+                                            Select Transporter
+                                        </option>
+                                        {transporters.map((transporter) => (
+                                            <option key={transporter} value={transporter}>
+                                                {transporter}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="w-full">
+                                 
+                                    <div className="flex items-center">
+                                        <TextField
+                                            label="Tracking Number"
+                                            value={trackingNumber}
+                                            onChange={(e) => setTrackingNumber(e.target.value)}
+                                            fullWidth
+                                            variant="outlined"
+                                        />
+                                        {selectedTransporter === 'DHL' && trackingNumber && (
+                                            <a
+                                                href={getDhlTrackingUrl(trackingNumber)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="ml-2 text-blue-500 hover:text-blue-700"
+                                                aria-label="Track package on DHL"
+                                            >
+                                                <FaLink size={20} />
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+
+
+                                <div className="flex justify-start mt-4">
+                                    <Button
+                                        onClick={refreshTrackingStatus}
+                                        variant="contained"
+                                        color="primary"
+                                    >
+                                        Refresh Status
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {trackingStatus && (
+                                <div className="mt-6 p-4 border border-gray-300 rounded-md bg-gray-50">
+                                    <Typography variant="h6" className="font-bold text-gray-700 mb-3">
+                                        Current Status
+                                    </Typography>
+                                    <Typography className="text-gray-800">
+                                        <strong>Status:</strong> {trackingStatus.statusDescription}
+                                    </Typography>
+                                    <Typography className="text-gray-800">
+                                        <strong>Location:</strong> {trackingStatus.location}
+                                    </Typography>
+                                    <Typography className="text-gray-800">
+                                        <strong>Estimated Delivery:</strong> {trackingStatus.estimatedDelivery}
+                                    </Typography>
+                                </div>
+                            )}
+                        </div>
                     </div>
+
                     <Typography variant="h6" className="text-xl font-semibold mt-6 mb-4 pb-5">Boxes</Typography>
 
                     {order.boxes && order.boxes.map((box, index) => (

@@ -1,4 +1,4 @@
-﻿namespace Service;
+﻿namespace Service.Utils;
 
 public enum DatabaseType
 {

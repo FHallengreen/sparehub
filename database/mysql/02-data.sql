@@ -54,6 +54,14 @@ INSERT INTO agent (name) VALUES
 ('Premier Shipping');                              -- id = 5 (Brussels)
 
 -- -------------------------------
+-- Insert Data into transporter
+-- -------------------------------
+INSERT INTO transporter (transporter) VALUES
+('DHL'),
+('FEDEX'),
+('GLS');
+
+-- -------------------------------
 -- Insert Data into warehouse
 -- -------------------------------
 INSERT INTO warehouse (name, agent_id, address_id) VALUES
