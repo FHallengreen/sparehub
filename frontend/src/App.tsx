@@ -12,6 +12,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './components/LoginPage';
 import NotFoundPage from './components/NotFoundPage';
 import { AuthProvider } from './context/AuthContext';
+import DatabasePage from './components/databasePage';
+import MySQLTable from "./components/database/MySQLTable";
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -90,6 +92,23 @@ function App() {
                 }
               />
               <Route
+                  path="/database"
+                  element={
+                    <ProtectedRoute>
+                        <DatabasePage />
+                    </ProtectedRoute>
+                    }
+               />
+                <Route
+                    path="/database/:table"
+                    element={
+                        <ProtectedRoute>
+                            <MySQLTable />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
                 path="/"
                 element={
                   <ProtectedRoute>

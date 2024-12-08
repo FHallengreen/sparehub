@@ -18,8 +18,8 @@ public class WarehouseService(IWarehouseRepository warehouseRepo, IAgentReposito
         {
             //Print all values in warehouse
             Console.WriteLine(w.Id + ": " + w.Name);
-            Console.WriteLine(w.Address);
-            Console.WriteLine(w.Agent);
+            Console.WriteLine(w.Address == null ? "address is Null" : w.Address);
+            Console.WriteLine(w.Agent == null ? "agent is Null" : w.Agent);
             
         }
         return warehouses.Select(w => new WarehouseResponse

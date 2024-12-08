@@ -9,7 +9,7 @@ namespace Server.WarehouseController;
 [Route("api/warehouse")]
 public class WarehouseController(IWarehouseService warehouseService) : ControllerBase
 {
-    [HttpGet("search")]
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<WarehouseResponse>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]

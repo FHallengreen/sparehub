@@ -8,7 +8,7 @@ namespace Server.AddressController;
 [Route("api/address")]
 public class AddressController(IAddressService addressService) : ControllerBase
 {
-    [HttpGet("search")]
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AddressResponse>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]

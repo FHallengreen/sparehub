@@ -8,12 +8,12 @@ using Shared.DTOs.Order;
 namespace Server.AgentController;
 
 [ApiController]
-[Route("api/agents")]
+[Route("api/agent")]
 [Authorize]
 public class AgentController(IAgentService agentService) : ControllerBase
 {
     
-    [HttpGet("search")]
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AgentResponse>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
