@@ -1,11 +1,12 @@
 import React from 'react';
 import { Typography, Button } from '@mui/material';
-import { OrderRow, StockLocationSummary } from '../interfaces/order.ts';
+import { StockLocationSummary } from '../interfaces/order.ts';
 
 interface SummaryPanelProps {
-  selectedRows: Set<string>;
-  allRows: OrderRow[];
+  selectedRows: Set<string | number>; // Allow both string and number
+  allRows: Array<{ id: string | number; [key: string]: any }>; // Update type for rows
 }
+
 
 type StockLocationData = {
     [location: string]: StockLocationSummary;

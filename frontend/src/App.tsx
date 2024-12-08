@@ -1,16 +1,16 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { GiHamburgerMenu } from 'react-icons/gi';
-import OrderPage from './components/OrderTable';
-import OrderDetailPage from './components/OrderDetailPage';
+import OrderPage from './features/order/pages/OrderPage.tsx';
+import OrderDetailPage from './features/order/pages/OrderDetailPage.tsx';
 import Sidebar from './components/SideBar';
-import { SnackbarProvider } from './components/SnackbarContext';
-import DispatchPage from "./components/DispatchPage.tsx";
-import DispatchDetailPage from "./components/DispatchDetailPage.tsx";
-import NewDispatchPage from "./components/NewDispatchPage.tsx";
+import { SnackbarProvider } from './context/SnackbarContext.tsx';
+import DispatchPage from "./features/dispatch/pages/DispatchPage.tsx";
+import DispatchDetailPage from "./features/dispatch/pages/DispatchDetailPage.tsx";
+import NewDispatchPage from "./features/dispatch/pages/NewDispatchPage.tsx";
 import ProtectedRoute from './components/ProtectedRoute';
-import LoginPage from './components/LoginPage';
-import NotFoundPage from './components/NotFoundPage';
+import LoginPage from './pages/LoginPage.tsx';
+import NotFoundPage from './pages/NotFoundPage.tsx';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
