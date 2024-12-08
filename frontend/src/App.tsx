@@ -12,7 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './components/LoginPage';
 import NotFoundPage from './components/NotFoundPage';
 import { AuthProvider } from './context/AuthContext';
-import DatabasePage from './components/DatabasePage';
+import DatabasePage from './components/databasePage';
 import MySQLTable from "./components/database/MySQLTable";
 
 function App() {

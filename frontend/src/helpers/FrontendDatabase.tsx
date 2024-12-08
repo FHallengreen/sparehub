@@ -11,17 +11,17 @@ export function tableApiMethodMapping(table: string | undefined): string | null{
 
     switch (table) {
         case "address":
-            return "api/address/search";
+            return "address";
         case "agent":
-            return "api/agent/search";
+            return "agent";
         case "port":
-            return "api/port";
+            return "port";
         case "warehouse":
-            return "api/warehouse/search";
+            return "warehouse";
         case "supplier":
-            return "api/supplier";
+            return "supplier";
         case "vessel":
-            return "api/vessel";
+            return "vessel";
         default:
             return null;
     }

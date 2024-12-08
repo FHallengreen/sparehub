@@ -1,8 +1,7 @@
 ﻿import * as React from 'react';
-import { useState } from 'react';
 import {Link} from "react-router-dom";
 import {Button} from "@mui/material";
-import { supportedTables} from "../helpers/FrontendDatabase"
+import { supportedTables } from "../helpers/FrontendDatabase"
 
 const Databasepage: React.FC = () => {
 
