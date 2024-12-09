@@ -58,42 +58,55 @@ public class VesselAtPortNeo4jRepository(IDriver driver, IMapper mapper) : IVess
 
     public async Task<VesselAtPort> AddVesselToPortAsync(VesselAtPort vesselAtPort)
     {
+        await using var session = driver.AsyncSession();
+
         if (vesselAtPort == null)
             throw new ArgumentNullException(nameof(vesselAtPort));
 
-        await using var session = driver.AsyncSession();
-        
-        // First check if the vessel already exists
-        var checkQuery = @"
+        // Check if the vessel exists
+        var checkVesselQuery = @"
             MATCH (v:Vessel {id: $vesselId})
             RETURN v";
 
-        var checkResult = await session.RunAsync(checkQuery, new { vesselId = vesselAtPort.VesselId });
-        if (!await checkResult.FetchAsync())
+        var checkVesselResult = await session.RunAsync(checkVesselQuery, new { vesselId = vesselAtPort.VesselId });
+        if (!await checkVesselResult.FetchAsync())
         {
-            throw new InvalidOperationException("Vessel does not exist");
+            throw new NotFoundException($"Vessel with id '{vesselAtPort.VesselId}' not found");
         }
-        
-        // Now associate the existing vessel with the port
-        var query = @"
-            MERGE (p:Port {id: $portId})
-            MATCH (v:Vessel {id: $vesselId})
-            CREATE (v)-[:DOCKED_AT]->(p)";
 
-        var parameters = new {
+        // Check if the port exists
+        var checkPortQuery = @"
+            MATCH (p:Port {id: $portId})
+            RETURN p";
+
+        var checkPortResult = await session.RunAsync(checkPortQuery, new { portId = vesselAtPort.PortId });
+        if (!await checkPortResult.FetchAsync())
+        {
+            throw new NotFoundException($"Port with id '{vesselAtPort.PortId}' not found");
+        }
+
+        // Create the relationship
+        var query = @"
+            MATCH (v:Vessel {id: $vesselId})
+            MATCH (p:Port {id: $portId})
+            MERGE (v)-[r:DOCKED_AT]->(p)
+            RETURN v.id as vesselId, p.id as portId";
+
+        var parameters = new
+        {
             portId = vesselAtPort.PortId,
             vesselId = vesselAtPort.VesselId
         };
 
-        await session.RunAsync(query, parameters);
+        var result = await session.RunAsync(query, parameters);
+        var record = await result.SingleAsync();
 
-        // Return the updated VesselAtPort object
         return new VesselAtPort
         {
-            VesselId = vesselAtPort.VesselId,
-            PortId = vesselAtPort.PortId,
-            ArrivalDate = null, // Set as needed
-            DepartureDate = null // Set as needed
+            VesselId = record["vesselId"].As<string>(),
+            PortId = record["portId"].As<string>(),
+            ArrivalDate = vesselAtPort.ArrivalDate,
+            DepartureDate = vesselAtPort.DepartureDate
         };
     }
 

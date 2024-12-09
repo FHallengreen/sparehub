@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Repository.MySql;
-using Service;
+using Repository.Interfaces;
 using Service.Interfaces;
 using Shared.DTOs.VesselAtPort;
 using Shared.Exceptions;
@@ -17,9 +16,9 @@ public class VesselAtPortController(IVesselAtPortService vesselAtPortService) : 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-    public async Task<IActionResult> GetVesselAtPorts(VesselMySqlRepository vesselMySqlRepository)
+    public async Task<IActionResult> GetVesselAtPorts(IVesselRepository vesselRepository)
     {
-        var vesselAtPorts = await vesselAtPortService.GetVesselAtPorts(vesselMySqlRepository);
+        var vesselAtPorts = await vesselAtPortService.GetVesselAtPorts(vesselRepository);
         
         return Ok(vesselAtPorts);
     }
@@ -27,9 +26,9 @@ public class VesselAtPortController(IVesselAtPortService vesselAtPortService) : 
     [HttpGet("{vesselId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-    public async Task<IActionResult> GetVesselByIdAtPort(string vesselId, VesselMySqlRepository vesselMySqlRepository)
+    public async Task<IActionResult> GetVesselByIdAtPort(string vesselId, IVesselRepository vesselRepository)
     {
-        var vesselAtPort = await vesselAtPortService.GetVesselByIdAtPort(vesselId, vesselMySqlRepository);
+        var vesselAtPort = await vesselAtPortService.GetVesselByIdAtPort(vesselId, vesselRepository);
         
         return Ok(vesselAtPort);
     }
@@ -39,9 +38,9 @@ public class VesselAtPortController(IVesselAtPortService vesselAtPortService) : 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
     public async Task<IActionResult> AddVesselToPort([FromBody] VesselAtPortRequest vesselAtPortRequest, 
-        VesselMySqlRepository vesselMySqlRepository)
+        IVesselRepository vesselRepository)
     {
-        var vesselAtPort = await vesselAtPortService.AddVesselToPort(vesselAtPortRequest, vesselMySqlRepository);
+        var vesselAtPort = await vesselAtPortService.AddVesselToPort(vesselAtPortRequest, vesselRepository);
         
         return CreatedAtAction(nameof(GetVesselByIdAtPort), 
             new { vesselId = vesselAtPort.Vessels[0].Id }, vesselAtPort);
@@ -52,9 +51,9 @@ public class VesselAtPortController(IVesselAtPortService vesselAtPortService) : 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
     public async Task<IActionResult> ChangePortForVessel([FromBody] VesselAtPortRequest vesselAtPortRequest, 
-        VesselMySqlRepository vesselMySqlRepository)
+        IVesselRepository vesselRepository)
     {
-        var vesselAtPort = await vesselAtPortService.ChangePortForVesselAsync(vesselAtPortRequest, vesselMySqlRepository);
+        var vesselAtPort = await vesselAtPortService.ChangePortForVesselAsync(vesselAtPortRequest, vesselRepository);
         
         return Ok(vesselAtPort);
     }

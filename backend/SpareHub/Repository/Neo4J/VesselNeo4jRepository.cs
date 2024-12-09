@@ -94,6 +94,19 @@ public class VesselNeo4jRepository(IDriver driver) : IVesselRepository
     {
         await using var session = driver.AsyncSession();
 
+        // Ensure the ID is generated if not provided
+        if (string.IsNullOrEmpty(vessel.Id))
+        {
+            vessel = new Vessel
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = vessel.Name,
+                ImoNumber = vessel.ImoNumber,
+                Flag = vessel.Flag,
+                Owner = vessel.Owner
+            };
+        }
+
         var query = @"
             MATCH (o:Owner {id: $ownerId})
             CREATE (v:Vessel {

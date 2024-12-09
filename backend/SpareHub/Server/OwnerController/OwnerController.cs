@@ -26,7 +26,7 @@ public class OwnerController(IOwnerService ownerService) : ControllerBase
     [HttpGet ("{ownerId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-    public async Task<IActionResult> GetOwnerById(string ownerId)
+    public async Task<IActionResult> GetOwnerById([FromRoute] string ownerId)
     {
         var owner = await ownerService.GetOwnerById(ownerId);
         return Ok(owner);
@@ -36,17 +36,21 @@ public class OwnerController(IOwnerService ownerService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(OwnerResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
-    public async Task<IActionResult> CreateOwner(OwnerRequest ownerRequest)
+    public async Task<IActionResult> CreateOwner([FromBody]OwnerRequest ownerRequest)
     {
         var owner = await ownerService.CreateOwner(ownerRequest);
-        return CreatedAtAction(nameof(GetOwnerById), new { ownerId = owner.Id }, owner);
+        return CreatedAtAction(
+            actionName: nameof(GetOwnerById),
+            routeValues: new { ownerId = owner.Id },
+            value: owner
+        );
     }
     
     [HttpPut ("{ownerId}")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(OwnerResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
-    public async Task<IActionResult> UpdateOwner(string ownerId, [FromBody]OwnerRequest ownerRequest)
+    public async Task<IActionResult> UpdateOwner([FromRoute] string ownerId, [FromBody] OwnerRequest ownerRequest)
     {
         var owner = await ownerService.UpdateOwner(ownerId, ownerRequest);
         return Ok(owner);
@@ -56,7 +60,7 @@ public class OwnerController(IOwnerService ownerService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
-    public async Task<IActionResult> DeleteOwner(string ownerId)
+    public async Task<IActionResult> DeleteOwner([FromRoute] string ownerId)
     {
         await ownerService.DeleteOwner(ownerId);
         return Ok("Owner deleted");

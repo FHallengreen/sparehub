@@ -1,5 +1,4 @@
 ﻿using Repository.Interfaces;
-using Repository.MySql;
 using Service.Interfaces;
 using Shared.DTOs.Owner;
 using Shared.DTOs.Vessel;
@@ -11,13 +10,14 @@ namespace Service.MySql.VesselAtPort;
 
 public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository) : IVesselAtPortService
 {
-    public async Task<List<VesselAtPortResponse>> GetVesselAtPorts(VesselMySqlRepository vesselMySqlRepository)
+
+    public async Task<List<VesselAtPortResponse>> GetVesselAtPorts(IVesselRepository vesselRepository)
     {
         var vesselsAtPorts = await vesselAtPortRepository.GetVesselAtPortAsync();
         var vesselAtPortResponses = new List<VesselAtPortResponse>();
         foreach (var vesselAtPort in vesselsAtPorts)
         {
-            var vessel = await vesselMySqlRepository.GetVesselByIdAsync(vesselAtPort.VesselId);
+            var vessel = await vesselRepository.GetVesselByIdAsync(vesselAtPort.VesselId);
             var vesselAtPortResponse = new VesselAtPortResponse
             {
                 PortId = vesselAtPort.PortId,
@@ -41,11 +41,11 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository)
         }
         return vesselAtPortResponses;
     }
-    
-    public async Task<VesselAtPortResponse> GetVesselByIdAtPort(string vesselId, VesselMySqlRepository vesselMySqlRepository)
+
+    public async Task<VesselAtPortResponse> GetVesselByIdAtPort(string vesselId, IVesselRepository vesselRepository)
     {
         var vesselAtPort = await vesselAtPortRepository.GetVesselByIdAtPortAsync(vesselId);
-        var vessel = await vesselMySqlRepository.GetVesselByIdAsync(vesselAtPort.VesselId);
+        var vessel = await vesselRepository.GetVesselByIdAsync(vesselAtPort.VesselId);
         return new VesselAtPortResponse
         {
             PortId = vesselAtPort.PortId,
@@ -66,11 +66,10 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository)
             }
         };
     }
-    
-    public async Task<VesselAtPortResponse> AddVesselToPort(VesselAtPortRequest vesselAtPortRequest, 
-        VesselMySqlRepository vesselMySqlRepository)
+
+    public async Task<VesselAtPortResponse> AddVesselToPort(VesselAtPortRequest vesselAtPortRequest, IVesselRepository vesselRepository)
     {
-        var vessel = await vesselMySqlRepository.GetVesselByIdAsync(vesselAtPortRequest.VesselId);
+        var vessel = await vesselRepository.GetVesselByIdAsync(vesselAtPortRequest.VesselId);
         if (vessel == null)
             throw new NotFoundException($"Vessel with id '{vesselAtPortRequest.VesselId}' not found");
         
@@ -103,17 +102,17 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository)
         };
     }
 
-    public async Task<VesselAtPortResponse> ChangePortForVesselAsync(VesselAtPortRequest vesselAtPortRequest, 
-        VesselMySqlRepository vesselMySqlRepository)
+    public async Task<VesselAtPortResponse> ChangePortForVesselAsync(VesselAtPortRequest vesselAtPortRequest,
+        IVesselRepository vesselRepository)
     {
         var vesselAtPort = await vesselAtPortRepository.GetVesselByIdAtPortAsync(vesselAtPortRequest.VesselId);
         if (vesselAtPort == null)
             throw new NotFoundException($"Vessel with id '{vesselAtPortRequest.VesselId}' not found at any port");
 
         await RemoveVesselFromPort(vesselAtPortRequest.VesselId);
-        return await AddVesselToPort(vesselAtPortRequest, vesselMySqlRepository);
+        return await AddVesselToPort(vesselAtPortRequest, vesselRepository);
     }
-    
+
     public async Task RemoveVesselFromPort(string vesselId)
     {
         var vesselAtPort = await vesselAtPortRepository.GetVesselByIdAtPortAsync(vesselId);

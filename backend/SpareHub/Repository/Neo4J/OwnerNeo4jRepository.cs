@@ -47,7 +47,17 @@ public class OwnerNeo4jRepository(IDriver driver) : IOwnerRepository
 
     public async Task<Owner> CreateOwnerAsync(Owner owner)
     {
-        await using var session = driver.AsyncSession();
+        using var session = driver.AsyncSession();
+
+        // Ensure the ID is generated if not provided
+        if (string.IsNullOrEmpty(owner.Id))
+        {
+            owner = new Owner
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = owner.Name
+            };
+        }
 
         var query = @"
             CREATE (o:Owner {

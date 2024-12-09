@@ -11,6 +11,17 @@ public class PortNeo4jRepository(IDriver driver) : IPortRepository
     {
         await using var session = driver.AsyncSession();
 
+        // Ensure the ID is generated if not provided
+        if (string.IsNullOrEmpty(port.Id))
+        {
+            port = new Port
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = port.Name,
+                // Add other properties as needed
+            };
+        }
+
         var query = @"
             CREATE (p:Port {
                 id: $id,

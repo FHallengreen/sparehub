@@ -1,20 +1,19 @@
-﻿using Repository.MySql;
-using Service.MySql.Vessel;
+﻿using Repository.Interfaces;
 using Shared.DTOs.VesselAtPort;
 
 namespace Service.Interfaces;
 
 public interface IVesselAtPortService
 {
-    Task<List<VesselAtPortResponse>> GetVesselAtPorts(VesselMySqlRepository vesselMySqlRepository);
+    Task<List<VesselAtPortResponse>> GetVesselAtPorts(IVesselRepository vesselRepository);
     
-    Task<VesselAtPortResponse> GetVesselByIdAtPort(string vesselId, VesselMySqlRepository vesselMySqlRepository);
+    Task<VesselAtPortResponse> GetVesselByIdAtPort(string vesselId, IVesselRepository vesselRepository);
     
     Task<VesselAtPortResponse> AddVesselToPort(VesselAtPortRequest vesselAtPortRequest, 
-        VesselMySqlRepository vesselMySqlRepository);
+        IVesselRepository vesselRepository);
     
-    Task<VesselAtPortResponse> ChangePortForVesselAsync(VesselAtPortRequest vesselAtPortRequest, 
-        VesselMySqlRepository vesselMySqlRepository);
+    Task<VesselAtPortResponse> ChangePortForVesselAsync(VesselAtPortRequest vesselAtPortRequest,
+        IVesselRepository vesselRepository);
     
     Task RemoveVesselFromPort(string vesselId);
     
