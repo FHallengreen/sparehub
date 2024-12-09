@@ -19,7 +19,7 @@ export interface OrderDetail {
   expectedArrival?: Date | null;
   actualArrival?: Date | null;
   boxes: Box[] | null;
-  transporter: '',  
+  transporter: '',
   trackingNumber: '',
 }
 
@@ -37,8 +37,8 @@ export interface OrderRequest {
   warehouseId: number;
   orderStatus: string;
   boxes?: Box[];
-  transporter?: string; 
-  trackingNumber?: string; 
+  transporter?: string;
+  trackingNumber?: string;
 }
 
 
@@ -98,14 +98,25 @@ export interface Agent {
   name: string;
 }
 
-export interface OrderRow {
+export interface OrderRowBase {
   id: string;
   stockLocation: string;
-  pieces: number;
-  weight: number;
-  volume: number;
-  volumetricWeight: number;
+  isGroupHeader?: boolean;
 }
+
+export interface OrderRowData extends OrderRowBase {
+  pieces: number | null;
+  weight: number | null;
+  volume: number | null;
+  status: string;
+  owner: string;
+  vessel: string;
+  supplier: string;
+  poNumber: string;
+}
+
+export type OrderRow = OrderRowData | OrderRowBase;
+
 
 export interface StockLocationSummary {
   orders: number;

@@ -1,11 +1,13 @@
 import React from 'react';
 import { Typography, Button } from '@mui/material';
-import { OrderRow, StockLocationSummary } from '../interfaces/order.ts';
+import { StockLocationSummary } from '../interfaces/order.ts';
+import {useNavigate} from "react-router-dom";
 
 interface SummaryPanelProps {
-  selectedRows: Set<string>;
-  allRows: OrderRow[];
+  selectedRows: Set<string | number>; // Allow both string and number
+  allRows: Array<{ id: string | number; [key: string]: any }>; // Update type for rows
 }
+
 
 type StockLocationData = {
     [location: string]: StockLocationSummary;
@@ -17,7 +19,7 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({
 }) => {
   const selectedData = allRows.filter((row) => selectedRows.has(row.id));
 
-  console.log('Selected Data:', selectedData);
+  const navigate = useNavigate();
 
   const stockLocationData = selectedData.reduce((acc: StockLocationData, row) => {
     const loc = row.stockLocation || 'Unknown';
@@ -55,7 +57,7 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({
         color="primary"
         className="mt-4"
         onClick={() => {
-          alert('Dispatch action triggered!');
+          navigate('/dispatches/new');
         }}
       >
         Create Dispatch
