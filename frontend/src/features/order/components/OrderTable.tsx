@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import SummaryPanel from '../../../components/SummaryPanel';
 import { fetchOrders } from '../../../api/orderApi.ts';
 import { columns } from '../columns/OrderColumns.tsx';
+import {OrderRow, OrderRowData} from "../../../interfaces/order.ts";
 
 interface OrderTableProps {
   searchTags: string[];
@@ -11,10 +12,10 @@ interface OrderTableProps {
 }
 
 const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) => {
-  const [rows, setRows] = useState<any[]>([]);
-  const [groupedRows, setGroupedRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<OrderRow[]>([]);
+  const [groupedRows, setGroupedRows] = useState<OrderRow[]>([]);
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
-  const [selectedRows, setSelectedRows] = useState<any[]>([]);
+  const [selectedRows, setSelectedRows] = useState<OrderRow[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,20 +23,20 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
       try {
         const data = await fetchOrders(searchTags);
         const mappedRows = data.map((order) => ({
-          id: order.id,
-          owner: order.ownerName,
-          vessel: order.vesselName,
-          supplier: order.supplierName,
-          poNumber: order.orderNumber,
+          id: order.id.toString(),
+          owner: order.ownerName as unknown as string,
+          vessel: order.vesselName as unknown as string,
+          supplier: order.supplierName as unknown as string,
+          poNumber: order.orderNumber ?? null,
           pieces: order.boxes ?? null,
           weight: order.totalWeight ?? null,
           volume: order.totalVolume ?? null,
-          stockLocation: order.warehouseName,
+          stockLocation: order.warehouseName as unknown as string,
           status: order.orderStatus,
         }));
         setRows(mappedRows);
 
-        const allSuggestions = [...new Set(data.map((row) => row.warehouseName))];
+        const allSuggestions = [...new Set(data.map((row) => row.warehouseName as unknown as string))];
         setSuggestions(allSuggestions);
       } catch (err) {
         console.error('Error fetching orders:', err);
@@ -45,11 +46,20 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
   }, [searchTags]);
 
   useEffect(() => {
-    const groupRows = (rows: any[]) => {
-      const groupHeaders: any[] = [];
-      const rowGroups: Record<string, Record<string, any[]>> = {};
+    const groupRows = (rows: OrderRow[]) => {
+      const groupHeaders: OrderRow[] = [];
+      const rowGroups: Record<string, Record<string, OrderRow[]>> = {};
+
+      const isOrderRowData = (row: OrderRow): row is OrderRowData => {
+        return (row as OrderRowData).status !== undefined;
+      };
 
       rows.forEach((row) => {
+        if (!isOrderRowData(row)) {
+          console.warn(`Row with id ${row.id} is missing status or other OrderRowData properties.`);
+          return; // Skip rows that are not of type OrderRowData
+        }
+
         const location = row.stockLocation;
         const status = row.status;
 
@@ -61,6 +71,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
         }
         rowGroups[location][status].push(row);
       });
+
 
       Object.entries(rowGroups).forEach(([location, statusGroups]) => {
         const totalOrders = Object.values(statusGroups).reduce(
@@ -113,7 +124,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
 
     const selectedDataRowIds = new Set(
       Array.from(newSelectionSet).filter(
-        (id) => !groupHeaderIds.includes(id as string)
+        (id) => !groupHeaderIds.includes(id)
       )
     );
 

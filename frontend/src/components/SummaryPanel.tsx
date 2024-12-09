@@ -21,8 +21,6 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({
 
   const navigate = useNavigate();
 
-  console.log('Selected Data:', selectedData);
-
   const stockLocationData = selectedData.reduce((acc: StockLocationData, row) => {
     const loc = row.stockLocation || 'Unknown';
     if (!acc[loc]) {
