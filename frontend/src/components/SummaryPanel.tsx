@@ -1,6 +1,7 @@
 import React from 'react';
 import { Typography, Button } from '@mui/material';
 import { StockLocationSummary } from '../interfaces/order.ts';
+import {useNavigate} from "react-router-dom";
 
 interface SummaryPanelProps {
   selectedRows: Set<string | number>; // Allow both string and number
@@ -17,6 +18,8 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({
  allRows,
 }) => {
   const selectedData = allRows.filter((row) => selectedRows.has(row.id));
+
+  const navigate = useNavigate();
 
   console.log('Selected Data:', selectedData);
 
@@ -56,7 +59,7 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({
         color="primary"
         className="mt-4"
         onClick={() => {
-          alert('Dispatch action triggered!');
+          navigate('/dispatches/new');
         }}
       >
         Create Dispatch

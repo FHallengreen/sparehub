@@ -1,8 +1,17 @@
 import api from './api';
-import {DispatchDetail, DispatchRequest} from '../interfaces/dispatch';
+import {Dispatch, DispatchDetail, DispatchRequest} from '../interfaces/dispatch';
+
+export const getDispatches = async (tags: string[]): Promise<Dispatch[]> => {
+  const response = await api.get<Dispatch[]>('/api/dispatch', {
+    params: { searchTerms: tags ?? [] },
+  });
+
+  return response.data;
+}
 
 export const getDispatch = async (id: string): Promise<DispatchDetail> => {
   const response = await api.get<DispatchDetail>(`/api/dispatch/${id}`);
+  console.log(response.data);
   return response.data;
 };
 

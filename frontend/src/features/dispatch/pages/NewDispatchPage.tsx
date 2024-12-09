@@ -63,8 +63,16 @@ const NewDispatchPage: React.FC = () => {
       {error && <Typography color="error">{error}</Typography>}
 
       <DispatchDetailForm
-        dispatch={dispatch}
-        onInputChange={handleInputChange}
+        title="Create Dispatch"
+        fields={[
+          { label: 'Origin Type', value: dispatch.originType, onChange: (value) => handleInputChange('originType', value) },
+          { label: 'Origin ID', value: dispatch.originId, onChange: (value) => handleInputChange('originId', value), type: 'number' },
+          { label: 'Destination Type', value: dispatch.destinationType, onChange: (value) => handleInputChange('destinationType', value) },
+          { label: 'Destination ID', value: dispatch.destinationId, onChange: (value) => handleInputChange('destinationId', value) },
+          { label: 'Status', value: dispatch.dispatchStatus, onChange: (value) => handleInputChange('dispatchStatus', value) },
+          { label: 'Transport Mode', value: dispatch.transportModeType, onChange: (value) => handleInputChange('transportModeType', value) },
+          { label: 'Tracking Number', value: dispatch.trackingNumber, onChange: (value) => handleInputChange('trackingNumber', value) },
+        ]}
       />
 
       <div className="mt-8 gap-2 flex">

@@ -1,13 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { GridRowSelectionModel } from '@mui/x-data-grid';
-import axios from 'axios';
-import qs from 'qs';
 import DispatchFilter from '../components/DispatchFilter';
 import DispatchGrid from '../components/DispatchGrid';
 import { Dispatch } from '../../../interfaces/dispatch';
 import { dispatchColumns } from '../columns/DispatchColumns.tsx';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import {getDispatches} from "../../../api/dispatchApi.ts";
 
 const DispatchPage: React.FC = () => {
   const [rows, setRows] = useState<Dispatch[]>([]);
@@ -20,12 +17,9 @@ const DispatchPage: React.FC = () => {
 
   const fetchDispatches = async (tags: string[] = []) => {
     try {
-      const response = await axios.get<Dispatch[]>(`${API_URL}/api/dispatch`, {
-        params: { searchTerms: tags },
-        paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
-      });
+      const response = await getDispatches(tags);
 
-      setRows(response.data);
+      setRows(response);
     } catch (err) {
       console.error('Error fetching dispatches:', err);
       setError('Failed to fetch dispatches.');
