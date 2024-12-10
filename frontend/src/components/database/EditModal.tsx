@@ -89,6 +89,7 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
                 tabIndex={-1} // Allows programmatic focus
                 className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md"
                 onClick={(e) => e.stopPropagation()} // Prevent close on modal content click
+                onKeyDown={() => {}}
             >
                 <h2 id="modal-title" className="text-xl font-bold text-gray-800 mb-4">
                     Edit Entry
