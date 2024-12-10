@@ -12,6 +12,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './components/LoginPage';
 import NotFoundPage from './components/NotFoundPage';
 import { AuthProvider } from './context/AuthContext';
+import OwnerList from './components/OwnerList';
+import OwnerForm from './components/OwnerForm';
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -89,6 +91,9 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+                <Route path="/" element={<OwnerList />} />
+                <Route path="/create-owner" element={<OwnerForm />} />
+                <Route path="/owner/edit/:ownerId" element={<OwnerForm />} />
               <Route
                 path="/"
                 element={
