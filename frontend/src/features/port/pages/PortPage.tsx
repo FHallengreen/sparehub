@@ -21,7 +21,6 @@ const PortPage: React.FC = () => {
     try {
       const response = await getPorts();
       setRows(response);
-      // Update suggestions based on the data
       const uniqueTerms = Array.from(
         new Set(response.map((row: Port) => row.name))
       );

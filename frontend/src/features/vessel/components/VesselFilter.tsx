@@ -1,53 +1,48 @@
 import React from 'react';
-import { Autocomplete, TextField, Chip, Button } from '@mui/material';
+import { Autocomplete, TextField, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 interface VesselFilterProps {
-    suggestions: string[];
-    searchTags: string[];
-    setSearchTags: (tags: string[]) => void;
+    suggestions: string[]; // Suggestions for autocomplete
+    searchTerm: string; // Current search term
+    setSearchTerm: (term: string) => void; // Function to update search term
 }
 
 const VesselFilter: React.FC<VesselFilterProps> = ({
     suggestions,
-    searchTags,
-    setSearchTags,
+    searchTerm,
+    setSearchTerm,
 }) => {
     const navigate = useNavigate();
+
     return (
-        <div className="flex items-center space-x-2 mb-5">
+        <div className="flex items-center space-x-2 mb-4">
             <Autocomplete
-                multiple
                 freeSolo
                 options={suggestions}
-                value={searchTags}
-                onChange={(_, newValue) => setSearchTags(newValue)}
-                renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                        <Chip label={option} {...getTagProps({ index })} />
-                    ))
-                }
+                value={searchTerm ? searchTerm : null} // Set value to null if searchTerm is empty
+                onChange={(_, newValue) => setSearchTerm(newValue as string)} // Update search term
                 renderInput={(params) => (
                     <TextField
                         {...params}
                         variant="outlined"
                         label="Search Vessels"
-                        placeholder="Add a tag"
+                        placeholder="Type to search"
                         fullWidth
                     />
                 )}
-                style={{ width: '40vw' }}
+                style={{ width: '40vw' }} // Adjust width as needed
             />
-          <Button
-        onClick={() => navigate(`/vessels/new`)}
-        variant="contained"
-        color="primary"
-        style={{ marginLeft: '10px' }}
-             >
-                Create New Vessel
+            <Button
+                onClick={() => navigate('/vessels/new')}
+                variant="contained"
+                color="primary"
+                style={{ marginLeft: '10px' }}
+            >
+                Create Vessel
             </Button>
         </div>
     );
 };
 
-export default VesselFilter; 
+export default VesselFilter;

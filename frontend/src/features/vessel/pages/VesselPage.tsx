@@ -5,6 +5,8 @@ import VesselGrid from '../components/VesselGrid';
 import { vesselColumns } from '../columns/VesselColumns';
 import { getVessels } from '../../../api/vesselApi';
 import { Vessel } from '../../../interfaces/vessel';
+import VesselFilter from '../components/VesselFilter';
+import { Typography } from '@mui/material';
 
 const VesselPage: React.FC = () => {
     const navigate = useNavigate();
@@ -12,6 +14,8 @@ const VesselPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [suggestions, setSuggestions] = useState<string[]>([]);
 
     const fetchVessels = async () => {
         setLoading(true);
@@ -26,6 +30,8 @@ const VesselPage: React.FC = () => {
                 ownerName: vessel.owner?.name || '',
             }));
             setRows(modifiedRows);
+            const uniqueNames = Array.from(new Set(modifiedRows.map(v => v.name)));
+            setSuggestions(uniqueNames);
         } catch (err) {
             console.error('Error fetching vessels:', err);
             setError('Failed to fetch vessels.');
@@ -38,11 +44,22 @@ const VesselPage: React.FC = () => {
         fetchVessels();
     }, []);
 
+    const filteredRows = rows.filter((row) =>
+        row.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
-        <div>
-            <h1 className="text-2xl font-bold mb-4">Vessel List</h1>
+        <div className="w-full">
+            <Typography variant="h4" className="text-2xl font-bold mb-4">
+                Vessel List
+            </Typography>
+            <VesselFilter
+                suggestions={suggestions}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+            />
             <VesselGrid
-                rows={rows}
+                rows={filteredRows}
                 columns={vesselColumns}
                 loading={loading}
                 error={error}
