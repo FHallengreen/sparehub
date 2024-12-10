@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import api from "../../Api";
+import api from "../../api/api";
 import TableComponent from "./Table";
 import EditModal from "./EditModal";
 import CreateModal from "./CreateModal.tsx";
@@ -21,10 +21,6 @@ const MySqlTable: React.FC = () => {
     const baseUrl = import.meta.env.VITE_API_URL;
 
     const endpoint = tableApiMethodMapping(table);
-
-    if (!endpoint) {
-        return <div className="text-red-600 text-center font-bold">Table not implemented yet</div>;
-    }
 
     const fetchData = async () => {
         try {

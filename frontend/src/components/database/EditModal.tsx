@@ -17,6 +17,18 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
         }
     }, [object]);
 
+    useEffect(() => {
+        if (open) {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === "Escape") {
+                    onClose();
+                }
+            };
+            document.addEventListener("keydown", handleKeyDown);
+            return () => document.removeEventListener("keydown", handleKeyDown);
+        }
+    }, [open, onClose]);
+
     const handleInputChange = (key: string, value: string) => {
         setFormData((prev: any) => ({
             ...prev,
@@ -52,14 +64,17 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
 
     return (
         <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
             className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
             onClick={onClose}
         >
             <div
                 className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md"
-                onClick={(e) => e.stopPropagation()} // Prevent close on modal click
+                onClick={(e) => e.stopPropagation()}
             >
-                <h2 className="text-xl font-bold text-gray-800 mb-4">Edit Entry</h2>
+                <h2 id="modal-title" className="text-xl font-bold text-gray-800 mb-4">Edit Entry</h2>
                 {Object.entries(formData).map(([key, value]) => (
                     <div key={key} className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -92,5 +107,6 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
         </div>
     );
 };
+
 
 export default EditModal;
