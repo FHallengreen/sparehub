@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Service.MySql.Login;
+namespace Service.Services.Login;
 
 public class JwtService
 {

@@ -6,7 +6,7 @@ using Shared.DTOs.Order;
 using Shared.DTOs.Warehouse;
 using Shared.Exceptions;
 
-namespace Service.MySql.Warehouse;
+namespace Service.Services.Warehouse;
 
 public class WarehouseService(IWarehouseRepository warehouseRepo, IAgentRepository agentRepo, IAddressRepository addressRepo) : IWarehouseService
 {

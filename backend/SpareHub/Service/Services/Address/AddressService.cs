@@ -4,7 +4,7 @@ using Service.Interfaces;
 using Shared.DTOs.Address;
 using Shared.Exceptions;
 
-namespace Service.MySql.Address;
+namespace Service.Services.Address;
 
 public class AddressService(IAddressRepository addressRepository) : IAddressService
 {

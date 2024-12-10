@@ -3,7 +3,7 @@ using Service.Interfaces;
 using Shared.DTOs.Owner;
 using Shared.Exceptions;
 
-namespace Service.MySql.Owner;
+namespace Service.Services.Owner;
 
 public class OwnerService(IOwnerRepository ownerRepository) : IOwnerService
 {

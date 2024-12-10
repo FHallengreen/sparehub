@@ -6,7 +6,7 @@ using Shared.DTOs.VesselAtPort;
 using Shared.Exceptions;
 
 
-namespace Service.MySql.VesselAtPort;
+namespace Service.Services.VesselAtPort;
 
 public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository) : IVesselAtPortService
 {

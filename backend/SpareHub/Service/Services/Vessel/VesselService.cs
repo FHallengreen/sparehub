@@ -4,7 +4,7 @@ using Shared.DTOs.Owner;
 using Shared.DTOs.Vessel;
 using Shared.Exceptions;
 
-namespace Service.MySql.Vessel;
+namespace Service.Services.Vessel;
 
 public class VesselService(IVesselRepository vesselRepository,IOwnerRepository ownerRepository) : IVesselService
 {

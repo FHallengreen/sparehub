@@ -3,7 +3,7 @@ using Service.Interfaces;
 using Service.Utils;
 using Shared.DTOs.Order;
 
-namespace Service.MySql.Order;
+namespace Service.Services.Order;
 
 public class TrackingService(HttpClient httpClient) : ITrackingService
 {

@@ -5,7 +5,7 @@ using Shared.DTOs.Agent;
 using Shared.DTOs.Order;
 using Shared.Exceptions;
 
-namespace Service.MySql.Agent;
+namespace Service.Services.Agent;
 
 public class AgentService (IAgentRepository agentRepo) : IAgentService
 {

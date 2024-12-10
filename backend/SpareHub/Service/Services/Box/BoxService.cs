@@ -4,7 +4,7 @@ using Service.Interfaces;
 using Shared.DTOs.Order;
 using Shared.Exceptions;
 
-namespace Service.MySql.Box;
+namespace Service.Services.Box;
 
 public class BoxService(IBoxRepository boxRepository, IOrderRepository orderRepository)
     : IBoxService

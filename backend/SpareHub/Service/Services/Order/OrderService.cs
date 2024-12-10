@@ -10,7 +10,7 @@ using Shared.DTOs.Warehouse;
 using Shared.Exceptions;
 
 
-namespace Service.MySql.Order;
+namespace Service.Services.Order;
 
 public class OrderService(
     IOrderRepository orderRepository,

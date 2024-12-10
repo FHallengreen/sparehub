@@ -4,7 +4,7 @@ using Service.Interfaces;
 using Shared;
 using Shared.DTOs.Supplier;
 
-namespace Service.MySql.Supplier;
+namespace Service.Services.Supplier;
 
 public class SupplierService(SpareHubDbContext dbContext) : ISupplierService
 {

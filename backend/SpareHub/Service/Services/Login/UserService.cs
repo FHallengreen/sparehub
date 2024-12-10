@@ -3,7 +3,7 @@ using Repository.Interfaces;
 using Service.Interfaces;
 using Shared.DTOs.User;
 
-namespace Service.MySql.Login;
+namespace Service.Services.Login;
 
 public class UserService(IUserRepository userRepository, IMapper mapper) : IUserService
 {

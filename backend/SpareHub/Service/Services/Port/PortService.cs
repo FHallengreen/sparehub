@@ -5,7 +5,7 @@ using Shared.DTOs.Port;
 using Shared.Exceptions;
 
 
-namespace Service.MySql.Port;
+namespace Service.Services.Port;
 
     public class PortService(IPortRepository portRepository) : IPortService
     {

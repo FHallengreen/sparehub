@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service;
 using Service.Interfaces;
-using Service.MySql.Port;
 using Shared.DTOs.Port;
 using Shared.Exceptions;
 

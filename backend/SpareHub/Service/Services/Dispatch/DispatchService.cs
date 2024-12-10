@@ -5,7 +5,7 @@ using Shared.DTOs.Dispatch;
 using Shared.Exceptions;
 using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
 
-namespace Service.MySql.Dispatch;
+namespace Service.Services.Dispatch;
 
 public class DispatchService(IDispatchRepository dispatchRepository) : IDispatchService
 {
