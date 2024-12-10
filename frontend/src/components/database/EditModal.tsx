@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Box, Button, TextField } from '@mui/material';
-import {supportedTables} from "../../helpers/FrontendDatabase.tsx";
+import React, { useState, useEffect } from "react";
+import { supportedTables } from "../../helpers/FrontendDatabase.tsx";
 
 interface EditModalProps {
     open: boolean;
@@ -14,91 +13,83 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
 
     useEffect(() => {
         if (object) {
-            setFormData(object); // Ensure all keys are present
+            setFormData(object);
         }
     }, [object]);
 
-    // Handle changes in form input
     const handleInputChange = (key: string, value: string) => {
         setFormData((prev: any) => ({
             ...prev,
-            [key]: value, // Only update the specific key
+            [key]: value,
         }));
     };
 
     const handleSave = () => {
         const updatedObject = appendIdToForeignKeys(formData);
-        onSave(updatedObject); // Pass the updated object
+        onSave(updatedObject);
     };
 
     const appendIdToForeignKeys = (data: any) => {
         const updatedData: any = {};
-
-        // Loop through the formData and append "Id" to foreign key fields
         Object.entries(data).forEach(([key, value]) => {
-            if (value && typeof value === 'object' && value.id) {
-                // If it's a foreign key, append "Id" to the key name
-                updatedData[`${key}Id`] = value.id; // Add the id and rename the field
+            if (value && typeof value === "object" && value.id) {
+                updatedData[`${key}Id`] = value.id;
             } else {
-                updatedData[key] = value; // Otherwise, keep the field as it is
+                updatedData[key] = value;
             }
         });
-
         return updatedData;
     };
 
-    // Function to display only the id for foreign key objects
     const renderFieldValue = (key: string, value: any) => {
-        // Check if the value is a foreign key object (it should be an object and have an id property)
-        if (value && typeof value === 'object' && value.id) {
-            return value.id; // Display only the ID for foreign key objects
+        if (value && typeof value === "object" && value.id) {
+            return value.id;
         }
-        return value; // Otherwise, return the value as is
+        return value;
     };
 
     if (!open || !formData) return null;
 
     return (
-        <Modal open={open} onClose={onClose}>
-            <Box
-                sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 400,
-                    bgcolor: 'background.paper',
-                    boxShadow: 24,
-                    p: 4,
-                }}
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            onClick={onClose}
+        >
+            <div
+                className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md"
+                onClick={(e) => e.stopPropagation()} // Prevent close on modal click
             >
+                <h2 className="text-xl font-bold text-gray-800 mb-4">Edit Entry</h2>
                 {Object.entries(formData).map(([key, value]) => (
-                    <div key={key}>
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            label={key}
-                            value={renderFieldValue(key, value)} // Use the renderFieldValue to display id for foreign keys
+                    <div key={key} className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {key}
+                        </label>
+                        <input
+                            type="text"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            value={renderFieldValue(key, value)}
                             onChange={(e) => handleInputChange(key, e.target.value)}
-                            disabled={supportedTables.includes(key)} // ID is read-only
+                            disabled={supportedTables.includes(key)}
                         />
                     </div>
                 ))}
-                <div style={{ marginTop: "16px", textAlign: "right" }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
+                <div className="flex justify-end space-x-2 mt-6">
+                    <button
                         onClick={handleSave}
-                        style={{ marginRight: "8px" }}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700"
                     >
                         Save
-                    </Button>
-                    <Button variant="outlined" color="secondary" onClick={onClose}>
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md shadow hover:bg-gray-400"
+                    >
                         Cancel
-                    </Button>
+                    </button>
                 </div>
-            </Box>
-        </Modal>
+            </div>
+        </div>
     );
 };
 

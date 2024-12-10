@@ -38,6 +38,7 @@ public class WarehouseController(IWarehouseService warehouseService) : Controlle
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(WarehouseResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<IActionResult> CreateWarehouse([FromBody] WarehouseRequest warehouseRequest) {
         

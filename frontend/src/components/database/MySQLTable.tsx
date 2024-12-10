@@ -1,26 +1,34 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import TableComponent from './Table';
-import EditModal from './EditModal';
-import {supportedTables, tableApiMethodMapping} from "../../helpers/FrontendDatabase";
+
 import api from "../../Api";
+import TableComponent from "./Table";
+import EditModal from "./EditModal";
+import CreateModal from "./CreateModal.tsx";
+import {
+    supportedTables,
+    tableApiMethodMapping,
+    getCreateModalInitialData,
+} from "../../helpers/FrontendDatabase";
 
 const MySqlTable: React.FC = () => {
     const { table } = useParams<{ table: string }>();
     const [tableData, setTableData] = useState<any[] | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [createModalOpen, setCreateModalOpen] = useState(false);
     const [selectedObject, setSelectedObject] = useState<any>(null);
     const [entityRef, setEntityRef] = useState<string>();
+    const baseUrl = import.meta.env.VITE_API_URL;
 
     const endpoint = tableApiMethodMapping(table);
 
     if (!endpoint) {
-        return <div>Table not implemented yet</div>;
+        return <div className="text-red-600 text-center font-bold">Table not implemented yet</div>;
     }
 
     const fetchData = async () => {
         try {
-            const response = await api.get<any[]>(`${import.meta.env.VITE_API_URL}/api/${endpoint}`);
+            const response = await api.get<any[]>(`${baseUrl}/api/${endpoint}`);
             setTableData(response.data);
             setEntityRef(endpoint);
         } catch (error) {
@@ -38,13 +46,9 @@ const MySqlTable: React.FC = () => {
     };
 
     const handleCellClick = (column: string) => {
-
         if (supportedTables.includes(column)) {
-            setEntityRef(column)
+            setEntityRef(column);
         }
-
-
-        // Additional logic based on the column or row can go here
     };
 
     const handleModalClose = () => {
@@ -52,37 +56,70 @@ const MySqlTable: React.FC = () => {
         setSelectedObject(null);
     };
 
-    const handleSaveObject = async (updatedObject: any) => {
+    const handleCreateModalOpen = () => {
+        setCreateModalOpen(true);
+    };
 
-        console.log(updatedObject)
+    const handleCreateModalClose = () => {
+        setCreateModalOpen(false);
+    };
+
+    const handleSaveObject = async (updatedObject: any) => {
         try {
-            const updateEndpoint = `${import.meta.env.VITE_API_URL}/api/${tableApiMethodMapping(entityRef)}/${updatedObject.id}`;
+            const updateEndpoint = `${baseUrl}/api/${tableApiMethodMapping(entityRef)}/${updatedObject.id}`;
             await api.put(updateEndpoint, updatedObject);
             await fetchData();
             handleModalClose();
         } catch (error) {
-            //console.error("Error saving object:", error);
             alert("Failed to save changes. Please try again.");
         }
     };
 
+    const handleCreateSave = async (newObject: any) => {
+        try {
+            const createEndpoint = `${baseUrl}/api/${endpoint}`;
+            await api.post(createEndpoint, newObject);
+            await fetchData();
+            handleCreateModalClose();
+        } catch (error) {
+            alert("Failed to create a new entry. Please try again.");
+        }
+    };
+
     return (
-        <div>
-            <h1>Table: {table}</h1>
+        <div className="p-6">
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Table: {table}</h1>
             {tableData ? (
-                <TableComponent
-                    data={tableData}
-                    onEditObject={handleEditObject}
-                    onCellClick={handleCellClick} // Pass the cell click handler
-                />
+                <>
+                    <TableComponent
+                        data={tableData}
+                        onEditObject={handleEditObject}
+                        onCellClick={handleCellClick}
+                    />
+                    <div className="mt-4 text-right">
+                        <button
+                            onClick={handleCreateModalOpen}
+                            className="px-6 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md font-medium"
+                        >
+                            Create New Entry
+                        </button>
+                    </div>
+                </>
             ) : (
-                <p>Loading table...</p>
+                <p className="text-gray-500 text-center">Loading table...</p>
             )}
             <EditModal
                 open={modalOpen}
                 object={selectedObject}
                 onClose={handleModalClose}
                 onSave={handleSaveObject}
+            />
+            <CreateModal
+                open={createModalOpen}
+                initialData={getCreateModalInitialData(table)}
+                onClose={handleCreateModalClose}
+                onSave={handleCreateSave}
+                table={table}
             />
         </div>
     );

@@ -10,4 +10,9 @@ public class AddressEntity
     public required string Country { get; init; }
 
     public ICollection<ContactInfoEntity> ContactInfos { get; set; } = new List<ContactInfoEntity>();
+    
+    public override string ToString()
+    {
+        return $"Id: {Id}, AddressLine: {AddressLine}, PostalCode: {PostalCode}, Country: {Country}";
+    }
 }

@@ -72,17 +72,30 @@ public class WarehouseMySqlRepository(SpareHubDbContext dbContext, IMapper mappe
 
         return warehouse;
     }
+    
+    public async Task<Warehouse> GetWarehouseByAddressIdAsync(string addressId)
+    {
+        var warehouseEntity = await dbContext.Warehouses
+            .Include(w => w.Address)
+            .FirstOrDefaultAsync(w => w.Address.Id.ToString() == addressId);
+
+        return warehouseEntity != null ? mapper.Map<Warehouse>(warehouseEntity) : null;
+    }
 
 
     public async Task<Warehouse> CreateWarehouseAsync(Warehouse warehouse)
     {   
+        
         var warehouseEntity = mapper.Map<WarehouseEntity>(warehouse);
+        dbContext.Entry(warehouseEntity.Address).State = EntityState.Unchanged;
+        dbContext.Entry(warehouseEntity.Agent).State = EntityState.Unchanged;
         await dbContext.Warehouses.AddAsync(warehouseEntity);
         await dbContext.SaveChangesAsync();
         warehouse.Id = warehouseEntity.Id.ToString();
         
         return warehouse;
     }
+    
 
     public async Task<Warehouse> UpdateWarehouseAsync(Warehouse warehouse)
     {

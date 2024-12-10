@@ -26,3 +26,64 @@ export function tableApiMethodMapping(table: string | undefined): string | null{
             return null;
     }
 }
+
+export function getForeignKeyTable(field: string): string | null{
+
+    // Map foreign key fields to corresponding table names.
+    switch (field) {
+        case "addressId":
+            return "address";
+        case "agentId":
+            return "agent";
+        case "warehouseId":
+            return "warehouse";
+        case "vesselId":
+            return "vessel";
+        case "supplierId":
+            return "supplier";
+        case "portId":
+            return "port";
+
+        default:
+            return "";
+    }
+}
+
+//Function to return the form format of the specified table when creating a new entry
+export function getCreateModalInitialData(table: string)  {
+
+    switch (table) {
+        case 'address':
+            return {
+                addressLine: '',
+                postalCode: '',
+                country: ''
+            }
+        case 'agent':
+            return {
+                name: '',
+            }
+        case 'supplier':
+            return {
+                name: '',
+            }
+        case 'warehouse':
+            return {
+                name: '',
+                addressId: '',
+                agentId: '',
+            }
+        case 'vessel':
+            return {
+                name: '',
+                imoNumber: '',
+                flag: '',
+                ownerId: ''
+            }
+        case 'owner':
+
+        default:
+            return null;
+
+    }
+}

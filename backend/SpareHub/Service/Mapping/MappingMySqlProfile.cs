@@ -3,6 +3,7 @@ using Domain.Models;
 using Persistence.MySql;
 using Shared.DTOs.Order;
 using Shared.DTOs.User;
+using Shared.DTOs.Warehouse;
 
 namespace Service.Mapping;
 
@@ -205,7 +206,12 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Id, opt => opt.Ignore()); // Ignore DB-generated Id
-
+        
+        CreateMap<WarehouseRequest, Warehouse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.AgentId, opt => opt.MapFrom(src => src.AgentId))
+            .ForMember(dest => dest.AddressId, opt => opt.MapFrom(src => src.AddressId));
         CreateMap<WarehouseEntity, Warehouse>()
             .ForMember(dest => dest.Agent, opt => opt.MapFrom(src => src.Agent)) // Leverages AgentEntity -> Agent mapping
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))

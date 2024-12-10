@@ -1,35 +1,41 @@
-import React from 'react';
-import { Button, IconButton } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
+import React from "react";
 
 interface TableRowProps {
     row: any;
     onEditObject: (object: any) => void;
-    onCellClick?: (column: string) => void; // Optional handler for cell clicks
+    onCellClick?: (column: string) => void;
 }
 
 const TableRow: React.FC<TableRowProps> = ({ row, onEditObject, onCellClick }) => {
     return (
-        <tr>
+        <tr className="hover:bg-gray-100">
             {Object.entries(row).map(([key, value], index) => (
                 <td
                     key={index}
-                    onClick={() => onCellClick && onCellClick(key)} // Pass column and row to handler
-                    style={{ cursor: onCellClick ? 'pointer' : 'default' }} // Add a pointer cursor if clickable
+                    onClick={() => onCellClick && onCellClick(key)} // Pass column to handler if clickable
+                    className={`border border-gray-300 px-4 py-2 ${
+                        onCellClick ? "cursor-pointer text-blue-600" : ""
+                    }`}
                 >
-                    {typeof value === 'object' && value !== null ? (
-                        <Button onClick={() => onEditObject(value)}>
+                    {typeof value === "object" && value !== null ? (
+                        <button
+                            className="text-blue-500 hover:text-blue-700"
+                            onClick={() => onEditObject(value)}
+                        >
                             {value.id}
-                        </Button>
+                        </button>
                     ) : (
                         value?.toString()
                     )}
                 </td>
             ))}
-            <td>
-                <IconButton onClick={() => onEditObject(row)}>
-                    <EditIcon />
-                </IconButton>
+            <td className="border border-gray-300 px-4 py-2 text-center">
+                <button
+                    onClick={() => onEditObject(row)}
+                    className="text-blue-500 hover:text-blue-700"
+                >
+                    ✏️
+                </button>
             </td>
         </tr>
     );
