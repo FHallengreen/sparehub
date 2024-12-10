@@ -12,8 +12,18 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 import { AuthProvider } from './context/AuthContext';
-import OwnerList from './components/OwnerList';
-import OwnerForm from './components/OwnerForm';
+import OwnerList from './features/owner/components/OwnerList.tsx';
+import NewOwnerPage from './features/owner/pages/NewOwnerPage.tsx';
+import OwnerDetailsPage from './features/owner/pages/OwnerDetailsPage.tsx';
+import PortPage from './features/port/pages/PortPage.tsx';
+import NewPortPage from './features/port/pages/NewPortPage.tsx';
+import PortDetailsPage from './features/port/pages/PortDetailsPage.tsx';
+import VesselPage from './features/vessel/pages/VesselPage.tsx';
+import NewVesselPage from './features/vessel/pages/NewVesselPage.tsx';
+import VesselDetailsPage from './features/vessel/pages/VesselDetailsPage.tsx';
+import VesselAtPortPage from './features/vesselAtPort/pages/VesselAtPortPage.tsx';
+import NewVesselAtPortPage from './features/vesselAtPort/pages/NewVesselAtPortPage.tsx';
+import VesselAtPortDetailsPage from './features/vesselAtPort/pages/VesselAtPortDetailsPage.tsx';
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -91,14 +101,99 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-                <Route path="/" element={<OwnerList />} />
-                <Route path="/create-owner" element={<OwnerForm />} />
-                <Route path="/owner/edit/:ownerId" element={<OwnerForm />} />
               <Route
-                path="/"
+                path="/owners/new"
                 element={
                   <ProtectedRoute>
-                    <OrderPage />
+                    <NewOwnerPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owners/:id"
+                element={
+                  <ProtectedRoute>
+                    <OwnerDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owners"
+                element={
+                  <ProtectedRoute>
+                    <OwnerList />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ports/new"
+                element={
+                  <ProtectedRoute>
+                    <NewPortPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ports/:id"
+                element={
+                  <ProtectedRoute>
+                    <PortDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ports"
+                element={
+                  <ProtectedRoute>
+                    <PortPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels/new"
+                element={
+                  <ProtectedRoute>
+                    <NewVesselPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels/:id"
+                element={
+                  <ProtectedRoute>
+                    <VesselDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels"
+                element={
+                  <ProtectedRoute>
+                    <VesselPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels-at-ports/new"
+                element={
+                  <ProtectedRoute>
+                    <NewVesselAtPortPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels-at-ports/:id"
+                element={
+                  <ProtectedRoute>
+                    <VesselAtPortDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels-at-ports"
+                element={
+                  <ProtectedRoute>
+                    <VesselAtPortPage />
                   </ProtectedRoute>
                 }
               />

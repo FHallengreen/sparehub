@@ -18,7 +18,6 @@ public class PortNeo4jRepository(IDriver driver) : IPortRepository
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = port.Name,
-                // Add other properties as needed
             };
         }
 
