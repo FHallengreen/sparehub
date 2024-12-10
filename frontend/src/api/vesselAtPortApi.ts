@@ -1,7 +1,7 @@
 import api from './api';
 import { VesselAtPort, VesselAtPortDetail, VesselAtPortRequest } from '../interfaces/vesselAtPort';
 
-const BASE_URL = '/api/vessels-at-ports';
+const BASE_URL = 'api/vessel-at-port';
 
 export const getVesselsAtPorts = async (): Promise<VesselAtPort[]> => {
     const response = await api.get(BASE_URL);

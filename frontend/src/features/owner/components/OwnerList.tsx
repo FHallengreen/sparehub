@@ -17,7 +17,7 @@ const OwnerList: React.FC = () => {
         const fetchOwners = async () => {
             try {
                 const response = await getOwners();
-                setOwners(response.data);
+                setOwners(response);
             } catch (error) {
                 console.error('Error fetching owners:', error);
                 setError('Failed to fetch owners.');

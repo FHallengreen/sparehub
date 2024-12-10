@@ -20,7 +20,7 @@ const OwnerPage: React.FC = () => {
   const fetchOwners = async () => {
     try {
       const response = await getOwners();
-      setRows(response.data);
+      setRows(response);
     } catch (err) {
       console.error('Error fetching owners:', err);
       setError('Failed to fetch owners.');

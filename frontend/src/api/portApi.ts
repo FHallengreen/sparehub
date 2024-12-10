@@ -2,7 +2,7 @@ import { PortRequest } from '../interfaces/port';
 import api from './api';
 import { Port } from '../interfaces/port';
 
-const BASE_URL = '/api/ports';
+const BASE_URL = 'api/port';
 
 export const getPorts = async (): Promise<Port[]> => {
     const response = await api.get(BASE_URL);

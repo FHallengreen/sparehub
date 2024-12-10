@@ -1,21 +1,28 @@
 ﻿import api from './api';
+import { Owner, OwnerRequest } from '../interfaces/owner';
 
-export const getOwners = async () => {
-    return await api.get('/owner');
+const BASE_URL = 'api/owner';
+
+export const getOwners = async (): Promise<Owner[]> => {
+    const response = await api.get(BASE_URL);
+    return response.data;
 };
 
-export const getOwnerById = async (ownerId: string) => {
-    return await api.get(`/owner/${ownerId}`);
+export const getOwnerById = async (id: string): Promise<Owner> => {
+    const response = await api.get(`${BASE_URL}/${id}`);
+    return response.data;
 };
 
-export const createOwner = async (ownerData: any) => {
-    return await api.post('/owner', ownerData);
+export const createOwner = async (owner: OwnerRequest): Promise<Owner> => {
+    const response = await api.post(BASE_URL, owner);
+    return response.data;
 };
 
-export const updateOwner = async (ownerId: string, ownerData: any) => {
-    return await api.put(`/owner/${ownerId}`, ownerData);
+export const updateOwner = async (id: string, owner: OwnerRequest): Promise<Owner> => {
+    const response = await api.put(`${BASE_URL}/${id}`, owner);
+    return response.data;
 };
 
-export const deleteOwner = async (ownerId: string) => {
-    return await api.delete(`/owner/${ownerId}`);
+export const deleteOwner = async (id: string): Promise<void> => {
+    await api.delete(`${BASE_URL}/${id}`);
 };
