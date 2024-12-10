@@ -4,7 +4,8 @@ export const supportedTables = [
     'port',
     'supplier',
     'warehouse',
-    'vessel'
+    'vessel',
+    'owner'
 ]
 
 export function tableApiMethodMapping(table: string | undefined): string | null{
@@ -22,6 +23,8 @@ export function tableApiMethodMapping(table: string | undefined): string | null{
             return "supplier";
         case "vessel":
             return "vessel";
+        case "owner":
+            return "owner";
         default:
             return null;
     }
@@ -43,6 +46,8 @@ export function getForeignKeyTable(field: string): string | null{
             return "supplier";
         case "portId":
             return "port";
+        case "ownerId":
+            return "owner";
 
         default:
             return "";
@@ -63,10 +68,6 @@ export function getCreateModalInitialData(table: string)  {
             return {
                 name: '',
             }
-        case 'supplier':
-            return {
-                name: '',
-            }
         case 'warehouse':
             return {
                 name: '',
@@ -81,7 +82,14 @@ export function getCreateModalInitialData(table: string)  {
                 ownerId: ''
             }
         case 'owner':
-
+            return {
+                name: '',
+            }
+        case 'supplier':
+            return {
+                name: '',
+                addressId: '',
+            }
         default:
             return null;
 

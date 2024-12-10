@@ -12,7 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 import { AuthProvider } from './context/AuthContext';
-import DatabasePage from './components/databasePage';
+import DatabasePage from './pages/databasePage.tsx';
 import MySQLTable from "./components/database/MySQLTable";
 
 function App() {
