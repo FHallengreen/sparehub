@@ -16,15 +16,7 @@ public class WarehouseService(IMapper mapper, IWarehouseRepository warehouseRepo
     public async Task<List<WarehouseResponse>> GetWarehouses()
     {
         var warehouses = await warehouseRepo.GetWarehousesAsync();
-
-        foreach (var w in warehouses)
-        {
-            //Print all values in warehouse
-            Console.WriteLine(w.Id + ": " + w.Name);
-            Console.WriteLine(w.Address == null ? "address is Null" : w.Address);
-            Console.WriteLine(w.Agent == null ? "agent is Null" : w.Agent);
-            
-        }
+        
         return warehouses.Select(w => new WarehouseResponse
         {
             Id = w.Id,
@@ -155,14 +147,13 @@ public class WarehouseService(IMapper mapper, IWarehouseRepository warehouseRepo
             throw new NotFoundException($"No warehouse found with id {warehouseId}");
         }
         
-        
         var address = await addressRepo.GetAddressByIdAsync(request.AddressId);
         if (address == null)
         {
             throw new NotFoundException($"No address found with id {request.AddressId}");
         }
-        
-        Domain.Models.Agent agent = null!;
+
+        Domain.Models.Agent agent;
         if (request.AgentId != null)
         {
             agent = await agentRepo.GetAgentByIdAsync(request.AgentId);
@@ -173,8 +164,6 @@ public class WarehouseService(IMapper mapper, IWarehouseRepository warehouseRepo
         }
         
         await warehouseRepo.UpdateWarehouseAsync(foundWarehouse);
-        
-        Console.WriteLine("WAREHOUSE: " + foundWarehouse);
         
         return new WarehouseResponse()
         {

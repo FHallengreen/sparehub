@@ -10,13 +10,7 @@ interface CreateModalProps {
     table: string;
 }
 
-const CreateModal: React.FC<CreateModalProps> = ({
-                                                     open,
-                                                     initialData,
-                                                     onClose,
-                                                     onSave,
-                                                     table,
-                                                 }) => {
+const CreateModal: React.FC<CreateModalProps> = ({open, initialData, onClose, onSave, table,}) => {
     const [formData, setFormData] = useState<Record<string, any>>(initialData || {});
 
     if (!open) return null;

@@ -81,8 +81,7 @@ public class WarehouseMySqlRepository(SpareHubDbContext dbContext, IMapper mappe
 
         return warehouseEntity != null ? mapper.Map<Warehouse>(warehouseEntity) : null;
     }
-
-
+    
     public async Task<Warehouse> CreateWarehouseAsync(Warehouse warehouse)
     {   
         
@@ -96,7 +95,6 @@ public class WarehouseMySqlRepository(SpareHubDbContext dbContext, IMapper mappe
         return warehouse;
     }
     
-
     public async Task<Warehouse> UpdateWarehouseAsync(Warehouse warehouse)
     {
         var warehouseEntity = mapper.Map<WarehouseEntity>(warehouse);

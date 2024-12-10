@@ -7,11 +7,7 @@ interface TableComponentProps {
     onCellClick?: (column: string) => void;
 }
 
-const TableComponent: React.FC<TableComponentProps> = ({
-                                                           data,
-                                                           onEditObject,
-                                                           onCellClick,
-                                                       }) => {
+const TableComponent: React.FC<TableComponentProps> = ({data, onEditObject, onCellClick,}) => {
     const headers = data.length > 0 ? Object.keys(data[0]) : [];
 
     return (

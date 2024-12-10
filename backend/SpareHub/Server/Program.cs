@@ -119,7 +119,6 @@ builder.Services.AddScoped<IAddressRepository>(sp =>
     return databaseFactory.GetRepository<IAddressRepository>();
 });
 
-
 // Register services directly
 builder.Services.AddScoped<IDispatchService, DispatchService>();
 builder.Services.AddScoped<IBoxService, BoxService>();
