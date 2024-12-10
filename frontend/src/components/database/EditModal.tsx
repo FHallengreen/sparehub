@@ -28,7 +28,7 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
             document.addEventListener("keydown", handleKeyDown);
 
             if (modalRef.current) {
-                modalRef.current.focus(); // Focus the modal when it opens
+                modalRef.current.focus(); // Focus the modal container when it opens
             }
 
             return () => document.removeEventListener("keydown", handleKeyDown);
@@ -74,7 +74,7 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
-            tabIndex={0} // Makes the div focusable
+            tabIndex={0} // Makes the outer container focusable
             className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
             onClick={onClose}
             onKeyDown={(e) => {
@@ -84,10 +84,15 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
             }}
         >
             <div
+                role="document" // Indicates this is the modal's content
+                aria-labelledby="modal-title"
+                tabIndex={-1} // Allows programmatic focus
                 className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md"
                 onClick={(e) => e.stopPropagation()} // Prevent close on modal content click
             >
-                <h2 id="modal-title" className="text-xl font-bold text-gray-800 mb-4">Edit Entry</h2>
+                <h2 id="modal-title" className="text-xl font-bold text-gray-800 mb-4">
+                    Edit Entry
+                </h2>
                 {Object.entries(formData).map(([key, value]) => (
                     <div key={key} className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
