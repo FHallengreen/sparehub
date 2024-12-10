@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { supportedTables } from "../../helpers/FrontendDatabase.tsx";
 
 interface EditModalProps {
@@ -10,6 +10,7 @@ interface EditModalProps {
 
 const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) => {
     const [formData, setFormData] = useState<any>(object);
+    const modalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (object) {
@@ -25,6 +26,11 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
                 }
             };
             document.addEventListener("keydown", handleKeyDown);
+
+            if (modalRef.current) {
+                modalRef.current.focus(); // Focus the modal when it opens
+            }
+
             return () => document.removeEventListener("keydown", handleKeyDown);
         }
     }, [open, onClose]);
@@ -64,15 +70,22 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
 
     return (
         <div
+            ref={modalRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
+            tabIndex={0} // Makes the div focusable
             className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
             onClick={onClose}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    onClose();
+                }
+            }}
         >
             <div
                 className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()} // Prevent close on modal content click
             >
                 <h2 id="modal-title" className="text-xl font-bold text-gray-800 mb-4">Edit Entry</h2>
                 {Object.entries(formData).map(([key, value]) => (
@@ -107,6 +120,5 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
         </div>
     );
 };
-
 
 export default EditModal;
