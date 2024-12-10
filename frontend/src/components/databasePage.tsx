@@ -5,13 +5,12 @@ import { supportedTables } from "../helpers/FrontendDatabase"
 
 const Databasepage: React.FC = () => {
 
-    const tables = supportedTables
     return (
         <div>
             <h1>Database Tables</h1>
-            {tables.length > 0 ? (
+            {supportedTables.length > 0 ? (
                 <ul>
-                    {tables.map(table => (
+                    {supportedTables.map(table => (
                         <li key={table}>
                             <Button>
                                 <Link to={`/database/${table}`}>{`Edit ${table}`}</Link> {}
