@@ -4,8 +4,10 @@ import OwnerFilter from '../components/OwnerFilter';
 import { getOwners } from '../../../api/ownerApi';
 import { ownerColumns } from '../columns/OwnerColumns';
 import { Owner } from '../../../interfaces/owner';
+import { useNavigate } from 'react-router-dom';
 
 const OwnerPage: React.FC = () => {
+    const navigate = useNavigate();
     const [owners, setOwners] = useState<Owner[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -47,7 +49,9 @@ const OwnerPage: React.FC = () => {
                 error={error}
                 selectionModel={[]}
                 onRowSelectionModelChange={() => {}}
-                onRowDoubleClick={() => {}}
+                onRowDoubleClick={(params) => {
+                    navigate(`/owners/${params.row.id}`);
+                }}
             />
         </div>
     );

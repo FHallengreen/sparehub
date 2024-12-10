@@ -75,8 +75,6 @@ const OwnerDetailsPage: React.FC = () => {
         title="Owner Information"
         fields={[
           { label: 'Name', value: owner.name, onChange: (value) => handleInputChange('name', value) },
-          { label: 'Email', value: owner.email, onChange: (value) => handleInputChange('email', value) },
-          { label: 'Phone', value: owner.phone, onChange: (value) => handleInputChange('phone', value) },
         ]}
       />
 

@@ -7,8 +7,10 @@ export interface Port {
 
 
 export interface PortDetail extends Port {
-    createdAt?: string;
-    updatedAt?: string;
+    id: string;
+    name: string;
+    country: string;
+    unlocode: string;
 }
 
 
