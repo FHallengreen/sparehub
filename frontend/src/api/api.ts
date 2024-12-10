@@ -16,7 +16,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    return Promise.reject(new Error(error.message || 'An error occurred during the response.'));
   }
 );
 
@@ -27,11 +27,11 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('session');
-      
+
       window.location.href = '/login';
     }
 
-    return Promise.reject(error);
+    return Promise.reject(new Error(error.message || 'An error occurred during the response.'));
   }
 );
 
