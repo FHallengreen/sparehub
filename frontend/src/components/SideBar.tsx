@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FaBox, FaTruck, FaFileInvoice, FaCogs, FaDatabase, FaSignOutAlt } from 'react-icons/fa';
+import { FaBox, FaTruck, FaFileInvoice, FaCogs, FaDatabase, FaSignOutAlt, FaUsers, FaShip, FaAnchor } from 'react-icons/fa';
 import sparehubLogo from '../assets/Sparehublogo_white_noname.svg';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
@@ -48,19 +48,31 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <img src={sparehubLogo} alt="SpareHub Logo" className="w-12 h-12" />
       </NavLink>
 
-      <NavLink to="/orders" className="mb-5">
+      <NavLink to="/owners" className="mb-5" title="Owners">
+        <FaUsers size={28} />
+      </NavLink>
+      <NavLink to="/vessels" className="mb-5" title="Vessels">
+        <FaShip size={28} />
+      </NavLink>
+      <NavLink to="/ports" className="mb-5" title="Ports">
+        <FaAnchor size={28} />
+      </NavLink>
+      <NavLink to="/vessels-at-ports" className="mb-5" title="Vessels at Ports">
         <FaBox size={28} />
       </NavLink>
-      <NavLink to="/dispatches" className="mb-5">
+      <NavLink to="/orders" className="mb-5" title="Orders">
+        <FaBox size={28} />
+      </NavLink>
+      <NavLink to="/dispatches" className="mb-5" title="Dispatches">
         <FaTruck size={28} />
       </NavLink>
-      <NavLink to="/invoices" className="mb-5">
+      <NavLink to="/invoices" className="mb-5" title="Invoices">
         <FaFileInvoice size={28} />
       </NavLink>
-      <NavLink to="/settings" className="mb-5">
+      <NavLink to="/settings" className="mb-5" title="Settings">
         <FaCogs size={28} />
       </NavLink>
-      <NavLink to="/database" className="mb-5">
+      <NavLink to="/database" className="mb-5" title="Database">
         <FaDatabase size={28} />
       </NavLink>
 

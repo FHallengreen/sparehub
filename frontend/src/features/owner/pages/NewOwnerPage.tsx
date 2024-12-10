@@ -12,8 +12,6 @@ const NewOwnerPage: React.FC = () => {
 
     const [owner, setOwner] = useState<OwnerRequest>({
         name: '',
-        email: '',
-        phone: '',
     });
 
     const [loading, setLoading] = useState<boolean>(false);
@@ -58,9 +56,7 @@ const NewOwnerPage: React.FC = () => {
             <OwnerDetailForm
                 title="Create Owner"
                 fields={[
-                    { label: 'Name', value: owner.name, onChange: (value) => handleInputChange('name', value) },
-                    { label: 'Email', value: owner.email, onChange: (value) => handleInputChange('email', value) },
-                    { label: 'Phone', value: owner.phone, onChange: (value) => handleInputChange('phone', value) },
+                    { label: 'Name', value: owner.name, onChange: (value) => handleInputChange('name', value) }
                 ]}
             />
 

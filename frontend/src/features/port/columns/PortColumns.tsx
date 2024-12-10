@@ -14,19 +14,5 @@ export const portColumns: GridColDef[] = [
     flex: 0.5,
     headerAlign: 'center',
     align: 'center',
-  },
-  {
-    field: 'country',
-    headerName: 'Country',
-    flex: 0.5,
-    headerAlign: 'center',
-    align: 'center',
-  },
-  {
-    field: 'unlocode',
-    headerName: 'UN/LOCODE',
-    flex: 0.5,
-    headerAlign: 'center',
-    align: 'center',
   }
 ]; 

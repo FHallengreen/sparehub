@@ -11,10 +11,10 @@ const NewVesselPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [vessel, setVessel] = useState<VesselRequest>({
+        owner_id: '',
         name: '',
-        type: '',
-        ownerId: '',
         imoNumber: '',
+        flag: '',
     });
 
     const handleInputChange = (field: keyof VesselRequest, value: string) => {
@@ -58,23 +58,23 @@ const NewVesselPage: React.FC = () => {
                 className="mb-4"
             />
             <TextField
-                label="Type"
-                value={vessel.type}
-                onChange={(e) => handleInputChange('type', e.target.value)}
+                label="IMO Number"
+                value={vessel.imoNumber}
+                onChange={(e) => handleInputChange('imoNumber', e.target.value)}
+                fullWidth
+                className="mb-4"
+            />
+            <TextField
+                label="Flag"
+                value={vessel.flag}
+                onChange={(e) => handleInputChange('flag', e.target.value)}
                 fullWidth
                 className="mb-4"
             />
             <TextField
                 label="Owner ID"
-                value={vessel.ownerId}
-                onChange={(e) => handleInputChange('ownerId', e.target.value)}
-                fullWidth
-                className="mb-4"
-            />
-            <TextField
-                label="IMO Number"
-                value={vessel.imoNumber}
-                onChange={(e) => handleInputChange('imoNumber', e.target.value)}
+                value={vessel.owner_id}
+                onChange={(e) => handleInputChange('owner_id', e.target.value)}
                 fullWidth
                 className="mb-4"
             />

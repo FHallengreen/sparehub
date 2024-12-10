@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CircularProgress, Typography, Button, TextField } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
-import { getPort, updatePort, deletePort } from '../../../api/portApi';
+import { getPortById, updatePort, deletePort } from '../../../api/portApi';
 import { PortDetail } from '../../../interfaces/port';
 
 const PortDetailsPage: React.FC = () => {
@@ -16,7 +16,7 @@ const PortDetailsPage: React.FC = () => {
   useEffect(() => {
     const fetchPort = async () => {
       try {
-        const data = await getPort(id!);
+        const data = await getPortById(id!);
         setPort(data);
       } catch (err) {
         console.error('Error fetching port:', err);
@@ -39,7 +39,8 @@ const PortDetailsPage: React.FC = () => {
     if (!port) return;
 
     try {
-      await updatePort(id!, port);
+      const updatedPort = await updatePort(id!, port);
+      setPort(updatedPort);
       showSnackbar('Port updated successfully!', 'success');
       navigate('/ports');
     } catch (err) {
@@ -75,20 +76,6 @@ const PortDetailsPage: React.FC = () => {
         label="Port Name"
         value={port.name}
         onChange={(e) => handleInputChange('name', e.target.value)}
-        fullWidth
-        className="mb-4"
-      />
-      <TextField
-        label="Country"
-        value={port.country}
-        onChange={(e) => handleInputChange('country', e.target.value)}
-        fullWidth
-        className="mb-4"
-      />
-      <TextField
-        label="UN/LOCODE"
-        value={port.unlocode}
-        onChange={(e) => handleInputChange('unlocode', e.target.value)}
         fullWidth
         className="mb-4"
       />

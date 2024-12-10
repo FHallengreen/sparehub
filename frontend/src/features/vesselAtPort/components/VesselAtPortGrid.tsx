@@ -33,6 +33,7 @@ const VesselAtPortGrid: React.FC<VesselAtPortGridProps> = ({
             onRowSelectionModelChange={onRowSelectionModelChange}
             onRowDoubleClick={onRowDoubleClick}
             autoHeight
+            getRowId={(row) => `${row.portId}-${row.vessels[0].id}`}
         />
     );
 };

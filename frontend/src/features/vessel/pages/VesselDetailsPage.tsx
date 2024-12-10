@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CircularProgress, Typography, Button, TextField } from '@mui/material';
+import { Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
-import { getVessel, updateVessel, deleteVessel } from '../../../api/vesselApi';
+import { getVesselById, updateVessel, deleteVessel } from '../../../api/vesselApi';
 import { VesselDetail } from '../../../interfaces/vessel';
 
 const VesselDetailsPage: React.FC = () => {
@@ -16,7 +16,8 @@ const VesselDetailsPage: React.FC = () => {
     useEffect(() => {
         const fetchVessel = async () => {
             try {
-                const data = await getVessel(id!);
+                const data = await getVesselById(id!);
+                console.log('Fetched Vessel:', data);
                 setVessel(data);
             } catch (err) {
                 console.error('Error fetching vessel:', err);
@@ -29,17 +30,11 @@ const VesselDetailsPage: React.FC = () => {
         fetchVessel();
     }, [id]);
 
-    const handleInputChange = (field: keyof VesselDetail, value: string) => {
-        if (vessel) {
-            setVessel({ ...vessel, [field]: value });
-        }
-    };
-
     const handleSave = async () => {
         if (!vessel) return;
 
         try {
-            await updateVessel(id!, vessel);
+            await updateVessel(vessel.id, vessel);
             showSnackbar('Vessel updated successfully!', 'success');
             navigate('/vessels');
         } catch (err) {
@@ -49,9 +44,14 @@ const VesselDetailsPage: React.FC = () => {
     };
 
     const handleDelete = async () => {
+        if (!vessel) {
+            showSnackbar('No vessel found to delete.', 'error');
+            return;
+        }
+
         if (window.confirm('Are you sure you want to delete this vessel?')) {
             try {
-                await deleteVessel(id!);
+                await deleteVessel(vessel.id);
                 showSnackbar('Vessel deleted successfully!', 'success');
                 navigate('/vessels');
             } catch (err) {
@@ -74,30 +74,39 @@ const VesselDetailsPage: React.FC = () => {
             <TextField
                 label="Vessel Name"
                 value={vessel.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                fullWidth
-                className="mb-4"
-            />
-            <TextField
-                label="Type"
-                value={vessel.type}
-                onChange={(e) => handleInputChange('type', e.target.value)}
-                fullWidth
-                className="mb-4"
-            />
-            <TextField
-                label="Owner ID"
-                value={vessel.ownerId}
-                onChange={(e) => handleInputChange('ownerId', e.target.value)}
+                onChange={(e) => setVessel({ ...vessel, name: e.target.value })}
                 fullWidth
                 className="mb-4"
             />
             <TextField
                 label="IMO Number"
                 value={vessel.imoNumber}
-                onChange={(e) => handleInputChange('imoNumber', e.target.value)}
+                onChange={(e) => setVessel({ ...vessel, imoNumber: e.target.value })}
                 fullWidth
                 className="mb-4"
+            />
+            <TextField
+                label="Flag"
+                value={vessel.flag}
+                onChange={(e) => setVessel({ ...vessel, flag: e.target.value })}
+                fullWidth
+                className="mb-4"
+            />
+            <TextField
+                label="Owner ID"
+                value={vessel.owner_id}
+                onChange={(e) => setVessel({ ...vessel, owner_id: e.target.value })}
+                fullWidth
+                className="mb-4"
+            />
+            <TextField
+                label="Owner Name"
+                value={vessel.owner?.name || ''}
+                fullWidth
+                className="mb-4"
+                InputProps={{
+                    readOnly: true,
+                }}
             />
 
             <div className="mt-8 gap-2 flex">

@@ -1,81 +1,56 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { GridRowSelectionModel } from '@mui/x-data-grid';
+import React, { useEffect, useState } from 'react';
 import OwnerGrid from '../components/OwnerGrid';
 import OwnerFilter from '../components/OwnerFilter';
-import { Owner } from '../../../interfaces/owner';
-import { ownerColumns } from '../columns/OwnerColumns';
 import { getOwners } from '../../../api/ownerApi';
+import { ownerColumns } from '../columns/OwnerColumns';
+import { Owner } from '../../../interfaces/owner';
 
 const OwnerPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [rows, setRows] = useState<Owner[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTags, setSearchTags] = useState<string[]>([]);
-  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const searchBoxRef = useRef<HTMLInputElement>(null);
+    const [owners, setOwners] = useState<Owner[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [searchTags, setSearchTags] = useState<string[]>([]);
+    const [suggestions, setSuggestions] = useState<string[]>([]);
 
-  const fetchOwners = async () => {
-    try {
-      const response = await getOwners();
-      setRows(response);
-    } catch (err) {
-      console.error('Error fetching owners:', err);
-      setError('Failed to fetch owners.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchOwners = async () => {
+        setLoading(true);
+        try {
+            const response = await getOwners();
+            setOwners(response);
+            const uniqueNames = Array.from(new Set(response.map(owner => owner.name)));
+            setSuggestions(uniqueNames);
+        } catch (err) {
+            console.error('Error fetching owners:', err);
+            setError('Failed to fetch owners.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  useEffect(() => {
-    if (searchBoxRef.current) {
-      searchBoxRef.current.focus();
-    }
-  }, []);
+    useEffect(() => {
+        fetchOwners();
+    }, []);
 
-  useEffect(() => {
-    setLoading(true);
-    fetchOwners();
-  }, [searchTags]);
-
-  useEffect(() => {
-    if (rows.length > 0) {
-      const uniqueTerms = Array.from(
-        new Set(
-          rows.flatMap((row) => [
-            row.name,
-            row.email,
-            row.phone,
-          ]).filter(Boolean)
-        )
-      );
-      setSuggestions(uniqueTerms);
-    }
-  }, [rows]);
-
-  return (
-    <div className="w-full">
-      <OwnerFilter
-        suggestions={suggestions}
-        searchTags={searchTags}
-        setSearchTags={setSearchTags}
-        searchBoxRef={searchBoxRef}
-      />
-      <OwnerGrid
-        rows={rows}
-        columns={ownerColumns}
-        loading={loading}
-        error={error}
-        selectionModel={selectionModel}
-        onRowSelectionModelChange={setSelectionModel}
-        onRowDoubleClick={(params) => {
-          navigate(`/owners/${params.row.id}`);
-        }}
-      />
-    </div>
-  );
+    return (
+        <div>
+            <h1 className="text-2xl font-bold mb-4">Owner List</h1>
+            <OwnerFilter
+                suggestions={suggestions}
+                searchTags={searchTags}
+                setSearchTags={setSearchTags}
+                searchBoxRef={React.createRef<HTMLInputElement>()}
+            />
+            <OwnerGrid
+                rows={owners}
+                columns={ownerColumns}
+                loading={loading}
+                error={error}
+                selectionModel={[]}
+                onRowSelectionModelChange={() => {}}
+                onRowDoubleClick={() => {}}
+            />
+        </div>
+    );
 };
 
 export default OwnerPage;

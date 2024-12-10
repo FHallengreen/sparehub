@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CircularProgress, Typography, Button } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext';
 import OwnerDetailForm from '../components/OwnerDetailForm';
-import { getOwnerById, updateOwner, deleteOwner } from '../../../api/ownerApi';
+import { getOwner, updateOwner, deleteOwner } from '../../../api/ownerApi';
 
 const OwnerDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,7 +20,7 @@ const OwnerDetailsPage: React.FC = () => {
           setLoading(false);
           return;
         }
-        const data = await getOwnerById(id);
+        const data = await getOwner(id);
         setOwner(data);
       } catch (err) {
         console.error('Error fetching owner:', err);

@@ -56,20 +56,6 @@ const NewPortPage: React.FC = () => {
         fullWidth
         className="mb-4"
       />
-      <TextField
-        label="Country"
-        value={port.country}
-        onChange={(e) => handleInputChange('country', e.target.value)}
-        fullWidth
-        className="mb-4"
-      />
-      <TextField
-        label="UN/LOCODE"
-        value={port.unlocode}
-        onChange={(e) => handleInputChange('unlocode', e.target.value)}
-        fullWidth
-        className="mb-4"
-      />
 
       <div className="mt-8 gap-2 flex">
         <Button onClick={handleSave} variant="contained" color="primary" className="mr-2">

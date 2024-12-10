@@ -3,7 +3,7 @@ import { TextField, Typography } from '@mui/material';
 
 interface Field {
   label: string;
-  value: string | number | null; // Allow `null` as a valid type
+  value: string | number | null;
   onChange: (value: any) => void;
   type?: string;
 }

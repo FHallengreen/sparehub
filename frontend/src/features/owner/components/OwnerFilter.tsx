@@ -42,8 +42,13 @@ const OwnerFilter: React.FC<OwnerFilterProps> = ({
         )}
         style={{ width: '40vw' }}
       />
-      <Button onClick={() => navigate(`/owners/new`)} variant="contained" color="primary">
-        New Owner
+      <Button
+        onClick={() => navigate(`/owners/new`)}
+        variant="contained"
+        color="primary"
+        style={{ marginLeft: '10px' }}
+      >
+        Create New Owner
       </Button>
     </div>
   );

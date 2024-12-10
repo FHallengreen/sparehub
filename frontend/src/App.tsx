@@ -12,7 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 import { AuthProvider } from './context/AuthContext';
-import OwnerList from './features/owner/components/OwnerList.tsx';
+
 import NewOwnerPage from './features/owner/pages/NewOwnerPage.tsx';
 import OwnerDetailsPage from './features/owner/pages/OwnerDetailsPage.tsx';
 import PortPage from './features/port/pages/PortPage.tsx';
@@ -24,6 +24,7 @@ import VesselDetailsPage from './features/vessel/pages/VesselDetailsPage.tsx';
 import VesselAtPortPage from './features/vesselAtPort/pages/VesselAtPortPage.tsx';
 import NewVesselAtPortPage from './features/vesselAtPort/pages/NewVesselAtPortPage.tsx';
 import VesselAtPortDetailsPage from './features/vesselAtPort/pages/VesselAtPortDetailsPage.tsx';
+import OwnerPage from './features/owner/pages/OwnerPage';
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -117,11 +118,12 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+            
               <Route
                 path="/owners"
                 element={
                   <ProtectedRoute>
-                    <OwnerList />
+                    <OwnerPage />
                   </ProtectedRoute>
                 }
               />

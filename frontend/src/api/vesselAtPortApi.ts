@@ -4,8 +4,8 @@ import { VesselAtPort, VesselAtPortDetail, VesselAtPortRequest } from '../interf
 const BASE_URL = 'api/vessel-at-port';
 
 export const getVesselsAtPorts = async (): Promise<VesselAtPort[]> => {
-    const response = await api.get(BASE_URL);
-    return response.data; // Ensure this returns an array of VesselAtPort
+    const response = await api.get<VesselAtPort[]>(BASE_URL);
+    return response.data;
 };
 
 export const getVesselAtPort = async (id: string): Promise<VesselAtPortDetail> => {

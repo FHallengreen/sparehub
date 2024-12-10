@@ -35,17 +35,19 @@ const PortPage: React.FC = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
     fetchPorts();
   }, [searchTags]);
 
   return (
     <div className="w-full">
-      <PortFilter
-        suggestions={suggestions}
-        searchTags={searchTags}
-        setSearchTags={setSearchTags}
-      />
+      <h1 className="text-2xl font-bold mb-4">Port List</h1>
+      <div className="flex items-center space-x-2 mb-4">
+        <PortFilter
+          suggestions={suggestions}
+          searchTags={searchTags}
+          setSearchTags={setSearchTags}
+        />
+      </div>
       <PortGrid
         rows={rows}
         columns={portColumns}

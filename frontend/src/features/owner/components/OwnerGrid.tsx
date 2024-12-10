@@ -37,11 +37,6 @@ const OwnerGrid: React.FC<OwnerGridProps> = ({
       pageSizeOptions={[25, 50, 100]}
       pagination
       checkboxSelection
-      disableColumnFilter
-      disableColumnSorting
-      disableColumnResize
-      disableRowSelectionOnClick
-      showCellVerticalBorder
       rowSelectionModel={selectionModel}
       onRowSelectionModelChange={onRowSelectionModelChange}
       onRowDoubleClick={onRowDoubleClick}

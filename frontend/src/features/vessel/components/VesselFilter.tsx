@@ -1,5 +1,6 @@
 import React from 'react';
-import { Autocomplete, TextField, Chip } from '@mui/material';
+import { Autocomplete, TextField, Chip, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface VesselFilterProps {
     suggestions: string[];
@@ -7,7 +8,12 @@ interface VesselFilterProps {
     setSearchTags: (tags: string[]) => void;
 }
 
-const VesselFilter: React.FC<VesselFilterProps> = ({ suggestions, searchTags, setSearchTags }) => {
+const VesselFilter: React.FC<VesselFilterProps> = ({
+    suggestions,
+    searchTags,
+    setSearchTags,
+}) => {
+    const navigate = useNavigate();
     return (
         <div className="flex items-center space-x-2 mb-5">
             <Autocomplete
@@ -22,10 +28,24 @@ const VesselFilter: React.FC<VesselFilterProps> = ({ suggestions, searchTags, se
                     ))
                 }
                 renderInput={(params) => (
-                    <TextField {...params} label="Search Vessels" placeholder="Add a tag" />
+                    <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Search Vessels"
+                        placeholder="Add a tag"
+                        fullWidth
+                    />
                 )}
                 style={{ width: '40vw' }}
             />
+          <Button
+        onClick={() => navigate(`/vessels/new`)}
+        variant="contained"
+        color="primary"
+        style={{ marginLeft: '10px' }}
+             >
+                Create New Vessel
+            </Button>
         </div>
     );
 };
