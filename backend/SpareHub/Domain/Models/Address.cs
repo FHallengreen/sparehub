@@ -2,8 +2,8 @@ namespace Domain.Models;
 
 public class Address
 {
-    public string Id { get; init; }
-    public required string AddressLine { get; init; }
-    public required string PostalCode { get; init; }
-    public required string Country { get; init; }
+    public string Id { get; set; } = null!;
+    public required string AddressLine { get; set; }
+    public required string PostalCode { get; set; }
+    public required string Country { get; set; }
 }
