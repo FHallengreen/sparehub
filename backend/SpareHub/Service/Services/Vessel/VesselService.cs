@@ -57,6 +57,11 @@ public class VesselService(IVesselRepository vesselRepository,IOwnerRepository o
 
     public async Task<VesselResponse> CreateVessel(VesselRequest vesselRequest)
     {
+        if (vesselRequest == null)
+        {
+            throw new ArgumentNullException(nameof(vesselRequest), "VesselRequest cannot be null.");
+        }
+
         var owner = await ownerRepository.GetOwnerByIdAsync(vesselRequest.OwnerId);
         if (owner == null)
             throw new NotFoundException($"Owner with id '{vesselRequest.OwnerId}' not found");
