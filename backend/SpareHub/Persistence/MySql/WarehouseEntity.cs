@@ -13,4 +13,10 @@ public class WarehouseEntity
     public int AddressId { get; init; }
     [ForeignKey("AddressId")]
     public required AddressEntity Address { get; init; }
+
+
+    public override string ToString()
+    {
+        return $"Id: {Id}, Name: {Name}, Agent: {Agent}, Address: {Address}";
+    }
 }

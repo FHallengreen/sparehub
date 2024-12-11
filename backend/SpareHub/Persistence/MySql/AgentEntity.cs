@@ -10,4 +10,9 @@ public class AgentEntity
     public int Id { get; init; }
 
     public required string Name { get; init; }
+    
+    public override string ToString()
+    {
+        return $"Id: {Id}, Name: {Name}";
+    }
 }
