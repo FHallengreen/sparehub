@@ -10,13 +10,17 @@ export interface Vessel {
 }
 
 export interface VesselDetail extends Vessel {
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface VesselRequest {
+    id: string;
     owner_id: string;
     name: string;
     imoNumber: string;
     flag: string;
+    owner?: Owner;
+}
+
+export interface VesselRequest {
+    name: string;
+    imoNumber: string;
+    flag: string;
+    owner_id: string;
 } 

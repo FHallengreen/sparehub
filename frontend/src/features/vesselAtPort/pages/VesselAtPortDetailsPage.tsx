@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CircularProgress, Typography, Button, TextField } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { getVesselAtPort, updateVesselAtPort, deleteVesselAtPort } from '../../../api/vesselAtPortApi.ts';
-import { getVesselById } from '../../../api/vesselApi.ts';
-import { getPortById } from '../../../api/portApi.ts';
+//import { getVesselById } from '../../../api/vesselApi.ts';
+//import { getPortById } from '../../../api/portApi.ts';
 import { VesselAtPortDetail } from '../../../interfaces/vesselAtPort.ts';
 
 const VesselAtPortDetailsPage: React.FC = () => {
@@ -14,18 +14,18 @@ const VesselAtPortDetailsPage: React.FC = () => {
     const [vesselAtPort, setVesselAtPort] = useState<VesselAtPortDetail | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [vessel, setVessel] = useState<any>(null);
-    const [port, setPort] = useState<any>(null);
+    //const [vessel, setVessel] = useState<any>(null);
+    //const [port, setPort] = useState<any>(null);
 
     useEffect(() => {
         const fetchVesselAtPort = async () => {
             try {
                 const data = await getVesselAtPort(id!);
                 setVesselAtPort(data);
-                const vesselData = await getVesselById(data.vesselId);
-                const portData = await getPortById(data.portId);
-                setVessel(vesselData);
-                setPort(portData);
+                //const vesselData = await getVesselById(data.vesselId);
+                //const portData = await getPortById(data.portId);
+                //setVessel(vesselData);
+                //setPort(portData);
             } catch (err) {
                 console.error('Error fetching vessel at port:', err);
                 setError('Failed to fetch vessel at port details.');

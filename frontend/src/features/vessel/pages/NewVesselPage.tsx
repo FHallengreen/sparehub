@@ -4,6 +4,7 @@ import { Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { createVessel } from '../../../api/vesselApi';
 import { VesselRequest } from '../../../interfaces/vessel';
+import axios from 'axios';
 
 const NewVesselPage: React.FC = () => {
     const navigate = useNavigate();
@@ -11,10 +12,10 @@ const NewVesselPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [vessel, setVessel] = useState<VesselRequest>({
-        owner_id: '',
         name: '',
         imoNumber: '',
         flag: '',
+        owner_id: '',
     });
 
     const handleInputChange = (field: keyof VesselRequest, value: string) => {
@@ -25,13 +26,20 @@ const NewVesselPage: React.FC = () => {
         setLoading(true);
         setError(null);
 
+        console.log('Vessel data being sent:', vessel);
+
         try {
             await createVessel(vessel);
             showSnackbar('Vessel created successfully!', 'success');
             navigate('/vessels');
-        } catch (err) {
-            console.error('Error creating vessel:', err);
-            showSnackbar('Failed to create vessel.', 'error');
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                console.error('Error creating vessel:', err.response?.data || err.message);
+                showSnackbar('Failed to create vessel: ' + (err.response?.data || err.message), 'error');
+            } else {
+                console.error('Unexpected error:', err);
+                showSnackbar('Failed to create vessel due to an unexpected error.', 'error');
+            }
             setError('Failed to create vessel.');
         } finally {
             setLoading(false);

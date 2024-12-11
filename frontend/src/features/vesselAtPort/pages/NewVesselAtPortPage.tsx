@@ -15,7 +15,6 @@ const NewVesselAtPortPage: React.FC = () => {
         portId: '',
         arrivalDate: '',
         departureDate: '',
-        status: '',
     });
 
     const handleInputChange = (field: keyof VesselAtPortRequest, value: string) => {
@@ -76,13 +75,6 @@ const NewVesselAtPortPage: React.FC = () => {
                 label="Departure Date"
                 value={vesselAtPort.departureDate}
                 onChange={(e) => handleInputChange('departureDate', e.target.value)}
-                fullWidth
-                className="mb-4"
-            />
-            <TextField
-                label="Status"
-                value={vesselAtPort.status}
-                onChange={(e) => handleInputChange('status', e.target.value)}
                 fullWidth
                 className="mb-4"
             />
