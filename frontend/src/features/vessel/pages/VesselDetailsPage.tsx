@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { getVesselById, updateVessel, deleteVessel } from '../../../api/vesselApi';
-import { VesselDetail } from '../../../interfaces/vessel';
+import { VesselDetail, VesselRequest } from '../../../interfaces/vessel';
 
 const VesselDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -12,6 +12,7 @@ const VesselDetailsPage: React.FC = () => {
     const [vessel, setVessel] = useState<VesselDetail | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [ownerId, setOwnerId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchVessel = async () => {
@@ -32,9 +33,14 @@ const VesselDetailsPage: React.FC = () => {
 
     const handleSave = async () => {
         if (!vessel) return;
-
+        const updatedVessel: VesselRequest = { 
+            name: vessel.name, 
+            imoNumber: vessel.imoNumber, 
+            flag: vessel.flag, 
+            ownerId: ownerId || vessel.owner_id
+         };
         try {
-            await updateVessel(vessel.id, vessel);
+            await updateVessel(vessel.id, updatedVessel);
             showSnackbar('Vessel updated successfully!', 'success');
             navigate('/vessels');
         } catch (err) {
@@ -70,7 +76,7 @@ const VesselDetailsPage: React.FC = () => {
             <Typography variant="h4" className="text-2xl font-bold mb-6">
                 Vessel Details
             </Typography>
-
+            
             <TextField
                 label="Vessel Name"
                 value={vessel.name}
@@ -94,20 +100,12 @@ const VesselDetailsPage: React.FC = () => {
             />
             <TextField
                 label="Owner ID"
-                value={vessel.owner_id}
-                onChange={(e) => setVessel({ ...vessel, owner_id: e.target.value })}
+                defaultValue={vessel.owner?.id}
+                onChange={(e) => setOwnerId(e.target.value)}
                 fullWidth
                 className="mb-4"
             />
-            <TextField
-                label="Owner Name"
-                value={vessel.owner?.name || ''}
-                fullWidth
-                className="mb-4"
-                InputProps={{
-                    readOnly: true,
-                }}
-            />
+            
 
             <div className="mt-8 gap-2 flex">
                 <Button onClick={handleSave} variant="contained" color="primary" className="mr-2">

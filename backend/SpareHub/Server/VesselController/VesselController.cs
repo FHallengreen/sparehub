@@ -57,6 +57,8 @@ public class VesselController(IVesselService vesselService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
     public async Task<IActionResult> UpdateVessel(string vesselId, [FromBody] VesselRequest vesselRequest)
     {
+        Console.WriteLine("Updating vessel with id: " + vesselId);
+        Console.WriteLine("Request: " + vesselRequest);
         var vessel = await vesselService.UpdateVessel(vesselId, vesselRequest);
 
         return Ok(vessel);

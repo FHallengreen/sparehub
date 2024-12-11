@@ -18,8 +18,9 @@ export const createVessel = async (vessel: VesselRequest) => {
     return response.data;
 };
 
-export const updateVessel = async (id: string, vessel: VesselDetail): Promise<void> => {
-    await api.put<VesselDetail>(`${BASE_URL}/${id}`, vessel);
+export const updateVessel = async (id: string, vessel: VesselRequest) =>{
+    console.log('Updating vessel:', vessel);
+    await api.put<VesselRequest>(`${BASE_URL}/${id}`, vessel);
 };
 
 export const deleteVessel = async (id: string): Promise<void> => {
