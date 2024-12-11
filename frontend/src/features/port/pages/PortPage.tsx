@@ -39,7 +39,7 @@ const PortPage: React.FC = () => {
 
   return (
     <div className="w-full">
-      <h1 className="text-2xl font-bold mb-4">Port List</h1>
+      <h1 className="text-2xl font-bold mb-4">Ports</h1>
       <div className="flex items-center space-x-2 mb-4">
         <PortFilter
           suggestions={suggestions}

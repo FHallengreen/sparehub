@@ -4,7 +4,6 @@ export interface VesselAtPort {
     portId: string; // Reference to the Port
     arrivalDate: string; // Date when the vessel arrived at the port
     departureDate?: string; // Date when the vessel departed from the port
-    status: string; // Status of the vessel at the port (e.g., "Docked", "Departed")
 }
 
 // If you need a type for vessel-at-port details

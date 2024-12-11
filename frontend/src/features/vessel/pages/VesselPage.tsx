@@ -51,7 +51,7 @@ const VesselPage: React.FC = () => {
     return (
         <div className="w-full">
             <Typography variant="h4" className="text-2xl font-bold mb-4">
-                Vessel List
+                Vessels
             </Typography>
             <VesselFilter
                 suggestions={suggestions}
