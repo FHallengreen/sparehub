@@ -54,14 +54,9 @@ public class VesselService(IVesselRepository vesselRepository,IOwnerRepository o
             }
         };
     }
-
     public async Task<VesselResponse> CreateVessel(VesselRequest vesselRequest)
     {
-        if (vesselRequest == null)
-        {
-            throw new ArgumentNullException(nameof(vesselRequest), "VesselRequest cannot be null.");
-        }
-
+        
         var owner = await ownerRepository.GetOwnerByIdAsync(vesselRequest.OwnerId);
         if (owner == null)
             throw new NotFoundException($"Owner with id '{vesselRequest.OwnerId}' not found");
@@ -103,8 +98,8 @@ public class VesselService(IVesselRepository vesselRepository,IOwnerRepository o
             throw new NotFoundException($"Owner with id '{vesselRequest.OwnerId}' not found");
         
         vessel.Name = vesselRequest.Name;
-        if (vesselRequest.ImoNumber != null) vessel.ImoNumber = vesselRequest.ImoNumber;
-        if (vesselRequest.Flag != null) vessel.Flag = vesselRequest.Flag;
+        vessel.ImoNumber = vesselRequest.ImoNumber;
+        vessel.Flag = vesselRequest.Flag;
         vessel.Owner = owner;
         
         await vesselRepository.UpdateVesselAsync(vesselId, vessel);
