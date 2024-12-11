@@ -1,4 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using Amazon.Runtime.Internal.Util;
+using AutoMapper;
+using Microsoft.Extensions.Logging;
 using Repository.Interfaces;
 using Service.Interfaces;
 using Shared.DTOs.Address;
@@ -8,20 +11,12 @@ using Shared.Exceptions;
 
 namespace Service.Services.Warehouse;
 
-public class WarehouseService(IWarehouseRepository warehouseRepo, IAgentRepository agentRepo, IAddressRepository addressRepo) : IWarehouseService
+public class WarehouseService(IMapper mapper, IWarehouseRepository warehouseRepo, IAgentRepository agentRepo, IAddressRepository addressRepo) : IWarehouseService
 {
     public async Task<List<WarehouseResponse>> GetWarehouses()
     {
         var warehouses = await warehouseRepo.GetWarehousesAsync();
-
-        foreach (var w in warehouses)
-        {
-            //Print all values in warehouse
-            Console.WriteLine(w.Id + ": " + w.Name);
-            Console.WriteLine(w.Address);
-            Console.WriteLine(w.Agent);
-            
-        }
+        
         return warehouses.Select(w => new WarehouseResponse
         {
             Id = w.Id,
@@ -93,13 +88,12 @@ public class WarehouseService(IWarehouseRepository warehouseRepo, IAgentReposito
     }
 
     public async Task<WarehouseResponse> CreateWarehouse(WarehouseRequest request) {
-        
         var address = await addressRepo.GetAddressByIdAsync(request.AddressId);
         if (address == null)
         {
             throw new NotFoundException($"No address found with id {request.AddressId}");
         }
-
+        
         Domain.Models.Agent agent = null!;
         if (request.AgentId != null)
         {
@@ -109,7 +103,14 @@ public class WarehouseService(IWarehouseRepository warehouseRepo, IAgentReposito
                 throw new NotFoundException($"No agent found with id {request.AgentId}");
             }
         }
-        
+
+        // Check if the warehouse with the same address already exists
+        var existingWarehouse = await warehouseRepo.GetWarehouseByAddressIdAsync(request.AddressId);
+        if (existingWarehouse != null)
+        {
+            throw new NotFoundException($"A warehouse with the address id {request.AddressId} already exists.");
+        }
+
         var warehouse = new Domain.Models.Warehouse
         {
             Name = request.Name,
@@ -118,7 +119,7 @@ public class WarehouseService(IWarehouseRepository warehouseRepo, IAgentReposito
         };
         
         await warehouseRepo.CreateWarehouseAsync(warehouse);
-        
+
         return new WarehouseResponse
         {
             Id = warehouse.Id,
@@ -151,8 +152,8 @@ public class WarehouseService(IWarehouseRepository warehouseRepo, IAgentReposito
         {
             throw new NotFoundException($"No address found with id {request.AddressId}");
         }
-        
-        Domain.Models.Agent agent = null!;
+
+        Domain.Models.Agent agent;
         if (request.AgentId != null)
         {
             agent = await agentRepo.GetAgentByIdAsync(request.AgentId);
@@ -161,10 +162,6 @@ public class WarehouseService(IWarehouseRepository warehouseRepo, IAgentReposito
                 throw new NotFoundException($"No agent found with id {request.AgentId}");
             }
         }
-        
-        foundWarehouse.Name = request.Name;
-        foundWarehouse.Address = address;
-        foundWarehouse.Agent = agent;
         
         await warehouseRepo.UpdateWarehouseAsync(foundWarehouse);
         

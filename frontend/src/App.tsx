@@ -12,6 +12,10 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 import { AuthProvider } from './context/AuthContext';
+import DatabasePage from './pages/databasePage.tsx';
+import MySQLTable from "./components/database/MySQLTable";
+import DatabasePage from './pages/databasePage.tsx';
+import MySQLTable from "./components/database/MySQLTable";
 
 import NewOwnerPage from './features/owner/pages/NewOwnerPage.tsx';
 import OwnerDetailsPage from './features/owner/pages/OwnerDetailsPage.tsx';
@@ -103,7 +107,28 @@ function App() {
                 }
               />
               <Route
+<<<<<<< HEAD
                 path="/owners/new"
+=======
+                  path="/database"
+                  element={
+                    <ProtectedRoute>
+                        <DatabasePage />
+                    </ProtectedRoute>
+                    }
+               />
+                <Route
+                    path="/database/:table"
+                    element={
+                        <ProtectedRoute>
+                            <MySQLTable />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                path="/"
+>>>>>>> origin/master
                 element={
                   <ProtectedRoute>
                     <NewOwnerPage />
@@ -131,6 +156,128 @@ function App() {
                 path="/ports/new"
                 element={
                   <ProtectedRoute>
+                    <NewPortPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ports/:id"
+                element={
+                  <ProtectedRoute>
+                    <PortDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ports"
+                element={
+                  <ProtectedRoute>
+                    <PortPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels/new"
+                element={
+                  <ProtectedRoute>
+                    <NewVesselPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels/:id"
+                element={
+                  <ProtectedRoute>
+                    <VesselDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels"
+                element={
+                  <ProtectedRoute>
+                    <VesselPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels-at-ports/new"
+                element={
+                  <ProtectedRoute>
+                    <NewVesselAtPortPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels-at-ports/:id"
+                element={
+                  <ProtectedRoute>
+                    <VesselAtPortDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/vessels-at-ports"
+                element={
+                  <ProtectedRoute>
+                    <VesselAtPortPage />
+import NewOwnerPage from './features/owner/pages/NewOwnerPage.tsx';
+import OwnerDetailsPage from './features/owner/pages/OwnerDetailsPage.tsx';
+import PortPage from './features/port/pages/PortPage.tsx';
+import NewPortPage from './features/port/pages/NewPortPage.tsx';
+import PortDetailsPage from './features/port/pages/PortDetailsPage.tsx';
+import VesselPage from './features/vessel/pages/VesselPage.tsx';
+import NewVesselPage from './features/vessel/pages/NewVesselPage.tsx';
+import VesselDetailsPage from './features/vessel/pages/VesselDetailsPage.tsx';
+import VesselAtPortPage from './features/vesselAtPort/pages/VesselAtPortPage.tsx';
+import NewVesselAtPortPage from './features/vesselAtPort/pages/NewVesselAtPortPage.tsx';
+import VesselAtPortDetailsPage from './features/vesselAtPort/pages/VesselAtPortDetailsPage.tsx';
+import OwnerPage from './features/owner/pages/OwnerPage';
+
+                path="/owners/new"
+                element={
+                  <ProtectedRoute>
+                    <NewOwnerPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owners/:id"
+                element={
+                  <ProtectedRoute>
+                    <OwnerDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+            
+              <Route
+                path="/owners"
+                element={
+                  <ProtectedRoute>
+                    <OwnerPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ports/new"
+                  path="/database"
+                  element={
+                    <ProtectedRoute>
+                        <DatabasePage />
+                    </ProtectedRoute>
+                    }
+               />
+                <Route
+                    path="/database/:table"
+                    element={
+                        <ProtectedRoute>
+                            <MySQLTable />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                path="/"
                     <NewPortPage />
                   </ProtectedRoute>
                 }
