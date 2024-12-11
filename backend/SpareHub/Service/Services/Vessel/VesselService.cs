@@ -79,13 +79,11 @@ public class VesselService(IVesselRepository vesselRepository,IOwnerRepository o
             Flag = createdVessel.Flag,
             Owner = new OwnerResponse
             {
-                Id = createdVessel.Owner.Id,
-                Name = createdVessel.Owner.Name
+                Id = owner.Id,
+                Name = owner.Name
             }
         };
     }
-
-
 
     public async Task<VesselResponse> UpdateVessel(string vesselId, VesselRequest vesselRequest)
     {
