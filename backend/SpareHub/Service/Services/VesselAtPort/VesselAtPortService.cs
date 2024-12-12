@@ -4,11 +4,11 @@ using Shared.DTOs.Owner;
 using Shared.DTOs.Vessel;
 using Shared.DTOs.VesselAtPort;
 using Shared.Exceptions;
-
+using Shared.Utils;
 
 namespace Service.Services.VesselAtPort;
 
-public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository) : IVesselAtPortService
+public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository, IPortRepository portRepository) : IVesselAtPortService
 {
 
     public async Task<List<VesselAtPortResponse>> GetVesselAtPorts(IVesselRepository vesselRepository)
@@ -18,12 +18,17 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository)
         foreach (var vesselAtPort in vesselsAtPorts)
         {
             var vessel = await vesselRepository.GetVesselByIdAsync(vesselAtPort.VesselId);
+
+            var port = await portRepository.GetPortByIdAsync(vesselAtPort.PortId);
+
             var vesselAtPortResponse = new VesselAtPortResponse
             {
-                PortId = vesselAtPort.PortId,
-                Vessels = new List<VesselResponse>
-                {
-                    new VesselResponse
+                ArrivalDate = DateUtils.FormatToLocalDate(vesselAtPort.ArrivalDate),
+                DepartureDate = DateUtils.FormatToLocalDate(vesselAtPort.DepartureDate),
+                PortName = port.Name,
+                Vessels =
+                [
+                    new VesselResponse()
                     {
                         Id = vessel.Id,
                         Name = vessel.Name,
@@ -35,7 +40,7 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository)
                             Name = vessel.Owner.Name
                         }
                     }
-                }
+                ]
             };
             vesselAtPortResponses.Add(vesselAtPortResponse);
         }
@@ -46,9 +51,13 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository)
     {
         var vesselAtPort = await vesselAtPortRepository.GetVesselByIdAtPortAsync(vesselId);
         var vessel = await vesselRepository.GetVesselByIdAsync(vesselAtPort.VesselId);
+        var port = await portRepository.GetPortByIdAsync(vesselAtPort.PortId);
+
         return new VesselAtPortResponse
         {
-            PortId = vesselAtPort.PortId,
+            ArrivalDate = DateUtils.FormatToLocalDate(vesselAtPort.ArrivalDate),
+            DepartureDate = DateUtils.FormatToLocalDate(vesselAtPort.DepartureDate),
+            PortName = port.Name,
             Vessels = new List<VesselResponse>
             {
                 new VesselResponse
@@ -80,10 +89,14 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository)
         };
         
         var createdVesselAtPort = await vesselAtPortRepository.AddVesselToPortAsync(vesselAtPort);
-        
+
+        var port = await portRepository.GetPortByIdAsync(vesselAtPort.PortId);
+
         return new VesselAtPortResponse
         {
-            PortId = createdVesselAtPort.PortId,
+            ArrivalDate = DateUtils.FormatToLocalDate(createdVesselAtPort.ArrivalDate),
+            DepartureDate = DateUtils.FormatToLocalDate(createdVesselAtPort.DepartureDate),
+            PortName = port.Name,
             Vessels = new List<VesselResponse>
             {
                 new VesselResponse

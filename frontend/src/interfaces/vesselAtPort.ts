@@ -1,6 +1,7 @@
 export interface VesselAtPort {
     id: string;
     vesselId: string; // Reference to the Vessel
+    portName: string; // Name of the Port
     portId: string; // Reference to the Port
     arrivalDate: string; // Date when the vessel arrived at the port
     departureDate?: string; // Date when the vessel departed from the port
