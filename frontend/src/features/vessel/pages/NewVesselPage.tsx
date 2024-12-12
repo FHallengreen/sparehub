@@ -15,7 +15,7 @@ const NewVesselPage: React.FC = () => {
         name: '',
         imoNumber: '',
         flag: '',
-        owner_id: '',
+        ownerId: '',
     });
 
     const handleInputChange = (field: keyof VesselRequest, value: string) => {
@@ -81,8 +81,8 @@ const NewVesselPage: React.FC = () => {
             />
             <TextField
                 label="Owner ID"
-                value={vessel.owner_id}
-                onChange={(e) => handleInputChange('owner_id', e.target.value)}
+                value={vessel.ownerId}
+                onChange={(e) => handleInputChange('ownerId', e.target.value)}
                 fullWidth
                 className="mb-4"
             />

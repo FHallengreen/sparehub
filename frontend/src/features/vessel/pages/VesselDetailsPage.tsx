@@ -37,7 +37,7 @@ const VesselDetailsPage: React.FC = () => {
             name: vessel.name, 
             imoNumber: vessel.imoNumber, 
             flag: vessel.flag, 
-            ownerId: ownerId || vessel.owner_id
+            ownerId: ownerId || vessel.ownerId
          };
         try {
             await updateVessel(vessel.id, updatedVessel);

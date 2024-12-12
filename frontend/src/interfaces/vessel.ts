@@ -11,7 +11,7 @@ export interface Vessel {
 
 export interface VesselDetail extends Vessel {
     id: string;
-    owner_id: string;
+    ownerId: string;
     name: string;
     imoNumber: string;
     flag: string;
