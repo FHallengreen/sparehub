@@ -8,8 +8,8 @@ export const getVesselsAtPorts = async (): Promise<VesselAtPort[]> => {
     return response.data;
 };
 
-export const getVesselAtPort = async (id: string): Promise<VesselAtPortDetail> => {
-    const response = await api.get(`${BASE_URL}/${id}`);
+export const getVesselAtPort = async (vesselId: string): Promise<VesselAtPortDetail> => {
+    const response = await api.get<VesselAtPortDetail>(`${BASE_URL}/vessel/${vesselId}`);
     return response.data;
 };
 
@@ -25,4 +25,4 @@ export const updateVesselAtPort = async (id: string, vesselAtPort: VesselAtPortR
 
 export const deleteVesselAtPort = async (id: string): Promise<void> => {
     await api.delete(`${BASE_URL}/${id}`);
-}; 
+};

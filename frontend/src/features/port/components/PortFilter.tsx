@@ -1,38 +1,34 @@
 import React from 'react';
-import { Autocomplete, TextField, Chip, Button } from '@mui/material';
+import { Autocomplete, TextField, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 interface PortFilterProps {
     suggestions: string[];
-    searchTags: string[];
-    setSearchTags: (tags: string[]) => void;
+    searchTerm: string;
+    setSearchTerm: (term: string) => void;
+
 }
 
 const PortFilter: React.FC<PortFilterProps> = ({
     suggestions,
-    searchTags,
-    setSearchTags,
+    searchTerm,
+    setSearchTerm,
 }) => {
     const navigate = useNavigate();
+    
     return (
         <div className="flex items-center space-x-2">
             <Autocomplete
-                multiple
                 freeSolo
                 options={suggestions}
-                value={searchTags}
-                onChange={(_, newValue) => setSearchTags(newValue)}
-                renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                        <Chip label={option} {...getTagProps({ index })} />
-                    ))
-                }
+                inputValue={searchTerm}
+                onInputChange={(_, newValue) => setSearchTerm(newValue)}
                 renderInput={(params) => (
                     <TextField
                         {...params}
                         variant="outlined"
                         label="Search Ports"
-                        placeholder="Add a tag"
+                        placeholder="Type to search"
                         fullWidth
                     />
                 )}

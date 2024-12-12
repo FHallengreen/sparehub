@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver.Linq;
 using Persistence.MySql;
 using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
@@ -11,6 +12,14 @@ namespace Repository.MySql;
 
 public class VesselAtPortMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : IVesselAtPortRepository
 {
+
+    /*Task<List<VesselAtPortResponse>> GetVesselsAtPortBySearchQuery(string? searchQuery = "")
+    {
+        return await dbContext.VesselAtPort
+            .Where(v => string.IsNullOrEmpty(searchQuery) || v.Name.StartsWith(searchQuery))
+            
+    }*/
+    
     public async Task<List<VesselAtPort>> GetVesselAtPortAsync()
     {
         var vesselAtPortEntities = await dbContext.VesselAtPort

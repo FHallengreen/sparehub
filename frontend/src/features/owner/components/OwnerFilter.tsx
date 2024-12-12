@@ -1,49 +1,41 @@
 import React from 'react';
-import { Autocomplete, TextField, Chip, Button } from '@mui/material';
+import { Autocomplete, TextField, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 interface OwnerFilterProps {
   suggestions: string[];
-  searchTags: string[];
-  setSearchTags: (tags: string[]) => void;
-  searchBoxRef: React.RefObject<HTMLInputElement>;
+  searchTerm: string; // Current search term
+  setSearchTerm: (term: string) => void; // Function to update search term
 }
 
 const OwnerFilter: React.FC<OwnerFilterProps> = ({
   suggestions,
-  searchTags,
-  setSearchTags,
-  searchBoxRef,
+  searchTerm,
+  setSearchTerm,
 }) => {
   const navigate = useNavigate();
 
+
   return (
-    <div className="flex items-center space-x-2 mb-5">
+    <div className="flex items-center space-x-2 mb-4">
       <Autocomplete
-        multiple
         freeSolo
         options={suggestions}
-        value={searchTags}
-        onChange={(_, newValue) => setSearchTags(newValue)}
-        renderTags={(value, getTagProps) =>
-          value.map((option, index) => {
-            const { key, ...tagProps } = getTagProps({ index });
-            return <Chip key={key} variant="outlined" label={option} {...tagProps} />;
-          })
-        }
+        inputValue={searchTerm}
+        onInputChange={(_, newValue) => setSearchTerm(newValue)}
         renderInput={(params) => (
           <TextField
             {...params}
-            inputRef={searchBoxRef}
             variant="outlined"
             label="Search Owners"
-            placeholder="Add a tag"
+            placeholder="Type to search"
+            fullWidth
           />
         )}
-        style={{ width: '40vw' }}
+        style={{ width: '40vw' }} // Adjust width as needed
       />
       <Button
-        onClick={() => navigate(`/owners/new`)}
+        onClick={() => navigate('/owners/new')}
         variant="contained"
         color="primary"
         style={{ marginLeft: '10px' }}

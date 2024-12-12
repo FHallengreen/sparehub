@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CircularProgress, Typography, Button, TextField } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { getVesselAtPort, updateVesselAtPort, deleteVesselAtPort } from '../../../api/vesselAtPortApi.ts';
-import { getPortById } from '../../../api/portApi.ts';
 import { VesselAtPortDetail } from '../../../interfaces/vesselAtPort.ts';
 
 const VesselAtPortDetailsPage: React.FC = () => {
@@ -13,17 +12,15 @@ const VesselAtPortDetailsPage: React.FC = () => {
     const [vesselAtPort, setVesselAtPort] = useState<VesselAtPortDetail | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [port, setPort] = useState<any | null>(null);
 
     useEffect(() => {
         const fetchVesselAtPort = async () => {
             try {
                 const data = await getVesselAtPort(id!);
-                console.log(data);
                 setVesselAtPort(data);
-                const portData = await getPortById(data.portId);
-                setPort(portData);
                 setError(null);
+            } catch (err) {
+                console.error('Error fetching vessel at port details:', err);
                 setError('Failed to fetch vessel at port details.');
             } finally {
                 setLoading(false);
@@ -76,23 +73,12 @@ const VesselAtPortDetailsPage: React.FC = () => {
             </Typography>
             
             <TextField
-                select
-                label="Port"
-                value={vesselAtPort.portId}
-                onChange={(e) => handleInputChange('portId', e.target.value)}
+                label="Port Name"
+                value={vesselAtPort.portName}
                 fullWidth
                 className="mb-4"
-                SelectProps={{
-                    native: true,
-                }}
-            >
-                <option value="">Select Port</option>
-                {port && (
-                    <option key={port.id} value={port.id}>
-                        {port.name}
-                    </option>
-                )}
-            </TextField>
+                disabled
+            />
             <TextField
                 label="Arrival Date"
                 value={vesselAtPort.arrivalDate}
@@ -123,4 +109,4 @@ const VesselAtPortDetailsPage: React.FC = () => {
     );
 };
 
-export default VesselAtPortDetailsPage; 
+export default VesselAtPortDetailsPage;
