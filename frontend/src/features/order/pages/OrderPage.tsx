@@ -12,9 +12,8 @@ const OrderPage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  // Fake loading for example purposes
   React.useEffect(() => {
-    setTimeout(() => setLoading(false), 1000); // Replace with real data fetching
+    setTimeout(() => setLoading(false), 1000);
   }, []);
 
   if (loading) {
@@ -28,13 +27,11 @@ const OrderPage: React.FC = () => {
   return (
     <div className="w-full">
       <div className="flex items-center space-x-2 mb-5">
-        {/* Search bar */}
         <OrderFilter
           suggestions={suggestions}
           searchTags={searchTags}
           setSearchTags={setSearchTags}
         />
-        {/* New Order button */}
         <Button onClick={() => navigate(`/orders/new`)} variant="contained" color="primary" className="pr-5">
           New Order
         </Button>

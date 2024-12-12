@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FaBox, FaTruck, FaFileInvoice, FaCogs, FaDatabase, FaSignOutAlt, FaUsers, FaShip, FaAnchor } from 'react-icons/fa';
+import { FaBox, FaTruck, FaDatabase, FaSignOutAlt, FaUsers, FaShip, FaAnchor } from 'react-icons/fa';
 import { GiHarborDock } from "react-icons/gi";
 import sparehubLogo from '../assets/Sparehublogo_white_noname.svg';
 import { useAuth } from '../context/AuthContext';
@@ -67,13 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <NavLink to="/dispatches" className="mb-5" title="Dispatches">
         <FaTruck size={28} />
       </NavLink>
-      <NavLink to="/invoices" className="mb-5" title="Invoices">
-        <FaFileInvoice size={28} />
-      </NavLink>
-      <NavLink to="/settings" className="mb-5" title="Settings">
-        <FaCogs size={28} />
-      </NavLink>
-      <NavLink to="/database" className="mb-5" title="Database">
+      <NavLink to="/database" className="mb-5">
         <FaDatabase size={28} />
       </NavLink>
 

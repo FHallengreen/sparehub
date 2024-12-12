@@ -22,7 +22,7 @@ const TableRow: React.FC<TableRowProps> = ({ row, onEditObject, onCellClick }) =
                             className="text-blue-500 hover:text-blue-700"
                             onClick={() => onEditObject(value)}
                         >
-                            {value.id}
+                            {"id" in value ? (value as any).id : ""}
                         </button>
                     ) : (
                         value?.toString()
