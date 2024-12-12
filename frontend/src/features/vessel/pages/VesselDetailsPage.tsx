@@ -4,6 +4,8 @@ import { Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { getVesselById, updateVessel, deleteVessel } from '../../../api/vesselApi';
 import { VesselDetail, VesselRequest } from '../../../interfaces/vessel';
+import { getOwners } from '../../../api/ownerApi.ts';
+
 
 const VesselDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -13,6 +15,21 @@ const VesselDetailsPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [ownerId, setOwnerId] = useState<string | null>(null);
+    const [owners, setOwners] = useState<{ id: string; name: string }[]>([]);
+
+    useEffect(() => {
+        // Fetch owners data from API or define it statically
+        const fetchOwners = async () => {
+            try {
+                const data = await getOwners(); // Replace with actual API call
+                setOwners(data.map(owner => ({ id: owner.id.toString(), name: owner.name })));
+            } catch (err) {
+                console.error('Error fetching owners:', err);
+            }
+        };
+
+        fetchOwners();
+    }, []);
 
     useEffect(() => {
         const fetchVessel = async () => {
@@ -31,6 +48,7 @@ const VesselDetailsPage: React.FC = () => {
 
         fetchVessel();
     }, [id]);
+
 
     const handleSave = async () => {
         console.log('Vessel:', vessel);
@@ -111,12 +129,22 @@ const VesselDetailsPage: React.FC = () => {
                 className="mb-4"
             />
             <TextField
-                label="Owner ID"
-                defaultValue={vessel.owner?.id}
-                onChange={(e) => setOwnerId(e.target.value)}
-                fullWidth
-                className="mb-4"
-            />
+            select
+            label="Owner"
+            value={ownerId}
+            onChange={(e) => setOwnerId(e.target.value)}
+            fullWidth
+            className="mb-4"
+            SelectProps={{
+                native: true,
+            }}
+        >
+        {owners.map((owner) => (
+            <option key={owner.id} value={owner.id}>
+                {owner.name}
+            </option>
+        ))}
+        </TextField>
 
 
             <div className="mt-8 gap-2 flex">
