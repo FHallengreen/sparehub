@@ -1,45 +1,44 @@
 import React from 'react';
-import { Autocomplete, TextField, Chip, Button } from '@mui/material';
+import { Autocomplete, TextField, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface VesselAtPortFilterProps {
     suggestions: string[];
-    searchTags: string[];
-    setSearchTags: (tags: string[]) => void;
+    searchTerm: string;
+    setSearchTerm: (term: string) => void;
 }
 
 const VesselAtPortFilter: React.FC<VesselAtPortFilterProps> = ({
     suggestions,
-    searchTags,
-    setSearchTags,
+    searchTerm,
+    setSearchTerm,
 }) => {
+    const navigate = useNavigate();
+
     return (
-        <div className="flex items-center space-x-2 mb-5">
+        <div className="flex items-center space-x-2 mb-4">
             <Autocomplete
-                multiple
                 freeSolo
                 options={suggestions}
-                value={searchTags}
-                onChange={(_, newValue) => setSearchTags(newValue)}
-                renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                        <Chip label={option} {...getTagProps({ index })} />
-                    ))
-                }
+                inputValue={searchTerm}
+                onInputChange={(_, newValue) => setSearchTerm(newValue)}
+                getOptionLabel={(option) => option || ''} // Handle undefined values
                 renderInput={(params) => (
                     <TextField
                         {...params}
                         variant="outlined"
-                        label="Search Vessels at Ports"
-                        placeholder="Add a tag"
+                        label="Search Ports"
+                        placeholder="Type to search"
                         fullWidth
                     />
                 )}
                 style={{ width: '40vw' }} // Adjust width as needed
             />
             <Button
+                onClick={() => navigate('/vessels-at-ports/new')}
                 variant="contained"
                 color="primary"
-                onClick={() => {/* Handle button click */}}
+                style={{ marginLeft: '10px' }}
             >
                 Create New Vessel at Port
             </Button>
@@ -47,4 +46,4 @@ const VesselAtPortFilter: React.FC<VesselAtPortFilterProps> = ({
     );
 };
 
-export default VesselAtPortFilter; 
+export default VesselAtPortFilter;
