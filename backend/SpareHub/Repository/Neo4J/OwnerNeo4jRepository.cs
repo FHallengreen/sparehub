@@ -1,31 +1,12 @@
 ﻿using Domain.Models;
 using Neo4j.Driver;
 using Repository.Interfaces;
-using Shared.DTOs.Owner;
 using Shared.Exceptions;
 
 namespace Repository.Neo4J;
 
 public class OwnerNeo4jRepository(IDriver driver) : IOwnerRepository
 {
-    public async Task<List<OwnerResponse>> GetOwnersBySearchQuery(string? searchQuery = "")
-    {
-        await using var session = driver.AsyncSession();
-
-        var query = @"
-            WHERE $searchQuery IS NULL OR v.name STARTS WITH $searchQuery
-            RETURN v.id as id, v.name as name";
-
-        var result = await session.RunAsync(query, new { searchQuery });
-        var owners = await result.ToListAsync(record => new OwnerResponse
-        {
-            Id = record["id"].As<string>(),
-            Name = record["name"].As<string>()
-        });
-
-        return owners;
-    }
-    
     
     public async Task<List<Owner>> GetOwnersAsync()
     {

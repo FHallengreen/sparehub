@@ -1,7 +1,7 @@
 ﻿using Domain.Models;
 using Neo4j.Driver;
 using Repository.Interfaces;
-using Shared.DTOs.Port;
+
 using Shared.Exceptions;
 
 namespace Repository.Neo4J;
@@ -9,22 +9,6 @@ namespace Repository.Neo4J;
 public class PortNeo4jRepository(IDriver driver) : IPortRepository
 {
 
-    public async Task<List<PortResponse>> GetPortsBySearchQueryAsync(string? searchQuery = "")
-    {
-        await using var session = driver.AsyncSession();
-        
-        var query = @"
-            WHERE $searchQuery IS NULL OR v.name STARTS WITH $searchQuery
-            RETURN v.id as id, v.name as name";
-    
-        var result = await session.RunAsync(query, new { searchQuery });
-        var ports = await result.ToListAsync(record => new PortResponse
-        {
-            Id = record["id"].As<string>(),
-            Name = record["name"].As<string>()
-        });
-        return ports;
-    }
     public async Task<Port> CreatePortAsync(Port port)
     {
         await using var session = driver.AsyncSession();

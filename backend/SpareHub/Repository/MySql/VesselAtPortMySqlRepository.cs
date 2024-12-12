@@ -12,13 +12,6 @@ namespace Repository.MySql;
 
 public class VesselAtPortMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : IVesselAtPortRepository
 {
-
-    /*Task<List<VesselAtPortResponse>> GetVesselsAtPortBySearchQuery(string? searchQuery = "")
-    {
-        return await dbContext.VesselAtPort
-            .Where(v => string.IsNullOrEmpty(searchQuery) || v.Name.StartsWith(searchQuery))
-            
-    }*/
     
     public async Task<List<VesselAtPort>> GetVesselAtPortAsync()
     {

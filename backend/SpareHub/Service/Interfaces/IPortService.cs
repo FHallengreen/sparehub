@@ -5,7 +5,6 @@ namespace Service.Interfaces;
 
 public interface IPortService
 {
-    Task<List<PortResponse>> GetPortsBySearchQuery(string? searchQuery = "");
     Task<List<PortResponse>> GetPorts();
 
     Task<PortResponse> GetPortById(string vesselId);

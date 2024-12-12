@@ -9,10 +9,6 @@ namespace Service.Services.Port;
 
     public class PortService(IPortRepository portRepository) : IPortService
     {
-        public async Task<List<PortResponse>> GetPortsBySearchQuery(string? searchQuery = "")
-        {
-            return await portRepository.GetPortsBySearchQueryAsync(searchQuery);
-        }
         public async Task<List<PortResponse>> GetPorts()
         {
             var ports = await portRepository.GetPortsAsync();
