@@ -25,6 +25,7 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository,
             {
                 ArrivalDate = DateUtils.FormatToLocalDate(vesselAtPort.ArrivalDate),
                 DepartureDate = DateUtils.FormatToLocalDate(vesselAtPort.DepartureDate),
+                PortId = vesselAtPort.PortId,
                 PortName = port.Name,
                 Vessels =
                 [
@@ -57,6 +58,7 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository,
         {
             ArrivalDate = DateUtils.FormatToLocalDate(vesselAtPort.ArrivalDate),
             DepartureDate = DateUtils.FormatToLocalDate(vesselAtPort.DepartureDate),
+            PortId = vesselAtPort.PortId,
             PortName = port.Name,
             Vessels = new List<VesselResponse>
             {
@@ -96,6 +98,7 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository,
         {
             ArrivalDate = DateUtils.FormatToLocalDate(createdVesselAtPort.ArrivalDate),
             DepartureDate = DateUtils.FormatToLocalDate(createdVesselAtPort.DepartureDate),
+            PortId = vesselAtPort.PortId,
             PortName = port.Name,
             Vessels = new List<VesselResponse>
             {

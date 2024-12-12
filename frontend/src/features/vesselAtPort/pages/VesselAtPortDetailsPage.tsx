@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CircularProgress, Typography, Button, TextField } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { getVesselAtPort, updateVesselAtPort, deleteVesselAtPort } from '../../../api/vesselAtPortApi.ts';
-import { getVesselById } from '../../../api/vesselApi.ts';
 import { getPortById } from '../../../api/portApi.ts';
 import { VesselAtPortDetail } from '../../../interfaces/vesselAtPort.ts';
 
@@ -14,6 +13,7 @@ const VesselAtPortDetailsPage: React.FC = () => {
     const [vesselAtPort, setVesselAtPort] = useState<VesselAtPortDetail | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [port, setPort] = useState<any | null>(null);
 
     useEffect(() => {
         const fetchVesselAtPort = async () => {
@@ -21,10 +21,9 @@ const VesselAtPortDetailsPage: React.FC = () => {
                 const data = await getVesselAtPort(id!);
                 console.log(data);
                 setVesselAtPort(data);
-                const vesselData = await getVesselById(data.vesselId);
-                console.log(vesselData);
-                await getVesselById(data.vesselId);
-                await getPortById(data.portId);
+                const portData = await getPortById(data.portId);
+                setPort(portData);
+                setError(null);
                 setError('Failed to fetch vessel at port details.');
             } finally {
                 setLoading(false);
@@ -75,21 +74,25 @@ const VesselAtPortDetailsPage: React.FC = () => {
             <Typography variant="h4" className="text-2xl font-bold mb-6">
                 Vessel at Port Details
             </Typography>
-
+            
             <TextField
-                label="Vessel ID"
-                value={vesselAtPort.vesselId}
-                onChange={(e) => handleInputChange('vesselId', e.target.value)}
-                fullWidth
-                className="mb-4"
-            />
-            <TextField
-                label="Port ID"
+                select
+                label="Port"
                 value={vesselAtPort.portId}
                 onChange={(e) => handleInputChange('portId', e.target.value)}
                 fullWidth
                 className="mb-4"
-            />
+                SelectProps={{
+                    native: true,
+                }}
+            >
+                <option value="">Select Port</option>
+                {port && (
+                    <option key={port.id} value={port.id}>
+                        {port.name}
+                    </option>
+                )}
+            </TextField>
             <TextField
                 label="Arrival Date"
                 value={vesselAtPort.arrivalDate}
