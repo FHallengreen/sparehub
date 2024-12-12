@@ -19,8 +19,12 @@ const VesselPage: React.FC = () => {
     const fetchVessels = async () => {
         setLoading(true);
         try {
-            const response = await getVessels();
-            setRows(response);
+            const vessels = await getVessels();
+            const vesselsWithOwnerNames = vessels.map(vessel => ({
+                ...vessel,
+                ownerName: vessel.owner?.name || 'N/A',
+            }));
+            setRows(vesselsWithOwnerNames);
         } catch (err) {
             console.error('Error fetching vessels:', err);
             setError('Failed to fetch vessels.');

@@ -37,4 +37,4 @@ const VesselGrid: React.FC<VesselGridProps> = ({
     );
 };
 
-export default VesselGrid; 
+export default VesselGrid;
