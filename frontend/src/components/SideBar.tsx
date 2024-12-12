@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FaBox, FaTruck, FaFileInvoice, FaCogs, FaDatabase, FaSignOutAlt, FaUsers, FaShip, FaAnchor } from 'react-icons/fa';
+import { FaBox, FaTruck, FaDatabase, FaSignOutAlt, FaUsers, FaShip, FaAnchor } from 'react-icons/fa';
 import { GiHarborDock } from "react-icons/gi";
 import sparehubLogo from '../assets/Sparehublogo_white_noname.svg';
 import { useAuth } from '../context/AuthContext';

@@ -50,7 +50,7 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
     const appendIdToForeignKeys = (data: any) => {
         const updatedData: any = {};
         Object.entries(data).forEach(([key, value]) => {
-            if (value && typeof value === "object" && value.id) {
+            if (value && typeof value === "object" && "id" in value) {
                 updatedData[`${key}Id`] = value.id;
             } else {
                 updatedData[key] = value;
@@ -59,7 +59,7 @@ const EditModal: React.FC<EditModalProps> = ({ open, object, onClose, onSave }) 
         return updatedData;
     };
 
-    const renderFieldValue = (key: string, value: any) => {
+    const renderFieldValue = (_key: string, value: any) => {
         if (value && typeof value === "object" && value.id) {
             return value.id;
         }

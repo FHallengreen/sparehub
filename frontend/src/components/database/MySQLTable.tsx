@@ -17,7 +17,7 @@ const MySqlTable: React.FC = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [selectedObject, setSelectedObject] = useState<any>(null);
-    const [entityRef, setEntityRef] = useState<string>();
+    const [entityRef, setEntityRef] = useState<string | null>(null);
     const baseUrl = import.meta.env.VITE_API_URL;
 
     const endpoint = tableApiMethodMapping(table);
@@ -62,7 +62,7 @@ const MySqlTable: React.FC = () => {
 
     const handleSaveObject = async (updatedObject: any) => {
         try {
-            const updateEndpoint = `${baseUrl}/api/${tableApiMethodMapping(entityRef)}/${updatedObject.id}`;
+            const updateEndpoint = `${baseUrl}/api/${tableApiMethodMapping(entityRef || undefined)}/${updatedObject.id}`;
             await api.put(updateEndpoint, updatedObject);
             await fetchData();
             handleModalClose();
@@ -112,10 +112,10 @@ const MySqlTable: React.FC = () => {
             />
             <CreateModal
                 open={createModalOpen}
-                initialData={getCreateModalInitialData(table)}
+                initialData={getCreateModalInitialData(table || '')}
                 onClose={handleCreateModalClose}
                 onSave={handleCreateSave}
-                table={table}
+                table={table || ''}
             />
         </div>
     );
