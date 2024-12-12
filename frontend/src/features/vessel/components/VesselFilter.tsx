@@ -20,8 +20,8 @@ const VesselFilter: React.FC<VesselFilterProps> = ({
             <Autocomplete
                 freeSolo
                 options={suggestions}
-                value={searchTerm ? searchTerm : null}
-                onChange={(_, newValue) => setSearchTerm(newValue as string)}
+                inputValue={searchTerm}
+                onInputChange={(_, newValue) => setSearchTerm(newValue)}
                 renderInput={(params) => (
                     <TextField
                         {...params}

@@ -2,36 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GridRowSelectionModel } from '@mui/x-data-grid';
 import VesselGrid from '../components/VesselGrid';
-import { vesselColumns } from '../columns/VesselColumns';
+import VesselFilter from '../components/VesselFilter';
 import { getVessels } from '../../../api/vesselApi';
 import { Vessel } from '../../../interfaces/vessel';
-import VesselFilter from '../components/VesselFilter';
 import { Typography } from '@mui/material';
+import { vesselColumns } from '../columns/VesselColumns';
 
 const VesselPage: React.FC = () => {
     const navigate = useNavigate();
     const [rows, setRows] = useState<Vessel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
 
     const fetchVessels = async () => {
         setLoading(true);
         try {
             const response = await getVessels();
-            const modifiedRows = response.map((vessel) => ({
-                id: vessel.id,
-                name: vessel.name,
-                imoNumber: vessel.imoNumber,
-                flag: vessel.flag,
-                owner_id: String(vessel.owner?.id || ''),
-                ownerName: vessel.owner?.name || '',
-            }));
-            setRows(modifiedRows);
-            const uniqueNames = Array.from(new Set(modifiedRows.map(v => v.name)));
-            setSuggestions(uniqueNames);
+            setRows(response);
         } catch (err) {
             console.error('Error fetching vessels:', err);
             setError('Failed to fetch vessels.');
@@ -45,7 +34,8 @@ const VesselPage: React.FC = () => {
     }, []);
 
     const filteredRows = rows.filter((row) =>
-        row.name.toLowerCase().includes(searchTerm.toLowerCase())
+        row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.imoNumber.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -54,23 +44,29 @@ const VesselPage: React.FC = () => {
                 Vessels
             </Typography>
             <VesselFilter
-                suggestions={suggestions}
+                suggestions={rows.map(row => row.name)}
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
             />
-            <VesselGrid
-                rows={filteredRows}
-                columns={vesselColumns}
-                loading={loading}
-                error={error}
-                selectionModel={selectionModel}
-                onRowSelectionModelChange={setSelectionModel}
-                onRowDoubleClick={(params) => {
-                    navigate(`/vessels/${params.row.id}`);
-                }}
-            />
+            {loading ? (
+                <Typography>Loading...</Typography>
+            ) : error ? (
+                <Typography color="error">{error}</Typography>
+            ) : (
+                <VesselGrid
+                    rows={filteredRows}
+                    columns={vesselColumns}
+                    loading={loading}
+                    error={error}
+                    selectionModel={selectionModel}
+                    onRowSelectionModelChange={setSelectionModel}
+                    onRowDoubleClick={(params: any) => {
+                        navigate(`/vessels/${params.row.id}`);
+                    }}
+                />
+            )}
         </div>
     );
 };
 
-export default VesselPage; 
+export default VesselPage;
