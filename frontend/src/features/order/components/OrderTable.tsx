@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import SummaryPanel from '../../../components/SummaryPanel';
 import { fetchOrders } from '../../../api/orderApi.ts';
 import { columns } from '../columns/OrderColumns.tsx';
-import {OrderRow, OrderRowData} from "../../../interfaces/order.ts";
+import { OrderRow, OrderRowData } from "../../../interfaces/order.ts";
 
 interface OrderTableProps {
   searchTags: string[];
@@ -24,19 +24,19 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
         const data = await fetchOrders(searchTags);
         const mappedRows = data.map((order) => ({
           id: order.id.toString(),
-          owner: order.ownerName as unknown as string,
-          vessel: order.vesselName as unknown as string,
-          supplier: order.supplierName as unknown as string,
-          poNumber: order.orderNumber ?? null,
+          owner: order.ownerName.toString(),
+          vessel: order.vesselName.toString(),
+          supplier: order.supplierName.toString(),
+          poNumber: order.orderNumber?.toString() ?? null,
           pieces: order.boxes ?? null,
           weight: order.totalWeight ?? null,
           volume: order.totalVolume ?? null,
-          stockLocation: order.warehouseName as unknown as string,
+          stockLocation: order.warehouseName.toString(),
           status: order.orderStatus,
         }));
         setRows(mappedRows);
 
-        const allSuggestions = [...new Set(data.map((row) => row.warehouseName as unknown as string))];
+        const allSuggestions = [...new Set(data.map((row) => row.warehouseName.toString()))];
         setSuggestions(allSuggestions);
       } catch (err) {
         console.error('Error fetching orders:', err);
@@ -57,7 +57,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
       rows.forEach((row) => {
         if (!isOrderRowData(row)) {
           console.warn(`Row with id ${row.id} is missing status or other OrderRowData properties.`);
-          return; // Skip rows that are not of type OrderRowData
+          return;
         }
 
         const location = row.stockLocation;
@@ -74,14 +74,9 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
 
 
       Object.entries(rowGroups).forEach(([location, statusGroups]) => {
-        const totalOrders = Object.values(statusGroups).reduce(
-          (sum, statusRows) => sum + statusRows.length,
-          0
-        );
-
         groupHeaders.push({
           id: `header-${location}`,
-          stockLocation: `${location} (${totalOrders} orders)`,
+          stockLocation: location,
           isGroupHeader: true,
         });
 
@@ -91,6 +86,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
             groupHeaders.push(...statusRows);
           });
       });
+
 
       return groupHeaders;
     };
@@ -146,6 +142,8 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
         rows={groupedRows}
         columns={columns}
         checkboxSelection
+        disableColumnSorting
+        disableRowSelectionOnClick 
         onRowDoubleClick={(params) => {
           if (!params.row.isGroupHeader) {
             navigate(`/orders/${params.id}`);
@@ -154,7 +152,9 @@ const OrderTable: React.FC<OrderTableProps> = ({ searchTags, setSuggestions }) =
         rowSelectionModel={selectionModel}
         onRowSelectionModelChange={handleSelectionChange}
         getRowClassName={(params) =>
-          params.row.isGroupHeader ? 'group-header-row' : ''
+          params.row.isGroupHeader
+            ? 'bg-gray-200 text-gray-700 font-semibold'
+            : ''
         }
         autoHeight
       />
