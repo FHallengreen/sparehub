@@ -20,6 +20,7 @@ const VesselDetailsPage: React.FC = () => {
                 const data = await getVesselById(id!);
                 console.log('Fetched Vessel:', data);
                 setVessel(data);
+                setOwnerId(data.owner?.id?.toString() || '');
             } catch (err) {
                 console.error('Error fetching vessel:', err);
                 setError('Failed to fetch vessel details.');
@@ -32,13 +33,23 @@ const VesselDetailsPage: React.FC = () => {
     }, [id]);
 
     const handleSave = async () => {
-        if (!vessel) return;
-        const updatedVessel: VesselRequest = { 
-            name: vessel.name, 
-            imoNumber: vessel.imoNumber, 
-            flag: vessel.flag, 
-            ownerId: ownerId || vessel.ownerId
-         };
+        console.log('Vessel:', vessel);
+        console.log('Owner ID:', ownerId);
+
+        if (!vessel || !ownerId) {
+            showSnackbar('Owner ID is required.', 'error');
+            return;
+        }
+
+
+        const updatedVessel: VesselRequest = {
+            name: vessel.name,
+            imoNumber: vessel.imoNumber,
+            flag: vessel.flag,
+            ownerId: ownerId
+        };
+
+        console.log('Updated Vessel:', updatedVessel); // Debugging: log the payload
         try {
             await updateVessel(vessel.id, updatedVessel);
             showSnackbar('Vessel updated successfully!', 'success');
@@ -48,6 +59,7 @@ const VesselDetailsPage: React.FC = () => {
             showSnackbar('Failed to update vessel.', 'error');
         }
     };
+
 
     const handleDelete = async () => {
         if (!vessel) {
@@ -76,7 +88,7 @@ const VesselDetailsPage: React.FC = () => {
             <Typography variant="h4" className="text-2xl font-bold mb-6">
                 Vessel Details
             </Typography>
-            
+
             <TextField
                 label="Vessel Name"
                 value={vessel.name}
@@ -105,7 +117,7 @@ const VesselDetailsPage: React.FC = () => {
                 fullWidth
                 className="mb-4"
             />
-            
+
 
             <div className="mt-8 gap-2 flex">
                 <Button onClick={handleSave} variant="contained" color="primary" className="mr-2">

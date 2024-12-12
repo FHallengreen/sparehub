@@ -66,9 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <NavLink to="/ports" className="mb-5" title="Ports">
         <FaAnchor size={28} />
       </NavLink>
-      
-      
-      <NavLink to="/database" className="mb-5" title='Database'>
+      <NavLink to="/database" className="mb-5" title="Database">
         <FaDatabase size={28} />
       </NavLink>
 

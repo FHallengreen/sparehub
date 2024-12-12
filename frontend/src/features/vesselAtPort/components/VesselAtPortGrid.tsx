@@ -9,7 +9,6 @@ interface VesselAtPortGridProps {
     error: string | null;
     selectionModel: GridRowSelectionModel;
     onRowSelectionModelChange: (newSelection: GridRowSelectionModel) => void;
-    onRowDoubleClick: (params: any) => void;
 }
 
 const VesselAtPortGrid: React.FC<VesselAtPortGridProps> = ({
@@ -19,7 +18,6 @@ const VesselAtPortGrid: React.FC<VesselAtPortGridProps> = ({
     error,
     selectionModel,
     onRowSelectionModelChange,
-    onRowDoubleClick,
 }) => {
     if (loading) return <CircularProgress />;
     if (error) return <Typography color="error">{error}</Typography>;
@@ -28,10 +26,8 @@ const VesselAtPortGrid: React.FC<VesselAtPortGridProps> = ({
         <DataGrid
             rows={rows}
             columns={columns}
-            checkboxSelection
             rowSelectionModel={selectionModel}
             onRowSelectionModelChange={onRowSelectionModelChange}
-            onRowDoubleClick={onRowDoubleClick}
             autoHeight
             getRowId={(row) => `${row.portId}-${row.vessels[0].id}`}
         />

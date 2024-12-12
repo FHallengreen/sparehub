@@ -55,7 +55,7 @@ const VesselAtPortPage: React.FC = () => {
                 searchTags={searchTags}
                 setSearchTags={setSearchTags}
             />
-            {/* VesselAtPortGrid component to display the data in a grid */}
+           
             <VesselAtPortGrid
                 rows={rows}
                 columns={vesselAtPortColumns}
@@ -63,9 +63,6 @@ const VesselAtPortPage: React.FC = () => {
                 error={error}
                 selectionModel={selectionModel}
                 onRowSelectionModelChange={setSelectionModel}
-                onRowDoubleClick={(params: any) => {
-                    navigate(`/vessels-at-ports/${params.row.id}`); // Navigate to detailed view on row double-click
-                }}
             />
         </div>
     );
