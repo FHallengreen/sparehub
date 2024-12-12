@@ -48,7 +48,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <NavLink to="/" className="mb-5">
         <img src={sparehubLogo} alt="SpareHub Logo" className="w-12 h-12" />
       </NavLink>
-
+      <NavLink to="/orders" className="mb-5" title="Orders">
+        <FaBox size={28} />
+      </NavLink>
+      <NavLink to="/dispatches" className="mb-5" title="Dispatches">
+        <FaTruck size={28} />
+      </NavLink>
+      <NavLink to="/vessels-at-ports" className="mb-5" title="Vessels at Ports">
+        <GiHarborDock size={28} />
+      </NavLink>
       <NavLink to="/owners" className="mb-5" title="Owners">
         <FaUsers size={28} />
       </NavLink>
@@ -58,16 +66,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <NavLink to="/ports" className="mb-5" title="Ports">
         <FaAnchor size={28} />
       </NavLink>
-      <NavLink to="/vessels-at-ports" className="mb-5" title="Vessels at Ports">
-        <GiHarborDock size={28} />
-      </NavLink>
-      <NavLink to="/orders" className="mb-5" title="Orders">
-        <FaBox size={28} />
-      </NavLink>
-      <NavLink to="/dispatches" className="mb-5" title="Dispatches">
-        <FaTruck size={28} />
-      </NavLink>
-      <NavLink to="/database" className="mb-5">
+      
+      
+      <NavLink to="/database" className="mb-5" title='Database'>
         <FaDatabase size={28} />
       </NavLink>
 
