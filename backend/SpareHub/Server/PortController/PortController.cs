@@ -12,6 +12,16 @@ namespace Server.PortController;
     public class PortController(IPortService portService) : ControllerBase
     {
         
+        [HttpGet("query")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+        public async Task<IActionResult> GetPortsBySearchQuery(string? searchQuery = null)
+        {
+            var vessels = await portService.GetPortsBySearchQuery(searchQuery);
+
+            return Ok(vessels);
+        }
+        
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]

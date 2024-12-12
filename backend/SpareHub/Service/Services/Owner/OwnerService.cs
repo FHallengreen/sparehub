@@ -7,7 +7,10 @@ namespace Service.Services.Owner;
 
 public class OwnerService(IOwnerRepository ownerRepository) : IOwnerService
 {
-    
+    public async Task<List<OwnerResponse>> GetOwnersBySearchQuery(string? searchQuery = "")
+    {
+        return await ownerRepository.GetOwnersBySearchQuery(searchQuery);
+    }
     public async Task<List<OwnerResponse>> GetOwners()
     {
         var owners = await ownerRepository.GetOwnersAsync();

@@ -6,7 +6,7 @@ namespace Repository.Interfaces;
 
 public interface IVesselAtPortRepository
 {
-    
+    //Task<List<VesselAtPortResponse>> GetVesselsAtPortBySearchQuery(string? searchQuery = "");
     Task<List<VesselAtPort>> GetVesselAtPortAsync();
     
     Task<VesselAtPort> GetVesselByIdAtPortAsync(string vesselId);

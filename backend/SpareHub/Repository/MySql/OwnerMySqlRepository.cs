@@ -4,12 +4,26 @@ using Microsoft.EntityFrameworkCore;
 using Persistence.MySql;
 using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
+using Shared.DTOs.Owner;
 using Shared.Exceptions;
 
 namespace Repository.MySql;
 
 public class OwnerMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : IOwnerRepository
 {
+
+    public async Task<List<OwnerResponse>> GetOwnersBySearchQuery(string? searchQuery = "")
+    {
+        return await dbContext.Owners
+            .Where(v => string.IsNullOrEmpty(searchQuery) || v.Name.Contains(searchQuery))
+            .Select(v => new OwnerResponse
+            {
+                Id = v.Id.ToString(),
+                Name = v.Name
+            })
+            .ToListAsync();
+        
+    }
     public async Task<List<Owner>> GetOwnersAsync()
     {
         var ownerEntities = await dbContext.Owners.ToListAsync();

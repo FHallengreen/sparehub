@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver.Linq;
 using Persistence.MySql;
 using Persistence.MySql.SparehubDbContext;
 using Repository.Interfaces;
+using Shared.DTOs.Port;
 using Shared.Exceptions;
 
 namespace Repository.MySql;
@@ -11,6 +13,17 @@ namespace Repository.MySql;
 public class PortMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) : IPortRepository
 {
 
+    public async Task<List<PortResponse>> GetPortsBySearchQueryAsync(string? searchQuery = "")
+    {
+        return await dbContext.Ports
+        .Where(v => string.IsNullOrEmpty(searchQuery) || v.Name.StartsWith(searchQuery))
+        .Select(v => new PortResponse
+        {
+            Id = v.Id.ToString(),
+            Name = v.Name,
+        })
+        .ToListAsync();
+    }
     public async Task<Port> CreatePortAsync(Port port)
     {
         var portEntity = mapper.Map<PortEntity>(port);

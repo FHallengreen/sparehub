@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service;
+
 using Service.Interfaces;
 using Shared.DTOs.Owner;
 using Shared.Exceptions;
@@ -13,6 +13,15 @@ namespace Server.OwnerController;
 public class OwnerController(IOwnerService ownerService) : ControllerBase
 {
     
+   [HttpGet("query")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    public async Task<IActionResult> GetOwnerssBySearchQuery(string? searchQuery = null)
+    {
+        var vessels = await ownerService.GetOwnersBySearchQuery(searchQuery);
+
+        return Ok(vessels);
+    }
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
