@@ -254,7 +254,7 @@ const OrderDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (debouncedWarehouseQuery.length >= 3) {
-      api.get<Warehouse[]>(`${import.meta.env.VITE_API_URL}/api/warehouse/search`, {
+      api.get<Warehouse[]>(`${import.meta.env.VITE_API_URL}/api/warehouse`, {
         params: {searchQuery: debouncedWarehouseQuery}
       }).then(response => {
         setWarehouseOptions(response.data);
@@ -605,8 +605,8 @@ const OrderDetailPage: React.FC = () => {
                       onChange={(e) => setTrackingNumber(e.target.value)}
                       fullWidth
                       variant="outlined"
-                    />
-                    {selectedTransporter === 'DHL' && trackingNumber && (
+                      />
+                      {selectedTransporter === 'DHL' && trackingNumber && (
                       <a
                         href={getDhlTrackingUrl(trackingNumber)}
                         target="_blank"
@@ -616,7 +616,7 @@ const OrderDetailPage: React.FC = () => {
                       >
                         <FaLink size={20}/>
                       </a>
-                    )}
+                )}
                   </div>
                 </div>
 
@@ -626,7 +626,7 @@ const OrderDetailPage: React.FC = () => {
                     onClick={refreshTrackingStatus}
                     variant="contained"
                     color="primary"
-                  >
+                    >
                     Refresh Status
                   </Button>
                 </div>
