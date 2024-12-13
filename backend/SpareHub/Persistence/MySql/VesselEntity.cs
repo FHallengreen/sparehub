@@ -10,11 +10,11 @@ public class VesselEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public required int Id { get; init; }
     
-    public int OwnerId { get; init; }
+    public int OwnerId { get; set; }
     
-    public required string Name { get; init; }
-    public string? ImoNumber { get; init; }
-    public string? Flag { get; init; }
+    public required string Name { get; set; }
+    public string? ImoNumber { get; set; }
+    public string? Flag { get; set; }
     public required OwnerEntity Owner { get; init; }
 
     [JsonIgnore]

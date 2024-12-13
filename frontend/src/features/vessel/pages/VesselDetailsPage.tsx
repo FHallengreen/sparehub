@@ -59,7 +59,6 @@ const VesselDetailsPage: React.FC = () => {
             return;
         }
 
-
         const updatedVessel: VesselRequest = {
             name: vessel.name,
             imoNumber: vessel.imoNumber,
@@ -69,7 +68,9 @@ const VesselDetailsPage: React.FC = () => {
 
         console.log('Updated Vessel:', updatedVessel); // Debugging: log the payload
         try {
+            console.log('Attempting to update vessel with ID:', vessel.id);
             await updateVessel(vessel.id, updatedVessel);
+            console.log('Vessel updated successfully');
             showSnackbar('Vessel updated successfully!', 'success');
             navigate('/vessels');
         } catch (err) {

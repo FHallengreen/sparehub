@@ -50,6 +50,7 @@ public class VesselMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) 
     public async Task<Vessel> GetVesselByIdAsync(string vesselId)
     {
         var vesselEntityWithOwner = await dbContext.Vessels
+            .AsNoTracking()
             .Include(v => v.Owner)
             .FirstOrDefaultAsync(v => v.Id.ToString() == vesselId);
         
