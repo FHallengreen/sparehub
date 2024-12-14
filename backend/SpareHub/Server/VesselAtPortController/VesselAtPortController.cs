@@ -41,6 +41,8 @@ public class VesselAtPortController(IVesselAtPortService vesselAtPortService) : 
         IVesselRepository vesselRepository)
     {
         var vesselAtPort = await vesselAtPortService.AddVesselToPort(vesselAtPortRequest, vesselRepository);
+        Console.WriteLine("Arrival: " + vesselAtPort.ArrivalDate);
+        Console.WriteLine("Departure: " + vesselAtPort.DepartureDate);
         
         return CreatedAtAction(nameof(GetVesselByIdAtPort), 
             new { vesselId = vesselAtPort.Vessels[0].Id }, vesselAtPort);
@@ -53,7 +55,7 @@ public class VesselAtPortController(IVesselAtPortService vesselAtPortService) : 
     public async Task<IActionResult> ChangePortForVessel([FromBody] VesselAtPortRequest vesselAtPortRequest, 
         IVesselRepository vesselRepository)
     {
-        var vesselAtPort = await vesselAtPortService.ChangePortForVesselAsync(vesselAtPortRequest, vesselRepository);
+        var vesselAtPort = await vesselAtPortService.ChangePortForVessel(vesselAtPortRequest, vesselRepository);
         
         return Ok(vesselAtPort);
     }

@@ -87,17 +87,19 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository,
         var vesselAtPort = new Domain.Models.VesselAtPort
         {
             PortId = vesselAtPortRequest.PortId,
-            VesselId = vesselAtPortRequest.VesselId
+            VesselId = vesselAtPortRequest.VesselId,
+            ArrivalDate = DateTime.Parse(vesselAtPortRequest.ArrivalDate),
+            DepartureDate = DateTime.Parse(vesselAtPortRequest.DepartureDate)
         };
         
-        var createdVesselAtPort = await vesselAtPortRepository.AddVesselToPortAsync(vesselAtPort);
+        await vesselAtPortRepository.AddVesselToPortAsync(vesselAtPort);
 
         var port = await portRepository.GetPortByIdAsync(vesselAtPort.PortId);
 
         return new VesselAtPortResponse
         {
-            ArrivalDate = DateUtils.FormatToLocalDate(createdVesselAtPort.ArrivalDate),
-            DepartureDate = DateUtils.FormatToLocalDate(createdVesselAtPort.DepartureDate),
+            ArrivalDate = DateUtils.FormatToLocalDate(vesselAtPort.ArrivalDate),
+            DepartureDate = DateUtils.FormatToLocalDate(vesselAtPort.DepartureDate),
             PortId = vesselAtPort.PortId,
             PortName = port.Name,
             Vessels = new List<VesselResponse>
@@ -118,7 +120,8 @@ public class VesselAtPortService(IVesselAtPortRepository vesselAtPortRepository,
         };
     }
 
-    public async Task<VesselAtPortResponse> ChangePortForVesselAsync(VesselAtPortRequest vesselAtPortRequest,
+//might need dates
+    public async Task<VesselAtPortResponse> ChangePortForVessel(VesselAtPortRequest vesselAtPortRequest,
         IVesselRepository vesselRepository)
     {
         var vesselAtPort = await vesselAtPortRepository.GetVesselByIdAtPortAsync(vesselAtPortRequest.VesselId);

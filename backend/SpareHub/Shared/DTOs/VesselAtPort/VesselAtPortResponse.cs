@@ -10,7 +10,7 @@ public class VesselAtPortResponse
 
     public List<VesselResponse> Vessels { get; set; } = [];
     
-    public required string ArrivalDate { get; set; }
+    public required string ArrivalDate { get; set; } = null!;
     
-    public required string DepartureDate { get; set; }
+    public required string DepartureDate { get; set; } = null!;
 }

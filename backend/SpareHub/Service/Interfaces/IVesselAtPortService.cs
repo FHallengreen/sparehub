@@ -12,7 +12,7 @@ public interface IVesselAtPortService
     Task<VesselAtPortResponse> AddVesselToPort(VesselAtPortRequest vesselAtPortRequest, 
         IVesselRepository vesselRepository);
     
-    Task<VesselAtPortResponse> ChangePortForVesselAsync(VesselAtPortRequest vesselAtPortRequest,
+    Task<VesselAtPortResponse> ChangePortForVessel(VesselAtPortRequest vesselAtPortRequest,
         IVesselRepository vesselRepository);
     
     Task RemoveVesselFromPort(string vesselId);
