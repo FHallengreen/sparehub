@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { createVessel } from '../../../api/vesselApi';
 import { VesselRequest } from '../../../interfaces/vessel';
+import { getOwners } from '../../../api/ownerApi.ts';
 import axios from 'axios';
 
 const NewVesselPage: React.FC = () => {
@@ -11,12 +12,28 @@ const NewVesselPage: React.FC = () => {
     const showSnackbar = useSnackbar();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [owners, setOwners] = useState<{ id: string; name: string }[]>([]);
+    const [ownerId, setOwnerId] = useState<string | null>(null);
     const [vessel, setVessel] = useState<VesselRequest>({
         name: '',
         imoNumber: '',
         flag: '',
         ownerId: '',
     });
+
+    useEffect(() => {
+            // Fetch owners data from API or define it statically
+            const fetchOwners = async () => {
+                try {
+                    const data = await getOwners(); // Replace with actual API call
+                    setOwners(data.map(owner => ({ id: owner.id.toString(), name: owner.name })));
+                } catch (err) {
+                    console.error('Error fetching owners:', err);
+                }
+            };
+    
+            fetchOwners();
+        }, []);
 
     const handleInputChange = (field: keyof VesselRequest, value: string) => {
         setVessel({ ...vessel, [field]: value });
@@ -80,12 +97,25 @@ const NewVesselPage: React.FC = () => {
                 className="mb-4"
             />
             <TextField
-                label="Owner ID"
-                value={vessel.ownerId}
-                onChange={(e) => handleInputChange('ownerId', e.target.value)}
+                select
+                label="Owner"
+                value={ownerId}
+                onChange={(e) => setOwnerId(e.target.value)}
                 fullWidth
                 className="mb-4"
-            />
+                SelectProps={{
+                    native: true,
+                }}
+                InputLabelProps={{
+                    shrink: true,
+                }}
+            >
+                {owners.map((owner) => (
+                    <option key={owner.id} value={owner.id}>
+                        {owner.name}
+                    </option>
+                ))}
+            </TextField>
 
             <div className="mt-8 gap-2 flex">
                 <Button onClick={handleSave} variant="contained" color="primary" className="mr-2">
