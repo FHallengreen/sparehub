@@ -71,7 +71,13 @@ const VesselAtPortDetailsPage: React.FC = () => {
             <Typography variant="h4" className="text-2xl font-bold mb-6">
                 Vessel at Port Details
             </Typography>
-            
+            <TextField
+                label="Vessel"
+                value={vesselAtPort.vessels[0].name}
+                fullWidth
+                className="mb-4"
+                disabled
+            />
             <TextField
                 label="Port Name"
                 value={vesselAtPort.portName}
