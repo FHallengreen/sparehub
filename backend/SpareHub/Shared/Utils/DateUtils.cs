@@ -28,4 +28,16 @@ public static class DateUtils
             includeTime ? "dd-MM-yyyy HH:mm:ss" : "dd-MM-yyyy",
             CultureInfo.InvariantCulture);
     }
+
+    public static string FormatToReverseLocalDate(DateTime? dateTime, bool includeTime = false)
+    {
+        if (dateTime == null)
+            return string.Empty;
+
+        var localDateTime = dateTime.Value.ToLocalTime();
+
+        return localDateTime.ToString(
+            includeTime ? "yyyy-MM-dd HH:mm:ss" : "yyyy-MM-dd",
+            CultureInfo.InvariantCulture);
+    }
 }

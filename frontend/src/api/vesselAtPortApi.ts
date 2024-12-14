@@ -18,8 +18,8 @@ export const createVesselAtPort = async (vesselAtPort: VesselAtPortRequest): Pro
     return response.data;
 };
 
-export const updateVesselAtPort = async (id: string, vesselAtPort: VesselAtPortRequest): Promise<VesselAtPort> => {
-    const response = await api.put(`${BASE_URL}/${id}`, vesselAtPort);
+export const updateVesselAtPort = async (vesselAtPort: VesselAtPortRequest): Promise<VesselAtPort> => {
+    const response = await api.put(`${BASE_URL}`, vesselAtPort);
     return response.data;
 };
 

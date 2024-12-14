@@ -4,6 +4,7 @@ import { CircularProgress, Typography, Button, TextField } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { getVesselAtPort, updateVesselAtPort, deleteVesselAtPort } from '../../../api/vesselAtPortApi.ts';
 import { VesselAtPortDetail } from '../../../interfaces/vesselAtPort.ts';
+import { getPorts } from '../../../api/portApi.ts';
 
 const VesselAtPortDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -12,7 +13,21 @@ const VesselAtPortDetailsPage: React.FC = () => {
     const [vesselAtPort, setVesselAtPort] = useState<VesselAtPortDetail | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [ports, setPorts] = useState<{ id: string; name: string }[]>([]);
 
+    useEffect(() => {
+        const fetchPorts = async () => {
+            try {
+                const data = await getPorts();
+                setPorts(data.map(port => ({ id: port.id.toString(), name: port.name })));
+            } catch (err) {
+                console.error('Error fetching ports:', err);
+            }
+        };
+
+        fetchPorts();
+    }, []);
+   
     useEffect(() => {
         const fetchVesselAtPort = async () => {
             try {
@@ -40,7 +55,13 @@ const VesselAtPortDetailsPage: React.FC = () => {
         if (!vesselAtPort) return;
 
         try {
-            await updateVesselAtPort(id!, vesselAtPort);
+            await updateVesselAtPort( 
+                {
+                vesselId: vesselAtPort.vessels[0].id.toString(),
+                portId: vesselAtPort.portId,
+                arrivalDate: vesselAtPort.arrivalDate,
+                departureDate: vesselAtPort.departureDate
+            });
             showSnackbar('Vessel at Port updated successfully!', 'success');
             navigate('/vessels-at-ports');
         } catch (err) {
@@ -79,12 +100,21 @@ const VesselAtPortDetailsPage: React.FC = () => {
                 disabled
             />
             <TextField
+                select
                 label="Port Name"
                 value={vesselAtPort.portName}
+                onChange={(e) => handleInputChange('portId', e.target.value)}
                 fullWidth
                 className="mb-4"
-                disabled
-            />
+                SelectProps={{ native: true }}
+            >
+            {ports.map((port) => (
+            <option key={port.id} value={port.id}>
+                {port.name}
+            </option>
+            ))}
+            </TextField>
+        
             <TextField
                 label="Arrival Date"
                 value={vesselAtPort.arrivalDate}

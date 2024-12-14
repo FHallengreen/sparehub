@@ -1,10 +1,9 @@
 import { Vessel } from "./order";
 
 export interface VesselAtPort {
-    id: string;
-    vesselId: string; // Reference to the Vessel
     portName: string; // Name of the Port
     portId: string; // Reference to the Port
+    vessels: Vessel[]; // Vessel details
     arrivalDate: string; // Date when the vessel arrived at the port
     departureDate?: string; // Date when the vessel departed from the port
 }
@@ -12,7 +11,6 @@ export interface VesselAtPort {
 // If you need a type for vessel-at-port details
 export interface VesselAtPortDetail extends VesselAtPort {
     vessels: Vessel[]; // Vessel details
-    vesselId: string; // Reference to the Vessel
     portId: string; // Reference to the Port
     arrivalDate: string; // Date when the vessel arrived at the port
     departureDate?: string; // Date when the vessel departed from the port
