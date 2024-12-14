@@ -9,7 +9,7 @@ export const getVesselsAtPorts = async (): Promise<VesselAtPort[]> => {
 };
 
 export const getVesselAtPort = async (vesselId: string): Promise<VesselAtPortDetail> => {
-    const response = await api.get<VesselAtPortDetail>(`${BASE_URL}/vessel/${vesselId}`);
+    const response = await api.get<VesselAtPortDetail>(`${BASE_URL}/${vesselId}`);
     return response.data;
 };
 

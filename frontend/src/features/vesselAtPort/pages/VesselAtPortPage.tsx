@@ -62,7 +62,7 @@ const VesselAtPortPage: React.FC = () => {
                     selectionModel={selectionModel}
                     onRowSelectionModelChange={setSelectionModel}
                     onRowDoubleClick={(params: any) => {
-                        navigate(`/vessels-at-ports/${params.row.id}`);
+                        navigate(`/vessels-at-ports/${params.row.vessels[0].id}`);
                     }}
                 />
             )}
