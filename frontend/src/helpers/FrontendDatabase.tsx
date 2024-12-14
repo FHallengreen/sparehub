@@ -25,6 +25,10 @@ export function tableApiMethodMapping(table: string | undefined): string | null{
             return "vessel";
         case "owner":
             return "owner";
+        case "port":
+            return "port";
+        case "vesselAtPort":
+            return "vessel-at-port";
         default:
             return null;
     }

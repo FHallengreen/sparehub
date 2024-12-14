@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Repository.MySql;
-using Service;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Repository.Interfaces;
 using Service.Interfaces;
 using Shared.DTOs.VesselAtPort;
 using Shared.Exceptions;
@@ -9,16 +9,16 @@ namespace Server.VesselAtPortController;
 
 [ApiController]
 [Route("api/vessel-at-port")]
-public class VesselAtPortController(IDatabaseFactory databaseFactory) : ControllerBase
+[Authorize]
+public class VesselAtPortController(IVesselAtPortService vesselAtPortService) : ControllerBase
 {
-    private readonly IVesselAtPortService _vesselAtPortService = databaseFactory.GetRepository<IVesselAtPortService>();
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-    public async Task<IActionResult> GetVesselAtPorts(VesselMySqlRepository vesselMySqlRepository)
+    public async Task<IActionResult> GetVesselAtPorts(IVesselRepository vesselRepository)
     {
-        var vesselAtPorts = await _vesselAtPortService.GetVesselAtPorts(vesselMySqlRepository);
+        var vesselAtPorts = await vesselAtPortService.GetVesselAtPorts(vesselRepository);
         
         return Ok(vesselAtPorts);
     }
@@ -26,9 +26,9 @@ public class VesselAtPortController(IDatabaseFactory databaseFactory) : Controll
     [HttpGet("{vesselId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-    public async Task<IActionResult> GetVesselByIdAtPort(string vesselId, VesselMySqlRepository vesselMySqlRepository)
+    public async Task<IActionResult> GetVesselByIdAtPort(string vesselId, IVesselRepository vesselRepository)
     {
-        var vesselAtPort = await _vesselAtPortService.GetVesselByIdAtPort(vesselId, vesselMySqlRepository);
+        var vesselAtPort = await vesselAtPortService.GetVesselByIdAtPort(vesselId, vesselRepository);
         
         return Ok(vesselAtPort);
     }
@@ -38,9 +38,11 @@ public class VesselAtPortController(IDatabaseFactory databaseFactory) : Controll
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
     public async Task<IActionResult> AddVesselToPort([FromBody] VesselAtPortRequest vesselAtPortRequest, 
-        VesselMySqlRepository vesselMySqlRepository)
+        IVesselRepository vesselRepository)
     {
-        var vesselAtPort = await _vesselAtPortService.AddVesselToPort(vesselAtPortRequest, vesselMySqlRepository);
+        var vesselAtPort = await vesselAtPortService.AddVesselToPort(vesselAtPortRequest, vesselRepository);
+        Console.WriteLine("Arrival: " + vesselAtPort.ArrivalDate);
+        Console.WriteLine("Departure: " + vesselAtPort.DepartureDate);
         
         return CreatedAtAction(nameof(GetVesselByIdAtPort), 
             new { vesselId = vesselAtPort.Vessels[0].Id }, vesselAtPort);
@@ -51,9 +53,9 @@ public class VesselAtPortController(IDatabaseFactory databaseFactory) : Controll
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
     public async Task<IActionResult> ChangePortForVessel([FromBody] VesselAtPortRequest vesselAtPortRequest, 
-        VesselMySqlRepository vesselMySqlRepository)
+        IVesselRepository vesselRepository)
     {
-        var vesselAtPort = await _vesselAtPortService.ChangePortForVesselAsync(vesselAtPortRequest, vesselMySqlRepository);
+        var vesselAtPort = await vesselAtPortService.ChangePortForVessel(vesselAtPortRequest, vesselRepository);
         
         return Ok(vesselAtPort);
     }
@@ -63,7 +65,7 @@ public class VesselAtPortController(IDatabaseFactory databaseFactory) : Controll
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
     public async Task<IActionResult> RemoveVesselFromPort(string vesselId)
     {
-        await _vesselAtPortService.RemoveVesselFromPort(vesselId);
+        await vesselAtPortService.RemoveVesselFromPort(vesselId);
         
         return Ok($"Vessel with id '{vesselId}' removed from port");
     }

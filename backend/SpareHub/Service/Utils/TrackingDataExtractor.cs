@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text.Json;
 using Shared.DTOs.Order;
+using Shared.Utils;
 
 namespace Service.Utils;
 
@@ -27,18 +28,9 @@ public class TrackingDataExtractor
         {
             StatusDescription = statusDescription!,
             Location = location!,
-            Timestamp = FormatToLocalDate(timestamp),
-            EstimatedDelivery = FormatToLocalDate(estimatedDelivery)
+            Timestamp = DateUtils.FormatToLocalDate(timestamp),
+            EstimatedDelivery = DateUtils.FormatToLocalDate(estimatedDelivery)
         };
     }
 
-    private string FormatToLocalDate(string? dateTimeString)
-    {
-
-        var dateTimeUtc = DateTime.Parse(dateTimeString ?? throw new ValidationException("Unable to format date"), null, DateTimeStyles.AdjustToUniversal);
-
-        var localDateTime = dateTimeUtc.ToLocalTime();
-
-        return localDateTime.ToString("dd-MM-yyyy", CultureInfo.InvariantCulture);
-    }
 }

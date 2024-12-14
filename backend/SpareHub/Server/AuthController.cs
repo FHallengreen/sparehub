@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Persistence.MySql.SparehubDbContext;
-using Service;
-using Service.MySql.Login;
-using Shared.DTOs;
+using Service.Services.Login;
 using Shared.DTOs.User;
 
 namespace Server;

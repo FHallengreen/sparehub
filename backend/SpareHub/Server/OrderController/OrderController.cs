@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service;
 using Service.Interfaces;
 using Shared;
 using Shared.DTOs.Order;

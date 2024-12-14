@@ -4,7 +4,6 @@ namespace Service.Interfaces;
 
 public interface IOwnerService
 {
-    
     Task<List<OwnerResponse>> GetOwners();
     
     Task<OwnerResponse> GetOwnerById(string ownerId);

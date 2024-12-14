@@ -2,6 +2,7 @@
 using Repository.Interfaces;
 using Repository.MongoDb;
 using Repository.MySql;
+using Repository.Neo4J;
 using Service.Interfaces;
 
 namespace Service.Utils;
@@ -42,6 +43,14 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
         //Owner
         { (typeof(IOwnerService), DatabaseType.MySql), typeof(OwnerMySqlRepository) },
         
+        { (typeof(IPortRepository), DatabaseType.MySql), typeof(PortMySqlRepository) },
+        { (typeof(IPortRepository), DatabaseType.Neo4j), typeof(PortNeo4jRepository)},
+        { (typeof(IVesselRepository), DatabaseType.MySql), typeof(VesselMySqlRepository) },
+        { (typeof(IVesselRepository), DatabaseType.Neo4j), typeof(VesselNeo4jRepository)},
+        { (typeof(IOwnerRepository), DatabaseType.MySql), typeof(OwnerMySqlRepository) },
+        { (typeof(IOwnerRepository), DatabaseType.Neo4j), typeof(OwnerNeo4jRepository)},
+        { (typeof(IVesselAtPortRepository), DatabaseType.MySql), typeof(VesselAtPortMySqlRepository) },
+        { (typeof(IVesselAtPortRepository), DatabaseType.Neo4j), typeof(VesselAtPortNeo4jRepository)}
     };
 
     public T GetRepository<T>() where T : class

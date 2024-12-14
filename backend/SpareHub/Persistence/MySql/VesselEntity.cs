@@ -8,7 +8,7 @@ public class VesselEntity
 {
     [Key] 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public required int Id { get; set; }
+    public required int Id { get; init; }
     
     public int OwnerId { get; init; }
     

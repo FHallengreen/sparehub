@@ -101,12 +101,13 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner));
         
         CreateMap<Vessel, VesselEntity>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.ImoNumber, opt => opt.MapFrom(src => src.ImoNumber))
             .ForMember(dest => dest.Flag, opt => opt.MapFrom(src => src.Flag))
             .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => int.Parse(src.Owner.Id)))
             .ForMember(dest => dest.Owner, opt => opt.Ignore());
+        
         //Owner mappings
         CreateMap<OwnerEntity, Owner>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))

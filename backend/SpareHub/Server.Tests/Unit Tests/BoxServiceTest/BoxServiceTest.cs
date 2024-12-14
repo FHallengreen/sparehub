@@ -3,10 +3,8 @@ using System.Threading.Tasks;
 using Domain.Models;
 using Moq;
 using Repository.Interfaces;
-using Service.MySql.Box;
-using Service.MySql.Order;
+using Service.Services.Box;
 using Shared.DTOs.Order;
-using Shared.Exceptions;
 using Xunit;
 
 namespace Server.Tests.Unit_Tests.BoxServiceTest;

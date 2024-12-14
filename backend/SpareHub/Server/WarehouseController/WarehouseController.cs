@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Shared;
@@ -7,6 +8,7 @@ namespace Server.WarehouseController;
 
 [ApiController]
 [Route("api/warehouse")]
+[Authorize]
 public class WarehouseController(IWarehouseService warehouseService) : ControllerBase
 {
     [HttpGet]
