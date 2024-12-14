@@ -27,7 +27,7 @@ const VesselAtPortDetailsPage: React.FC = () => {
 
         fetchPorts();
     }, []);
-   
+
     useEffect(() => {
         const fetchVesselAtPort = async () => {
             try {
@@ -55,13 +55,13 @@ const VesselAtPortDetailsPage: React.FC = () => {
         if (!vesselAtPort) return;
 
         try {
-            await updateVesselAtPort( 
+            await updateVesselAtPort(
                 {
-                vesselId: vesselAtPort.vessels[0].id.toString(),
-                portId: vesselAtPort.portId,
-                arrivalDate: vesselAtPort.arrivalDate,
-                departureDate: vesselAtPort.departureDate
-            });
+                    vesselId: vesselAtPort.vessels[0].id.toString(),
+                    portId: vesselAtPort.portId,
+                    arrivalDate: vesselAtPort.arrivalDate,
+                    departureDate: vesselAtPort.departureDate
+                });
             showSnackbar('Vessel at Port updated successfully!', 'success');
             navigate('/vessels-at-ports');
         } catch (err) {
@@ -92,6 +92,7 @@ const VesselAtPortDetailsPage: React.FC = () => {
             <Typography variant="h4" className="text-2xl font-bold mb-6">
                 Vessel at Port Details
             </Typography>
+
             <TextField
                 label="Vessel"
                 value={vesselAtPort.vessels[0].name}
@@ -99,6 +100,7 @@ const VesselAtPortDetailsPage: React.FC = () => {
                 className="mb-4"
                 disabled
             />
+
             <TextField
                 select
                 label="Port Name"
@@ -108,26 +110,34 @@ const VesselAtPortDetailsPage: React.FC = () => {
                 className="mb-4"
                 SelectProps={{ native: true }}
             >
-            {ports.map((port) => (
-            <option key={port.id} value={port.id}>
-                {port.name}
-            </option>
-            ))}
+                {ports.map((port) => (
+                    <option key={port.id} value={port.id}>
+                        {port.name}
+                    </option>
+                ))}
             </TextField>
-        
+
             <TextField
                 label="Arrival Date"
                 value={vesselAtPort.arrivalDate}
+                type="date"
                 onChange={(e) => handleInputChange('arrivalDate', e.target.value)}
                 fullWidth
                 className="mb-4"
+                InputLabelProps={{
+                    shrink: true,
+                }}
             />
             <TextField
                 label="Departure Date"
                 value={vesselAtPort.departureDate}
+                type="date"
                 onChange={(e) => handleInputChange('departureDate', e.target.value)}
                 fullWidth
                 className="mb-4"
+                InputLabelProps={{
+                    shrink: true,
+                }}
             />
 
             <div className="mt-8 gap-2 flex">
