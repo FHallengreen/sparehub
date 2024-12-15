@@ -7,7 +7,7 @@ namespace Service.Services.Order;
 
 public class TrackingService(HttpClient httpClient) : ITrackingService
 {
-    private readonly string _dhlApiKey = Environment.GetEnvironmentVariable("DHL_API_KEY")
+        private readonly string _dhlApiKey = Environment.GetEnvironmentVariable("DHL_API_KEY")
                                          ?? throw new ValidationException("DhlApiKey is not set.");
 
     public async Task<TrackingResponse> GetTrackingStatusAsync(string trackingNumber, string transporter)
