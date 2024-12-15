@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate  } from 'react-router-dom';
 import { useState } from 'react';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import OrderPage from './features/order/pages/OrderPage.tsx';
@@ -63,6 +63,7 @@ function App() {
             } transition-all duration-300`}
           >
              <Routes>
+             <Route path="/" element={<Navigate to="/orders" replace />} />
               <Route path="/login" element={<LoginPage />} />
               <Route
                 path="/orders/:id"
