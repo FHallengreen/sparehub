@@ -6,6 +6,8 @@ interface TrackingCardProps {
   transporters: string[];
   fetchTrackingStatus: (trackingNumber: string, transporter: string) => Promise<any>;
   showSnackbar: (message: string, severity: 'success' | 'error' | 'warning') => void;
+  transporter: string; 
+  trackingNumber: string;
   onTrackingUpdate: (transporter: string, trackingNumber: string) => void;
 }
 
@@ -13,10 +15,10 @@ const TrackingCard: React.FC<TrackingCardProps> = ({
   transporters,
   fetchTrackingStatus,
   showSnackbar,
+  transporter,
+  trackingNumber,
   onTrackingUpdate,
 }) => {
-  const [selectedTransporter, setSelectedTransporter] = React.useState<string>('');
-  const [trackingNumber, setTrackingNumber] = React.useState<string>('');
   const [trackingStatus, setTrackingStatus] = React.useState<{
     currentStep: string;
     statusDescription: string;
@@ -28,24 +30,14 @@ const TrackingCard: React.FC<TrackingCardProps> = ({
   const getDhlTrackingUrl = (trackingNumber: string) =>
     `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${trackingNumber}&submit=1&inputsource=flyout`;
 
-  const handleTransporterChange = (value: string) => {
-    setSelectedTransporter(value);
-    onTrackingUpdate(value, trackingNumber);
-  };
-
-  const handleTrackingNumberChange = (value: string) => {
-    setTrackingNumber(value);
-    onTrackingUpdate(selectedTransporter, value);
-  };
-
   const refreshTrackingStatus = async () => {
-    if (!selectedTransporter || !trackingNumber) {
+    if (!transporter || !trackingNumber) {
       showSnackbar('Please select a transporter and enter a tracking number.', 'warning');
       return;
     }
 
     try {
-      const trackingData = await fetchTrackingStatus(trackingNumber, selectedTransporter);
+      const trackingData = await fetchTrackingStatus(trackingNumber, transporter);
       setTrackingStatus(trackingData);
       showSnackbar('Tracking status updated.', 'success');
     } catch (error) {
@@ -62,16 +54,16 @@ const TrackingCard: React.FC<TrackingCardProps> = ({
       <div className="flex flex-col gap-6">
         <div className="w-full">
           <select
-            value={selectedTransporter}
-            onChange={(e) => handleTransporterChange(e.target.value)}
+            value={transporter}
+            onChange={(e) => onTrackingUpdate(e.target.value, trackingNumber)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
           >
             <option value="" disabled>
               Select Transporter
             </option>
-            {transporters.map((transporter) => (
-              <option key={transporter} value={transporter}>
-                {transporter}
+            {transporters.map((trans) => (
+              <option key={trans} value={trans}>
+                {trans}
               </option>
             ))}
           </select>
@@ -80,11 +72,11 @@ const TrackingCard: React.FC<TrackingCardProps> = ({
         <TextField
           label="Tracking Number"
           value={trackingNumber}
-          onChange={(e) => handleTrackingNumberChange(e.target.value)}
+          onChange={(e) => onTrackingUpdate(transporter, e.target.value)}
           fullWidth
           variant="outlined"
         />
-        {selectedTransporter === 'DHL' && trackingNumber && (
+        {transporter === 'DHL' && trackingNumber && (
           <a
             href={getDhlTrackingUrl(trackingNumber)}
             target="_blank"

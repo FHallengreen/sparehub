@@ -34,15 +34,34 @@ const OrderDetailPage: React.FC = () => {
         const statusResponse = await api.get<string[]>(`${import.meta.env.VITE_API_URL}/api/order/status`);
         setStatuses(statusResponse.data);
 
-        const fetchedOrder = await fetchOrderById(id || 'new');
-        if (!fetchedOrder) {
-          showSnackbar('Order not found.', 'error');
-          navigate('/orders');
-        } else {
+        if (isNewOrder) {
           setOrder({
-            ...fetchedOrder,
-            boxes: fetchedOrder.boxes ?? [],
+            id: 0,
+            orderNumber: '',
+            supplierOrderNumber: '',
+            expectedReadiness: undefined,
+            actualReadiness: undefined,
+            expectedArrival: undefined,
+            actualArrival: undefined,
+            supplier: { id: 0, name: '' },
+            vessel: { id: 0, name: '', owner: { id: 0, name: '' } },
+            warehouse: { id: 0, name: '', agent: { id: 0, name: '' } },
+            orderStatus: 'Pending',
+            boxes: [],
+            transporter: '',
+            trackingNumber: '',
           });
+        } else {
+          const fetchedOrder = await fetchOrderById(id ?? '');
+          if (!fetchedOrder) {
+            showSnackbar('Order not found.', 'error');
+            navigate('/orders');
+          } else {
+            setOrder({
+              ...fetchedOrder,
+              boxes: fetchedOrder.boxes ?? [],
+            });
+          }
         }
       } catch (error) {
         showSnackbar('An error occurred.', 'error');
@@ -98,7 +117,7 @@ const OrderDetailPage: React.FC = () => {
   const handleWarehouseChange = (updatedWarehouse: { id: number; name: string; agent?: { id: number; name: string } | null }) => {
     setOrder((prev) => {
       if (!prev) return null;
-  
+
       return {
         ...prev,
         warehouse: { ...updatedWarehouse, agent: updatedWarehouse.agent || null },
@@ -252,6 +271,8 @@ const OrderDetailPage: React.FC = () => {
 
 
             <TrackingCard
+              transporter={order.transporter}
+              trackingNumber={order.trackingNumber}
               transporters={['DHL', 'FEDEX', 'GLS']}
               fetchTrackingStatus={(trackingNumber, transporter) =>
                 fetchTrackingStatus(order?.id, transporter, trackingNumber)
