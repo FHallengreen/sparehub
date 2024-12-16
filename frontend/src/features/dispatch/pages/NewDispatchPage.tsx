@@ -18,12 +18,13 @@ const NewDispatchPage: React.FC = () => {
   const showSnackbar = useSnackbar();
   const location = useLocation();
   const { selectedData } = location.state || {};
+  const userData = JSON.parse(localStorage.getItem('session') || '{}');
 
   const [dispatch, setDispatch] = useState<DispatchRequest>({
     destinationType: null,
     destinationId: null,
     transportModeType: 'Courier',
-    userId: 1,
+    userId: userData.user.id,
     status: 'Created',
     orderIds: selectedData ? selectedData.map((order: any) => order.id.toString()) : [],
   });
