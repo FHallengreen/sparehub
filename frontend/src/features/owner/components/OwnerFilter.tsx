@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 interface OwnerFilterProps {
   suggestions: string[];
-  searchTerm: string; // Current search term
-  setSearchTerm: (term: string) => void; // Function to update search term
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
 }
 
 const OwnerFilter: React.FC<OwnerFilterProps> = ({
@@ -32,7 +32,7 @@ const OwnerFilter: React.FC<OwnerFilterProps> = ({
             fullWidth
           />
         )}
-        style={{ width: '40vw' }} // Adjust width as needed
+        style={{ width: '40vw' }}
       />
       <Button
         onClick={() => navigate('/owners/new')}

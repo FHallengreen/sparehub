@@ -39,9 +39,7 @@ const PortPage: React.FC = () => {
 
   return (
     <div className="w-full">
-      <Typography variant="h4" className="text-2xl font-bold mb-4">
-        Ports
-      </Typography>
+      
       <PortFilter
         suggestions={rows.map(row => row.name)}
         searchTerm={searchTerm}

@@ -39,9 +39,6 @@ const OwnerPage: React.FC = () => {
 
     return (
         <div className="w-full">
-            <Typography variant="h4" className="text-2xl font-bold mb-4">
-                Owners
-            </Typography>
             <OwnerFilter
                 suggestions={owners.map(owner => owner.name)}
                 searchTerm={searchTerm}

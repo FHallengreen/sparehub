@@ -35,7 +35,6 @@ const OwnerList: React.FC = () => {
 
     return (
         <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Owner List</h1>
             <Link to="/owners/new" className="text-blue-500">Create New Owner</Link>
             {loading ? (
                 <CircularProgress />
