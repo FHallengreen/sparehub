@@ -5,6 +5,7 @@ import DispatchGrid from '../components/DispatchGrid';
 import { Dispatch } from '../../../interfaces/dispatch';
 import { dispatchColumns } from '../columns/DispatchColumns.tsx';
 import {getDispatches} from "../../../api/dispatchApi.ts";
+import {useNavigate} from "react-router-dom";
 
 const DispatchPage: React.FC = () => {
   const [rows, setRows] = useState<Dispatch[]>([]);
@@ -14,6 +15,8 @@ const DispatchPage: React.FC = () => {
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const searchBoxRef = useRef<HTMLInputElement>(null);
+
+  const navigate = useNavigate();
 
   const fetchDispatches = async (tags: string[] = []) => {
     try {
@@ -73,7 +76,7 @@ const DispatchPage: React.FC = () => {
         error={error}
         selectionModel={selectionModel}
         onSelectionModelChange={setSelectionModel}
-        onRowDoubleClick={(params) => console.log(params)}
+        onRowDoubleClick={(params) => navigate(`/dispatches/${params.id}`)}
       />
     </div>
   );
