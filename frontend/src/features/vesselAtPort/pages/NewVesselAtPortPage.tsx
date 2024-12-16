@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
-import { createVesselAtPort } from '../../../api/vesselAtPortApi.ts';
+import { createVesselAtPort, getVesselsAtPorts } from '../../../api/vesselAtPortApi.ts';
 import { VesselAtPortRequest } from '../../../interfaces/vesselAtPort.ts';
 import { getPorts } from '../../../api/portApi.ts';
 import { getVessels } from '../../../api/vesselApi.ts';
-import { getVesselsAtPorts } from '../../../api/vesselAtPortApi.ts';
 
 const NewVesselAtPortPage: React.FC = () => {
     const navigate = useNavigate();
@@ -28,10 +27,14 @@ const NewVesselAtPortPage: React.FC = () => {
                 const vesselsData = await getVessels();
                 const vesselsAtPortData = await getVesselsAtPorts();
 
+                console.log('Fetched vessels:', vesselsData);
+                console.log('Fetched vessels at ports:', vesselsAtPortData);
+
                 const vesselsAtPortIds = vesselsAtPortData.map(vesselAtPort => vesselAtPort.vessels[0].id.toString());
                 const availableVessels = vesselsData.filter(vessel => !vesselsAtPortIds.includes(vessel.id.toString()));
 
                 setVessels(availableVessels.map(vessel => ({ id: vessel.id.toString(), name: vessel.name })));
+                console.log('Available vessels:', availableVessels);
             } catch (err) {
                 console.error('Error fetching vessels:', err);
             }
@@ -45,6 +48,7 @@ const NewVesselAtPortPage: React.FC = () => {
             try {
                 const data = await getPorts();
                 setPorts(data.map(port => ({ id: port.id.toString(), name: port.name })));
+                console.log('Fetched ports:', data);
             } catch (err) {
                 console.error('Error fetching ports:', err);
             }
@@ -53,14 +57,25 @@ const NewVesselAtPortPage: React.FC = () => {
         fetchPorts();
     }, []);
 
-
     const handleInputChange = (field: keyof VesselAtPortRequest, value: string) => {
         setVesselAtPort({ ...vesselAtPort, [field]: value });
     };
 
     const handleSave = async () => {
+        if (!vesselAtPort.vesselId) {
+            setError('Vessel must be selected.');
+            return;
+        }
+
+        if (!vesselAtPort.portId) {
+            setError('Port must be selected.');
+            return;
+        }
+
         setLoading(true);
         setError(null);
+
+        console.log('Vessel at Port data being sent:', vesselAtPort);
 
         try {
             await createVesselAtPort(vesselAtPort);
@@ -99,6 +114,7 @@ const NewVesselAtPortPage: React.FC = () => {
                     shrink: true,
                 }}
             >
+                <option value="" disabled>Select a vessel</option>
                 {vessels.map((vessel) => (
                     <option key={vessel.id} value={vessel.id}>
                         {vessel.name}
@@ -118,6 +134,7 @@ const NewVesselAtPortPage: React.FC = () => {
                     shrink: true,
                 }}
             >
+                <option value="" disabled>Select a port</option>
                 {ports.map((port) => (
                     <option key={port.id} value={port.id}>
                         {port.name}
@@ -160,4 +177,4 @@ const NewVesselAtPortPage: React.FC = () => {
     );
 };
 
-export default NewVesselAtPortPage; 
+export default NewVesselAtPortPage;

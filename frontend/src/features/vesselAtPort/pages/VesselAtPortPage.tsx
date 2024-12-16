@@ -41,9 +41,7 @@ const VesselAtPortPage: React.FC = () => {
 
     return (
         <div className="w-full">
-            <Typography variant="h4" className="text-2xl font-bold mb-4">
-                Vessels At Ports
-            </Typography>
+           
             <VesselAtPortFilter
                 suggestions={suggestions}
                 searchTerm={searchTerm}

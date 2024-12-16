@@ -22,7 +22,7 @@ const VesselAtPortFilter: React.FC<VesselAtPortFilterProps> = ({
                 options={suggestions}
                 inputValue={searchTerm}
                 onInputChange={(_, newValue) => setSearchTerm(newValue)}
-                getOptionLabel={(option) => option || ''} // Handle undefined values
+                getOptionLabel={(option) => option || ''}
                 renderInput={(params) => (
                     <TextField
                         {...params}
@@ -32,7 +32,7 @@ const VesselAtPortFilter: React.FC<VesselAtPortFilterProps> = ({
                         fullWidth
                     />
                 )}
-                style={{ width: '40vw' }} // Adjust width as needed
+                style={{ width: '40vw' }}
             />
             <Button
                 onClick={() => navigate('/vessels-at-ports/new')}
