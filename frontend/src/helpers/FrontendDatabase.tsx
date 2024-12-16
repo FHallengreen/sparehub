@@ -15,8 +15,6 @@ export function tableApiMethodMapping(table: string | undefined): string | null{
             return "address";
         case "agent":
             return "agent";
-        case "port":
-            return "port";
         case "warehouse":
             return "warehouse";
         case "supplier":
@@ -27,8 +25,6 @@ export function tableApiMethodMapping(table: string | undefined): string | null{
             return "owner";
         case "port":
             return "port";
-        case "vesselAtPort":
-            return "vessel-at-port";
         default:
             return null;
     }
