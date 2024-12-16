@@ -85,8 +85,12 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.Transporter, opt => opt.MapFrom(src => src.Transporter))
             .ForMember(dest => dest.Boxes, opt => opt.MapFrom(src => src.Boxes));
 
+        CreateMap<Supplier, SupplierEntity>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id))) // Assuming Supplier.Id is a string
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
         CreateMap<SupplierEntity, Supplier>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString())) // Mapping integer to string
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
         CreateMap<BoxRequest, Box>()
@@ -158,8 +162,6 @@ public class MappingMySqlProfile : Profile
         // Dispatch mappings
         CreateMap<Dispatch, DispatchEntity>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.OriginType, opt => opt.MapFrom(src => src.OriginType))
-            .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.OriginId))
             .ForMember(dest => dest.DestinationType, opt => opt.MapFrom(src => src.DestinationType))
             .ForMember(dest => dest.DestinationId, opt => opt.MapFrom(src => src.DestinationId))
             .ForMember(dest => dest.DispatchStatus, opt => opt.MapFrom(src => src.DispatchStatus))
@@ -168,12 +170,11 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.DispatchDate, opt => opt.MapFrom(src => src.DispatchDate))
             .ForMember(dest => dest.DeliveryDate, opt => opt.MapFrom(src => src.DeliveryDate))
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-            .ForMember(dest => dest.Orders, opt => opt.Ignore()) // Handle if you need order mapping
-            .ForMember(dest => dest.Invoices, opt => opt.Ignore()); // Handle invoices if applicable
+            .ForMember(dest => dest.Orders, opt => opt.MapFrom(src => src.Orders))
+            .ForMember(dest => dest.Invoices, opt => opt.Ignore()); // Removed OriginType and OriginId
 
         CreateMap<DispatchEntity, Dispatch>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
-            .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.OriginId))
             .ForMember(dest => dest.DestinationType, opt => opt.MapFrom(src => src.DestinationType))
             .ForMember(dest => dest.DestinationId, opt => opt.MapFrom(src => src.DestinationId))
             .ForMember(dest => dest.DispatchStatus, opt => opt.MapFrom(src => src.DispatchStatus))
@@ -181,8 +182,14 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
             .ForMember(dest => dest.DispatchDate, opt => opt.MapFrom(src => src.DispatchDate))
             .ForMember(dest => dest.DeliveryDate, opt => opt.MapFrom(src => src.DeliveryDate))
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+            .ForMember(dest => dest.Orders, opt => opt.MapFrom(src => src.Orders)); // Removed OriginType and OriginId
 
+        CreateMap<Order, OrderEntity>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
+            .ReverseMap()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()));
+        
         // User mappings
         CreateMap<UserEntity, User>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))

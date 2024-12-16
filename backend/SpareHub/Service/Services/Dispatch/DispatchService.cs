@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Persistence.MySql;
 using Repository.Interfaces;
 using Repository.MySql;
@@ -8,7 +9,8 @@ using ValidationException = System.ComponentModel.DataAnnotations.ValidationExce
 
 namespace Service.Services.Dispatch;
 
-public class DispatchService(IDispatchRepository dispatchRepository, IOrderRepository orderRepository) : IDispatchService
+public class DispatchService(IDispatchRepository dispatchRepository, IOrderRepository orderRepository)
+    : IDispatchService
 {
     public async Task<DispatchResponse> CreateDispatch(DispatchRequest dispatchRequest)
     {
@@ -17,23 +19,45 @@ public class DispatchService(IDispatchRepository dispatchRepository, IOrderRepos
 
         if (dispatchRequest.OrderIds == null || !dispatchRequest.OrderIds.Any())
             throw new ValidationException("OrderIds cannot be null or empty.");
-        
+
         var orders = await orderRepository.GetOrdersByIdsAsync(dispatchRequest.OrderIds);
-        
-        Console.WriteLine("Orders: " + orders);
+        foreach (var order in orders)
+        {
+            Console.WriteLine($"Order ID: {order.Id}, Vessel ID: {order.Vessel?.Id}");
+        }
 
         if (orders == null || !orders.Any())
             throw new ValidationException("No valid orders found for the provided IDs.");
+        
+        var firstOrder = orders.First();
+        if (firstOrder.SupplierId == null && firstOrder.WarehouseId == null)
+        {
+            throw new ValidationException("Both SupplierId and WarehouseId are null. Cannot determine OriginId.");
+        }
+
+        var originType = firstOrder.SupplierId != null ? "Supplier" : "Warehouse";
+
+        int originId = 0;
+
+        if (firstOrder.SupplierId != null && int.TryParse(firstOrder.SupplierId, out var parsedSupplierId))
+        {
+            originId = parsedSupplierId;
+        }
+        else if (firstOrder.WarehouseId != null && int.TryParse(firstOrder.WarehouseId, out var parsedWarehouseId))
+        {
+            originId = parsedWarehouseId;
+        }
+
 
         var dispatch = new Domain.Models.Dispatch
         {
-            OriginType = dispatchRequest.OriginType,
-            OriginId = dispatchRequest.OriginId,
+            OriginType = originType,
+            OriginId = originId,
             DestinationType = dispatchRequest.DestinationType,
             DestinationId = dispatchRequest.DestinationId,
-            DispatchStatus = "Created",
+            DispatchStatus = dispatchRequest.Status,
             TransportModeType = dispatchRequest.TransportModeType,
-            TrackingNumber = "123456",
+            TrackingNumber = "TBD",
             DispatchDate = DateTime.UtcNow,
             DeliveryDate = DateTime.UtcNow.AddDays(7),
             UserId = dispatchRequest.UserId,
@@ -55,7 +79,7 @@ public class DispatchService(IDispatchRepository dispatchRepository, IOrderRepos
             DispatchDate = createdDispatch.DispatchDate,
             DeliveryDate = createdDispatch.DeliveryDate,
             UserId = createdDispatch.UserId,
-            OrderIds = createdDispatch.Orders.Select(o => o.Id).ToList()
+            OrderIds = createdDispatch.Orders.Select(o => o.Id.ToString()).ToList()
         };
     }
 
@@ -119,8 +143,8 @@ public class DispatchService(IDispatchRepository dispatchRepository, IOrderRepos
         var dispatch = new Domain.Models.Dispatch
         {
             Id = dispatchId,
-            OriginType = dispatchRequest.OriginType,
-            OriginId = dispatchRequest.OriginId,
+            OriginType = "Supplier",
+            OriginId = 1,
             DestinationType = dispatchRequest.DestinationType,
             DestinationId = dispatchRequest.DestinationId,
             TransportModeType = dispatchRequest.TransportModeType,
@@ -157,7 +181,7 @@ public class DispatchService(IDispatchRepository dispatchRepository, IOrderRepos
     {
         return await dispatchRepository.GetSupplierIdsAsync();
     }
-    
+
     public async Task<IEnumerable<int>> GetWarehouseIds()
     {
         // Replace with actual logic to fetch warehouse IDs

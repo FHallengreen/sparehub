@@ -29,11 +29,10 @@ export interface DispatchDetail {
 }
 
 export interface DispatchRequest {
-  originType: string;
-  originId: number;
-  destinationType: string;
+  destinationType: 'Warehouse' | 'Vessel' | 'Supplier' | 'Address' | null;
   destinationId: number | null;
-  transportModeType: string;
+  transportModeType: 'Air' | 'Sea' | 'Courier';
+  status: 'Created' | 'Sent' | 'Delivered';
   userId: number;
   orderIds: number[];
 }

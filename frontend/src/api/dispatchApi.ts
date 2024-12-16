@@ -32,42 +32,29 @@ export const deleteDispatch = async (id: number): Promise<void> => {
   await api.delete(`/api/dispatch/${id}`);
 };
 
-export const fetchOrigins = async (originType: string): Promise<Supplier[] | Warehouse[]> => {
+export const fetchDestinations = async (destinationType: string): Promise<Supplier[] | Vessel[] | Warehouse[]> => {
   try {
     let endpoint = '';
-    if (originType.toLowerCase() === 'warehouse') {
-      endpoint = '/api/warehouse';
-    } else if (originType.toLowerCase() === 'supplier') {
-      endpoint = '/api/supplier';
-    } else {
-      console.error(`Invalid origin type: ${originType}`);
-      return [];
+    switch (destinationType) {
+      case 'Warehouse':
+        endpoint = '/api/warehouse';
+        break;
+      case 'Vessel':
+        endpoint = '/api/vessel';
+        break;
+      case 'Supplier':
+        endpoint = '/api/supplier';
+        break;
+      case 'Address':
+        // Assume this is a placeholder for a future endpoint
+        break;
+      default:
+        console.error(`Invalid destination type: ${destinationType}`);
+        return [];
     }
 
     const response = await api.get(endpoint);
-    // Assuming the data contains an array of objects with an `id` property
-    return response.data;
-  } catch (error) {
-    console.error(`Failed to fetch origin IDs for type: ${originType}`, error);
-    return [];
-  }
-};
-
-export const fetchDestinations = async (destinationType: string): Promise<Supplier[] | Vessel[]> => {
-  try {
-    let endpoint = '';
-    if (destinationType.toLowerCase() === 'warehouse') {
-      endpoint = '/api/warehouse';
-    } else if (destinationType.toLowerCase() === 'vessel') {
-      // Replace with the correct endpoint for vessels if available
-      endpoint = '/api/vessel'; // Adjust as necessary
-    } else {
-      console.error(`Invalid destination type: ${destinationType}`);
-      return [];
-    }
-
-    const response = await api.get(endpoint);
-    // Assuming the data contains an array of objects with an `id` property
+    console.log(`Fetched destinations for ${destinationType}:`, response.data);
     return response.data;
   } catch (error) {
     console.error(`Failed to fetch destination IDs for type: ${destinationType}`, error);

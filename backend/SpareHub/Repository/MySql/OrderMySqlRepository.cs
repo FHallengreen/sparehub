@@ -104,9 +104,9 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
             .ThenInclude(v => v.Owner)
             .Include(o => o.Warehouse)
             .Include(o => o.Boxes)
+            .AsNoTracking()
             .ToListAsync();
 
-        // Map entities to domain models
         return mapper.Map<List<Order>>(orderEntities);
     }
 

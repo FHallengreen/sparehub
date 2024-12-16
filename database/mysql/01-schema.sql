@@ -234,7 +234,7 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`dispatch` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `origin_type` ENUM('Warehouse', 'Supplier', 'Address') NOT NULL,
   `origin_id` INT NOT NULL,
-  `destination_type` ENUM('Warehouse', 'Supplier', 'Address') NOT NULL,
+  `destination_type` ENUM('Warehouse', 'Supplier', 'Address', 'Vessel') NOT NULL,
   `destination_id` INT NULL,
   `dispatch_status` ENUM('Created', 'Sent', 'Delivered') NOT NULL,
   `transport_mode_type` ENUM('Air', 'Sea', 'Courier') NOT NULL,
@@ -515,7 +515,7 @@ CREATE TABLE IF NOT EXISTS `sparehub`.`not_active_orders` (`id` INT, `order_numb
 DROP TABLE IF EXISTS `sparehub`.`not_active_orders`;
 USE `sparehub`;
 CREATE  OR REPLACE VIEW `not_active_orders` AS
-    SELECT 
+    SELECT
         *
     FROM
         `order`
@@ -534,10 +534,10 @@ CREATE ROLE IF NOT EXISTS 'admin_role';
 CREATE ROLE IF NOT EXISTS 'readonly_role';
 CREATE ROLE IF NOT EXISTS 'restricted_role';
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON `sparehub`.* TO 'app_role'; 
-GRANT ALL PRIVILEGES ON `sparehub`.* TO 'admin_role';               
-GRANT SELECT ON `sparehub`.* TO 'readonly_role';                     
-GRANT SELECT ON `sparehub`.`order` TO 'restricted_role';    
+GRANT SELECT, INSERT, UPDATE, DELETE ON `sparehub`.* TO 'app_role';
+GRANT ALL PRIVILEGES ON `sparehub`.* TO 'admin_role';
+GRANT SELECT ON `sparehub`.* TO 'readonly_role';
+GRANT SELECT ON `sparehub`.`order` TO 'restricted_role';
 
 -- Application User (minimum privileges)
 CREATE USER IF NOT EXISTS 'app_user'@'%' IDENTIFIED BY 'softE24';

@@ -21,17 +21,17 @@ public class WarehouseService(IMapper mapper, IWarehouseRepository warehouseRepo
         {
             Id = w.Id,
             Name = w.Name,
-            Address = new AddressResponse
+            Address = w.Address != null ? new AddressResponse
             {
                 Id = w.Address.Id,
-                AddressLine = w.Address.AddressLine,
-                PostalCode = w.Address.PostalCode,
-                Country = w.Address.Country
-            }, // Handle null Address
+                AddressLine = w.Address.AddressLine ?? "Unknown",
+                PostalCode = w.Address.PostalCode ?? "Unknown",
+                Country = w.Address.Country ?? "Unknown"
+            } : null, // Handle null Address
             Agent = w.Agent != null ? new AgentResponse
             {
                 Id = w.Agent.Id,
-                Name = w.Agent.Name
+                Name = w.Agent.Name ?? "Unknown"
             } : null // Handle null Agent
         }).ToList();
     }

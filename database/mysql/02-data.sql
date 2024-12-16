@@ -156,8 +156,8 @@ INSERT INTO order_status (status) VALUES
 -- -------------------------------
 -- Insert Data into `order`
 -- -------------------------------
-INSERT INTO `order` 
-(order_number, supplier_order_number, supplier_id, vessel_id, warehouse_id, expected_readiness, actual_readiness, expected_arrival, actual_arrival, order_status) 
+INSERT INTO `order`
+(order_number, supplier_order_number, supplier_id, vessel_id, warehouse_id, expected_readiness, actual_readiness, expected_arrival, actual_arrival, order_status)
 VALUES
 ('ORD001', 'SUP001', 1, 1, 1, '2024-12-01 10:00:00', '2024-12-02 12:00:00', '2024-12-05 08:00:00', '2024-12-05 09:00:00', 'Delivered'),   -- id = 1
 ('ORD002', 'SUP002', 2, 2, 2, '2024-12-03 11:00:00', NULL, '2024-12-06 09:00:00', NULL, 'Pending'),                     -- id = 2
@@ -168,8 +168,8 @@ VALUES
 -- -------------------------------
 -- Insert Data into dispatch
 -- -------------------------------
-INSERT INTO dispatch 
-(origin_type, origin_id, destination_type, destination_id, dispatch_status, transport_mode_type, tracking_number, dispatch_date, delivery_date, user_id) 
+INSERT INTO dispatch
+(origin_type, origin_id, destination_type, destination_id, dispatch_status, transport_mode_type, tracking_number, dispatch_date, delivery_date, user_id)
 VALUES
 ('Warehouse', 1, 'Supplier', 1, 'Created', 'Sea', 'TRK123456', '2024-12-01 08:00:00', NULL, 1),      -- id = 1
 ('Supplier', 2, 'Warehouse', 2, 'Sent', 'Air', 'TRK234567', '2024-12-02 09:00:00', '2024-12-03 10:00:00', 2), -- id = 2
@@ -258,6 +258,23 @@ INSERT INTO operator (name, title, user_id) VALUES
 ('Operator Five', 'Assistant Operator', 1);        -- id = 5
 
 -- -------------------------------
+-- Seed `transport_mode` table
+-- -------------------------------
+INSERT INTO transport_mode (type) VALUES
+('Air'),
+('Sea'),
+('Courier');
+
+-- -------------------------------
+-- Seed `dispatch_status` table
+-- -------------------------------
+INSERT INTO dispatch_status (status) VALUES
+('Created'),
+('Sent'),
+('Delivered');
+
+
+-- -------------------------------
 -- Insert 100 Auto-Generated Orders
 -- -------------------------------
 -- -------------------------------
@@ -274,36 +291,36 @@ BEGIN
     DECLARE random_warehouse INT;
     DECLARE random_status VARCHAR(20); -- Changed from ENUM to VARCHAR for flexibility
     DECLARE base_date DATETIME DEFAULT '2024-12-07 10:00:00';
-    
+
     -- Variables for Box Attributes
     DECLARE box_length INT;
     DECLARE box_width INT;
     DECLARE box_height INT;
     DECLARE box_weight DOUBLE;
-    
+
     WHILE i <= max_orders DO
         -- Randomly select supplier_id, vessel_id, and warehouse_id between 1 and 5
         SET random_supplier = FLOOR(1 + (RAND() * 5));
         SET random_vessel = FLOOR(1 + (RAND() * 5));
         SET random_warehouse = FLOOR(1 + (RAND() * 5));
-        
+
         -- Randomly select order status
         SET random_status = ELT(FLOOR(1 + RAND() * 6), 'Pending', 'Ready', 'Inbound', 'Stock', 'Cancelled', 'Delivered');
-        
+
         -- Insert the new order
-        INSERT INTO `order` 
+        INSERT INTO `order`
         (
-            order_number, 
-            supplier_order_number, 
-            supplier_id, 
-            vessel_id, 
-            warehouse_id, 
-            expected_readiness, 
-            actual_readiness, 
-            expected_arrival, 
-            actual_arrival, 
+            order_number,
+            supplier_order_number,
+            supplier_id,
+            vessel_id,
+            warehouse_id,
+            expected_readiness,
+            actual_readiness,
+            expected_arrival,
+            actual_arrival,
             order_status
-        ) 
+        )
         VALUES
         (
             CONCAT('ORD', LPAD(i, 3, '0')),
@@ -317,7 +334,7 @@ BEGIN
             IF(random_status = 'Delivered', DATE_ADD(base_date, INTERVAL i + 5 DAY), NULL),
             random_status
         );
-        
+
         -- Check if the order status is not 'Pending' to generate a box
         IF random_status != 'Pending' THEN
             -- Generate random dimensions and weight for the box
@@ -325,28 +342,28 @@ BEGIN
             SET box_width = FLOOR(10 + (RAND() * 20));   -- Width between 10 and 30
             SET box_height = FLOOR(5 + (RAND() * 20));   -- Height between 5 and 25
             SET box_weight = ROUND(1 + (RAND() * 1099), 2); -- Weight between 1.00 and 20.00
-            
+
             -- Insert the box associated with the current order
-            INSERT INTO box 
+            INSERT INTO box
             (
-                id, 
-                length, 
-                width, 
-                height, 
-                weight, 
+                id,
+                length,
+                width,
+                height,
+                weight,
                 order_id
-            ) 
+            )
             VALUES
             (
-                UUID(), 
-                box_length, 
-                box_width, 
-                box_height, 
-                box_weight, 
+                UUID(),
+                box_length,
+                box_width,
+                box_height,
+                box_weight,
                 i
             );
         END IF;
-        
+
         SET i = i + 1;
     END WHILE;
 END$$

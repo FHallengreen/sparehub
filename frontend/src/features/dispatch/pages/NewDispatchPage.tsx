@@ -4,14 +4,14 @@ import { CircularProgress, Typography, Button, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import DispatchDetailForm from '../components/DispatchDetailForm.tsx';
-import { createDispatch, fetchDestinations, fetchOrigins } from '../../../api/dispatchApi.ts';
-import { DispatchRequest } from '../../../interfaces/dispatch.ts';
+import { createDispatch, fetchDestinations } from '../../../api/dispatchApi.ts';
+import {DispatchRequest} from '../../../interfaces/dispatch.ts';
 import { Supplier } from "../../../interfaces/supplier.ts";
-import { Warehouse } from "../../../interfaces/warehouse.ts";
 import { Vessel } from "../../../interfaces/vessel.ts";
+import DispatchOrders from "../components/DispatchOrders.tsx";
 
-const originTypeOptions = ['Warehouse', 'Supplier'];
-const destinationTypeOptions = ['Warehouse', 'Vessel'];
+const destinationTypeOptions = ['Warehouse', 'Vessel', 'Supplier', 'Address'];
+const statusOptions = ['Created', 'Sent', 'Delivered'];
 
 const NewDispatchPage: React.FC = () => {
   const navigate = useNavigate();
@@ -20,32 +20,17 @@ const NewDispatchPage: React.FC = () => {
   const { selectedData } = location.state || {};
 
   const [dispatch, setDispatch] = useState<DispatchRequest>({
-    originType: '',
-    originId: 0,
-    destinationType: '',
+    destinationType: null,
     destinationId: null,
-    transportModeType: '',
-    userId: 0,
+    transportModeType: 'Courier',
+    userId: 1,
+    status: 'Created',
     orderIds: selectedData ? selectedData.map((order: any) => order.id.toString()) : [],
   });
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [origins, setOrigins] = useState<Supplier[] | Warehouse[]>([]);
   const [destinations, setDestinations] = useState<Supplier[] | Vessel[]>([]);
-
-  // Fetch Origins
-  useEffect(() => {
-    const loadOrigins = async () => {
-      if (dispatch.originType) {
-        const fetchedOrigins = await fetchOrigins(dispatch.originType);
-        setOrigins(fetchedOrigins);
-      } else {
-        setOrigins([]);
-      }
-    };
-    loadOrigins();
-  }, [dispatch.originType]);
 
   // Fetch Destinations
   useEffect(() => {
@@ -68,7 +53,7 @@ const NewDispatchPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!dispatch.originId || !dispatch.destinationId) {
+    if (!dispatch.destinationId) {
       setError('Please select a valid origin and destination.');
       return;
     }
@@ -77,12 +62,10 @@ const NewDispatchPage: React.FC = () => {
     setError(null);
 
     try {
-      // Ensure numeric types for IDs
       const sanitizedDispatch: DispatchRequest = {
         ...dispatch,
-        originId: Number(dispatch.originId),
         destinationId: Number(dispatch.destinationId),
-        orderIds: dispatch.orderIds.map((id) => Number(id)),
+        orderIds: dispatch.orderIds.map((id) => (id)),
       };
 
       await createDispatch(sanitizedDispatch);
@@ -109,49 +92,13 @@ const NewDispatchPage: React.FC = () => {
 
       {error && <Typography color="error">{error}</Typography>}
 
+      {selectedData && (
+        <DispatchOrders orders={selectedData} />
+      )}
+
       <DispatchDetailForm
         title="Create Dispatch"
         fields={[
-          {
-            label: 'Origin Type',
-            value: dispatch.originType,
-            onChange: (value) => handleInputChange('originType', value),
-            customComponent: (
-              <Autocomplete
-                options={originTypeOptions}
-                value={dispatch.originType}
-                onChange={(event, newValue) => handleInputChange('originType', newValue)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Origin Type"
-                    variant="outlined"
-                    fullWidth
-                  />
-                )}
-              />
-            ),
-          },
-          {
-            label: 'Origin',
-            value: dispatch.originId,
-            onChange: (value) => handleInputChange('originId', value),
-            customComponent: (
-              <Autocomplete
-                options={origins}
-                getOptionLabel={(option) => option.name}
-                onChange={(event, newValue) => handleInputChange('originId', newValue?.id || 0)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Origin"
-                    variant="outlined"
-                    fullWidth
-                  />
-                )}
-              />
-            ),
-          },
           {
             label: 'Destination Type',
             value: dispatch.destinationType,
@@ -160,7 +107,7 @@ const NewDispatchPage: React.FC = () => {
               <Autocomplete
                 options={destinationTypeOptions}
                 value={dispatch.destinationType}
-                onChange={(event, newValue) => handleInputChange('destinationType', newValue)}
+                onChange={(_, newValue) => handleInputChange('destinationType', newValue)}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -180,7 +127,7 @@ const NewDispatchPage: React.FC = () => {
               <Autocomplete
                 options={destinations}
                 getOptionLabel={(option) => option.name}
-                onChange={(event, newValue) => handleInputChange('destinationId', newValue?.id || 0)}
+                onChange={(_, newValue) => handleInputChange('destinationId', newValue?.id || 0)}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -196,6 +143,40 @@ const NewDispatchPage: React.FC = () => {
             label: 'Transport Mode',
             value: dispatch.transportModeType,
             onChange: (value) => handleInputChange('transportModeType', value),
+            customComponent: (
+              <Autocomplete options={['Courier', 'Air', 'Sea', 'Land']}
+                value={dispatch.transportModeType}
+                onChange={(_, newValue) => handleInputChange('transportModeType', newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Transport Mode"
+                    variant="outlined"
+                    fullWidth
+                  />
+                )}
+              />
+            ),
+          },
+          {
+            label: 'Status',
+            value: dispatch.status,
+            onChange: (value) => handleInputChange('status', value),
+            customComponent: (
+              <Autocomplete
+                options={statusOptions}
+                value={dispatch.status}
+                onChange={(_, newValue) => handleInputChange('status', newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Status"
+                    variant="outlined"
+                    fullWidth
+                  />
+                )}
+              />
+            ),
           },
         ]}
       />
