@@ -33,10 +33,7 @@ export interface DispatchRequest {
   originId: number;
   destinationType: string;
   destinationId: number | null;
-  dispatchStatus: string;
   transportModeType: string;
-  trackingNumber: string | null;
-  dispatchDate: Date | null;
-  deliveryDate: Date | null;
   userId: number;
+  orderIds: number[];
 }

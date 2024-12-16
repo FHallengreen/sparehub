@@ -9,4 +9,6 @@ public interface IDispatchRepository
     Task<IEnumerable<Dispatch>> GetDispatchesAsync();
     Task<Dispatch> UpdateDispatchAsync(Dispatch dispatch);
     Task DeleteDispatchAsync(string dispatchId);
+    Task<IEnumerable<int>> GetSupplierIdsAsync();
+    Task<IEnumerable<int>> GetWarehouseIdsAsync();
 }

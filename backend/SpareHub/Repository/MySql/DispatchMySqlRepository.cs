@@ -70,4 +70,20 @@ public class DispatchMySqlRepository : IDispatchRepository
         _dbContext.Dispatches.Remove(dispatchEntity);
         await _dbContext.SaveChangesAsync();
     }
+    
+    public async Task<IEnumerable<int>> GetSupplierIdsAsync()
+    {
+        return await _dbContext.Dispatches
+            .Select(d => d.OriginId)
+            .Distinct()
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<int>> GetWarehouseIdsAsync()
+    {
+        return await _dbContext.Dispatches
+            .Select(d => d.OriginId)
+            .Distinct()
+            .ToListAsync();
+    }
 }

@@ -99,7 +99,7 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.ImoNumber, opt => opt.MapFrom(src => src.ImoNumber))
             .ForMember(dest => dest.Flag, opt => opt.MapFrom(src => src.Flag))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner));
-        
+
         CreateMap<Vessel, VesselEntity>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -107,7 +107,7 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.Flag, opt => opt.MapFrom(src => src.Flag))
             .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => int.Parse(src.Owner.Id)))
             .ForMember(dest => dest.Owner, opt => opt.Ignore());
-        
+
         //Owner mappings
         CreateMap<OwnerEntity, Owner>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
@@ -147,7 +147,7 @@ public class MappingMySqlProfile : Profile
 
         // Agent mappings
         CreateMap<Agent, AgentEntity>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => 
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src =>
                 string.IsNullOrEmpty(src.Id) ? 0 : int.Parse(src.Id)))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
@@ -156,6 +156,21 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
         // Dispatch mappings
+        CreateMap<Dispatch, DispatchEntity>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.OriginType, opt => opt.MapFrom(src => src.OriginType))
+            .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.OriginId))
+            .ForMember(dest => dest.DestinationType, opt => opt.MapFrom(src => src.DestinationType))
+            .ForMember(dest => dest.DestinationId, opt => opt.MapFrom(src => src.DestinationId))
+            .ForMember(dest => dest.DispatchStatus, opt => opt.MapFrom(src => src.DispatchStatus))
+            .ForMember(dest => dest.TransportModeType, opt => opt.MapFrom(src => src.TransportModeType))
+            .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
+            .ForMember(dest => dest.DispatchDate, opt => opt.MapFrom(src => src.DispatchDate))
+            .ForMember(dest => dest.DeliveryDate, opt => opt.MapFrom(src => src.DeliveryDate))
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+            .ForMember(dest => dest.Orders, opt => opt.Ignore()) // Handle if you need order mapping
+            .ForMember(dest => dest.Invoices, opt => opt.Ignore()); // Handle invoices if applicable
+
         CreateMap<DispatchEntity, Dispatch>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.OriginId))
@@ -187,36 +202,37 @@ public class MappingMySqlProfile : Profile
 
         CreateMap<UserEntity, UserResponse>()
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.Title));
-        
+
         // Address mappings
         CreateMap<AddressEntity, Address>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
             .ForMember(dest => dest.AddressLine, opt => opt.MapFrom(src => src.AddressLine))
             .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.PostalCode))
             .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Country));
-        
+
         CreateMap<Address, AddressEntity>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
             .ForMember(dest => dest.AddressLine, opt => opt.MapFrom(src => src.AddressLine))
             .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.PostalCode))
             .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Country));
-        
+
         // Warehouse mappings
         CreateMap<Warehouse, WarehouseEntity>()
-            .ForMember(dest => dest.Agent, opt => opt.MapFrom(src => src.Agent)) // Leverages Agent -> AgentEntity mapping
+            .ForMember(dest => dest.Agent,
+                opt => opt.MapFrom(src => src.Agent)) // Leverages Agent -> AgentEntity mapping
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Id, opt => opt.Ignore()); // Ignore DB-generated Id
-        
+
         CreateMap<WarehouseRequest, Warehouse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.AgentId, opt => opt.MapFrom(src => src.AgentId))
             .ForMember(dest => dest.AddressId, opt => opt.MapFrom(src => src.AddressId));
         CreateMap<WarehouseEntity, Warehouse>()
-            .ForMember(dest => dest.Agent, opt => opt.MapFrom(src => src.Agent)) // Leverages AgentEntity -> Agent mapping
+            .ForMember(dest => dest.Agent,
+                opt => opt.MapFrom(src => src.Agent)) // Leverages AgentEntity -> Agent mapping
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()));
-
     }
 }

@@ -62,4 +62,16 @@ public class DispatchMongoDbRepository : IDispatchRepository
             throw new Exception($"Delete failed for Dispatch with ID: {dispatchId}");
         }
     }
+    
+    public async Task<IEnumerable<int>> GetSupplierIdsAsync()
+    {
+        var supplierIds = await _collection.DistinctAsync<int>("SupplierId", "{}");
+        return supplierIds.ToList();
+    }
+    
+    public async Task<IEnumerable<int>> GetWarehouseIdsAsync()
+    {
+        var warehouseIds = await _collection.DistinctAsync<int>("WarehouseId", "{}");
+        return warehouseIds.ToList();
+    }
 }

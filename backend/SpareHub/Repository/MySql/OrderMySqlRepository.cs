@@ -90,10 +90,24 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
         await dbContext.SaveChangesAsync();
     }
 
-
-
     public Task<List<string>> GetAllOrderStatusesAsync()
     {
         return dbContext.OrderStatus.Select(s => s.Status).ToListAsync();
     }
+    
+    public async Task<List<Order>> GetOrdersByIdsAsync(List<string> orderIds)
+    {
+        var orderEntities = await dbContext.Orders
+            .Where(o => orderIds.Contains(o.Id.ToString()))
+            .Include(o => o.Supplier)
+            .Include(o => o.Vessel)
+            .ThenInclude(v => v.Owner)
+            .Include(o => o.Warehouse)
+            .Include(o => o.Boxes)
+            .ToListAsync();
+
+        // Map entities to domain models
+        return mapper.Map<List<Order>>(orderEntities);
+    }
+
 }

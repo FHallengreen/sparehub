@@ -57,7 +57,7 @@ const SummaryPanel: React.FC<SummaryPanelProps> = ({
         color="primary"
         className="mt-4"
         onClick={() => {
-          navigate('/dispatches/new');
+          navigate('/dispatches/new', { state: { selectedData } });
         }}
       >
         Create Dispatch
