@@ -17,10 +17,9 @@ public class DispatchController(IDispatchService dispatchService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(DispatchResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
-    public async Task<ActionResult<DispatchResponse>> CreateDispatch([FromBody] DispatchRequest dispatchRequest,
-        [FromQuery] string orderId)
+    public async Task<ActionResult<DispatchResponse>> CreateDispatch([FromBody] DispatchRequest dispatchRequest)
     {
-        var dispatchResponse = await dispatchService.CreateDispatch(dispatchRequest, orderId);
+        var dispatchResponse = await dispatchService.CreateDispatch(dispatchRequest);
         return CreatedAtAction(nameof(GetDispatchById), new { dispatchId = dispatchResponse.Id }, dispatchResponse);
     }
 

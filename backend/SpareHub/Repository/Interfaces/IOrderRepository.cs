@@ -11,4 +11,5 @@ public interface IOrderRepository
     Task UpdateOrderAsync(Order order);
     Task DeleteOrderAsync(string orderId);
     Task<List<string>> GetAllOrderStatusesAsync();
+    Task<List<Order>> GetOrdersByIdsAsync(List<string> orderIds);
 }

@@ -42,7 +42,7 @@ const DispatchFilter: React.FC<DispatchFilterProps> = ({
         )}
         style={{ width: '40vw' }}
       />
-      <Button onClick={() => navigate(`/dispatches/new`)} variant="contained" color="primary">
+      <Button onClick={() => navigate(`/orders`)} variant="contained" color="primary">
         New Dispatch
       </Button>
     </div>

@@ -4,9 +4,9 @@ namespace Domain.Models;
 public class Dispatch
 {
     public string Id { get; set; } = null!;
-    public string OriginType { get; set; } = null!;
+    public string? OriginType { get; set; }
     public int OriginId { get; set; }
-    public string DestinationType { get; set; } = null!;
+    public string? DestinationType { get; set; }
     public int? DestinationId { get; set; }
     public string DispatchStatus { get; set; } = null!;
     public string TransportModeType { get; set; } = null!;

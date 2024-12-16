@@ -48,4 +48,11 @@ public class OrderMongoDbRepository (IMongoCollection<OrderCollection> collectio
     {
         return await collection.Distinct<string>("OrderStatus", FilterDefinition<OrderCollection>.Empty).ToListAsync();
     }
+    
+    public async Task<List<Order>> GetOrdersByIdsAsync(List<string> orderIds)
+    {
+        var filter = Builders<OrderCollection>.Filter.In(order => order.Id, orderIds);
+        var orderCollection = await collection.Find(filter).ToListAsync();
+        return mapper.Map<List<Order>>(orderCollection);
+    }
 }

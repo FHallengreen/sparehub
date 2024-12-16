@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CircularProgress, Typography, Button, IconButton } from '@mui/material';
+import { CircularProgress, Typography, Button, TextField, IconButton } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { DispatchDetail } from '../../../interfaces/dispatch.ts';
 import DispatchDetailForm from '../components/DispatchDetailForm.tsx';
-import DispatchOrders from '../components/DispatchOrders.tsx';
-import { getDispatch, createDispatch, updateDispatch, deleteDispatch } from '../../../api/dispatchApi.ts';
+import { getDispatch, updateDispatch, deleteDispatch } from '../../../api/dispatchApi.ts';
 import axios from "axios";
 
 const DispatchDetailPage: React.FC = () => {
@@ -20,15 +19,10 @@ const DispatchDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!id) {
-          setLoading(false);
-          return;
-        } else {
-          const data = await getDispatch(id);
-          setDispatch(data);
-        }
-      }
-      catch (err) {
+        if (!id) return;
+        const data = await getDispatch(id);
+        setDispatch(data);
+      } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
           setError('Dispatch not found.');
         } else {
@@ -37,31 +31,21 @@ const DispatchDetailPage: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    }
-    if (id) {
-      fetchData();
-    }
+    };
+
+    if (id) fetchData();
   }, [id]);
 
   const handleInputChange = (field: keyof DispatchDetail, value: string | number | null) => {
-    if (dispatch) {
-      setDispatch({ ...dispatch, [field]: value });
-    }
+    setDispatch((prev) => prev ? { ...prev, [field]: value } : null);
   };
 
   const handleSave = async () => {
     if (!dispatch) return;
-
     try {
-      if (dispatch.id === 0) {
-        await createDispatch(dispatch);
-        showSnackbar('Dispatch created successfully!', 'success');
-      } else {
-        await updateDispatch(dispatch.id.toString(), dispatch);
-        showSnackbar('Dispatch updated successfully!', 'success');
-      }
-    }
-    catch {
+      await updateDispatch(dispatch.id.toString(), dispatch);
+      showSnackbar('Dispatch updated successfully!', 'success');
+    } catch {
       showSnackbar('Failed to save dispatch.', 'error');
     }
   };
@@ -77,72 +61,117 @@ const DispatchDetailPage: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return <CircularProgress />;
-  }
-
-  if (error) {
-    return <Typography color="error">{error}</Typography>;
-  }
+  if (loading) return <CircularProgress />;
+  if (error) return <Typography color="error">{error}</Typography>;
 
   return (
     <div className="container mx-auto p-6">
+      <Typography variant="h4" className="text-2xl font-bold mb-6">
+        {dispatch?.id ? `Edit Dispatch: ID ${dispatch.id}` : 'Create New Dispatch'}
+      </Typography>
+
+      {error && <Typography color="error">{error}</Typography>}
+
       {dispatch && (
-        <>
-          <div className="mt-8 gap-2 flex items-center">
-            {dispatch.id !== 0 && (
-              <>
-                <Typography variant="h4" className="text-2xl font-bold mb-6 pb-4">
-                  Dispatch ID: {dispatch.id}
-                </Typography>
-                <IconButton
-                  onClick={() => {
-                    if (window.confirm('Are you sure you want to delete this dispatch?')) {
-                      handleDelete();
-                    }
-                  }}
-                  className="text-red-500"
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </>
-            )}
-          </div>
-          <div className="grid grid-cols-2 gap-6 mb-6">
-            <DispatchDetailForm
-              title="ORIGIN DETAILS"
-              fields={[
-                { label: 'Origin Type', value: dispatch.originType, onChange: (value) => handleInputChange('originType', value) },
-                { label: 'Origin ID', value: dispatch.originId, onChange: (value) => handleInputChange('originId', value), type: 'number' },
-              ]}
-            />
-            <DispatchDetailForm
-              title="DESTINATION DETAILS"
-              fields={[
-                { label: 'Destination Type', value: dispatch.destinationType, onChange: (value) => handleInputChange('destinationType', value) },
-                { label: 'Destination ID', value: dispatch.destinationId, onChange: (value) => handleInputChange('destinationId', value) },
-              ]}
-            />
-          </div>
-          <DispatchDetailForm
-            title="DISPATCH DETAILS"
-            fields={[
-              { label: 'Status', value: dispatch.dispatchStatus, onChange: (value) => handleInputChange('dispatchStatus', value) },
-              { label: 'Transport Mode', value: dispatch.transportModeType, onChange: (value) => handleInputChange('transportModeType', value) },
-              { label: 'Tracking Number', value: dispatch.trackingNumber, onChange: (value) => handleInputChange('trackingNumber', value) },
-            ]}
-          />
-          <DispatchOrders orders={dispatch.orderNumbers} />
-          <div className="mt-8 gap-2 flex">
-            <Button onClick={handleSave} variant="contained" color="primary">
-              Save
-            </Button>
-            <Button onClick={() => navigate('/dispatches')} variant="outlined">
-              Back
-            </Button>
-          </div>
-        </>
+        <DispatchDetailForm
+          title="Dispatch Details"
+          fields={[
+            {
+              label: 'Origin Type',
+              value: dispatch.originType,
+              onChange: (value) => handleInputChange('originType', value),
+              customComponent: (
+                <TextField
+                  label="Origin Type"
+                  value={dispatch.originType}
+                  onChange={(e) => handleInputChange('originType', e.target.value)}
+                  variant="outlined"
+                  fullWidth
+                />
+              ),
+            },
+            {
+              label: 'Origin ID',
+              value: dispatch.originId,
+              onChange: (value) => handleInputChange('originId', value),
+              customComponent: (
+                <TextField
+                  label="Origin ID"
+                  type="number"
+                  value={dispatch.originId || ''}
+                  onChange={(e) => handleInputChange('originId', Number(e.target.value))}
+                  variant="outlined"
+                  fullWidth
+                />
+              ),
+            },
+            {
+              label: 'Destination Type',
+              value: dispatch.destinationType,
+              onChange: (value) => handleInputChange('destinationType', value),
+              customComponent: (
+                <TextField
+                  label="Destination Type"
+                  value={dispatch.destinationType}
+                  onChange={(e) => handleInputChange('destinationType', e.target.value)}
+                  variant="outlined"
+                  fullWidth
+                />
+              ),
+            },
+            {
+              label: 'Destination ID',
+              value: dispatch.destinationId,
+              onChange: (value) => handleInputChange('destinationId', value),
+              customComponent: (
+                <TextField
+                  label="Destination ID"
+                  type="number"
+                  value={dispatch.destinationId || ''}
+                  onChange={(e) => handleInputChange('destinationId', Number(e.target.value))}
+                  variant="outlined"
+                  fullWidth
+                />
+              ),
+            },
+            {
+              label: 'Transport Mode',
+              value: dispatch.transportModeType,
+              onChange: (value) => handleInputChange('transportModeType', value),
+              customComponent: (
+                <TextField
+                  label="Transport Mode"
+                  value={dispatch.transportModeType}
+                  onChange={(e) => handleInputChange('transportModeType', e.target.value)}
+                  variant="outlined"
+                  fullWidth
+                />
+              ),
+            },
+          ]}
+        />
       )}
+
+      <div className="mt-8 gap-2 flex">
+        <Button onClick={handleSave} variant="contained" color="primary" className="mr-2">
+          Save
+        </Button>
+        <Button onClick={() => navigate('/dispatches')} variant="outlined">
+          Back
+        </Button>
+        {dispatch?.id && (
+          <IconButton
+            onClick={() => {
+              if (window.confirm('Are you sure you want to delete this dispatch?')) {
+                handleDelete();
+              }
+            }}
+            color="error"
+          >
+            <DeleteIcon />
+          </IconButton>
+        )}
+      </div>
     </div>
   );
 };

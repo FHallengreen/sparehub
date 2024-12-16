@@ -6,6 +6,7 @@ interface Field {
   value: string | number | null;
   onChange: (value: any) => void;
   type?: string;
+  customComponent?: React.ReactNode; // Add support for custom components
 }
 
 interface DispatchDetailFormProps {
@@ -19,14 +20,17 @@ const DispatchDetailForm: React.FC<DispatchDetailFormProps> = ({ title, fields }
       <Typography variant="h5" className="font-bold mb-4 pb-4">{title}</Typography>
       <div className="flex flex-col gap-4">
         {fields.map((field) => (
-          <TextField
-            key={field.label}
-            label={field.label}
-            value={field.value ?? ''} // Use an empty string if value is `null`
-            onChange={(e) => field.onChange(field.type === 'number' ? +e.target.value : e.target.value)}
-            type={field.type}
-            className="w-full"
-          />
+          <div key={field.label} className="w-full">
+            {field.customComponent || (
+              <TextField
+                label={field.label}
+                value={field.value ?? ''} // Use an empty string if value is `null`
+                onChange={(e) => field.onChange(field.type === 'number' ? +e.target.value : e.target.value)}
+                type={field.type}
+                className="w-full"
+              />
+            )}
+          </div>
         ))}
       </div>
     </div>

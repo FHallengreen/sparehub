@@ -1,3 +1,5 @@
+using System.Text.Json;
+using Persistence.MySql;
 using Repository.Interfaces;
 using Repository.MySql;
 using Service.Interfaces;
@@ -7,24 +9,59 @@ using ValidationException = System.ComponentModel.DataAnnotations.ValidationExce
 
 namespace Service.Services.Dispatch;
 
-public class DispatchService(IDispatchRepository dispatchRepository) : IDispatchService
+public class DispatchService(IDispatchRepository dispatchRepository, IOrderRepository orderRepository)
+    : IDispatchService
 {
-    public async Task<DispatchResponse> CreateDispatch(DispatchRequest dispatchRequest, string orderId)
+    public async Task<DispatchResponse> CreateDispatch(DispatchRequest dispatchRequest)
     {
-        if (string.IsNullOrWhiteSpace(orderId))
-            throw new ValidationException("Order ID cannot be null or empty.");
-
         if (dispatchRequest == null)
-            throw new ValidationException("Dispatch request cannot be null.");
+            throw new ArgumentNullException(nameof(dispatchRequest));
+
+        if (dispatchRequest.OrderIds == null || !dispatchRequest.OrderIds.Any())
+            throw new ValidationException("OrderIds cannot be null or empty.");
+
+        var orders = await orderRepository.GetOrdersByIdsAsync(dispatchRequest.OrderIds);
+        foreach (var order in orders)
+        {
+            Console.WriteLine($"Order ID: {order.Id}, Vessel ID: {order.Vessel?.Id}");
+        }
+
+        if (orders == null || !orders.Any())
+            throw new ValidationException("No valid orders found for the provided IDs.");
+        
+        var firstOrder = orders.First();
+        if (firstOrder.SupplierId == null && firstOrder.WarehouseId == null)
+        {
+            throw new ValidationException("Both SupplierId and WarehouseId are null. Cannot determine OriginId.");
+        }
+
+        var originType = firstOrder.SupplierId != null ? "Supplier" : "Warehouse";
+
+        int originId = 0;
+
+        if (firstOrder.SupplierId != null && int.TryParse(firstOrder.SupplierId, out var parsedSupplierId))
+        {
+            originId = parsedSupplierId;
+        }
+        else if (firstOrder.WarehouseId != null && int.TryParse(firstOrder.WarehouseId, out var parsedWarehouseId))
+        {
+            originId = parsedWarehouseId;
+        }
+
 
         var dispatch = new Domain.Models.Dispatch
         {
-            OriginType = dispatchRequest.OriginType,
-            OriginId = dispatchRequest.OriginId,
+            OriginType = originType,
+            OriginId = originId,
             DestinationType = dispatchRequest.DestinationType,
             DestinationId = dispatchRequest.DestinationId,
+            DispatchStatus = dispatchRequest.Status,
             TransportModeType = dispatchRequest.TransportModeType,
-            UserId = dispatchRequest.UserId
+            TrackingNumber = "TBD",
+            DispatchDate = DateTime.UtcNow,
+            DeliveryDate = DateTime.UtcNow.AddDays(7),
+            UserId = dispatchRequest.UserId,
+            Orders = orders
         };
 
         var createdDispatch = await dispatchRepository.CreateDispatchAsync(dispatch);
@@ -42,6 +79,7 @@ public class DispatchService(IDispatchRepository dispatchRepository) : IDispatch
             DispatchDate = createdDispatch.DispatchDate,
             DeliveryDate = createdDispatch.DeliveryDate,
             UserId = createdDispatch.UserId,
+            OrderIds = createdDispatch.Orders.Select(o => o.Id.ToString()).ToList()
         };
     }
 
@@ -105,8 +143,8 @@ public class DispatchService(IDispatchRepository dispatchRepository) : IDispatch
         var dispatch = new Domain.Models.Dispatch
         {
             Id = dispatchId,
-            OriginType = dispatchRequest.OriginType,
-            OriginId = dispatchRequest.OriginId,
+            OriginType = "Supplier",
+            OriginId = 1,
             DestinationType = dispatchRequest.DestinationType,
             DestinationId = dispatchRequest.DestinationId,
             TransportModeType = dispatchRequest.TransportModeType,
@@ -137,5 +175,22 @@ public class DispatchService(IDispatchRepository dispatchRepository) : IDispatch
             throw new ValidationException("Dispatch ID cannot be null or empty.");
 
         await dispatchRepository.DeleteDispatchAsync(dispatchId);
+    }
+
+    public async Task<IEnumerable<int>> GetSupplierIds()
+    {
+        return await dispatchRepository.GetSupplierIdsAsync();
+    }
+
+    public async Task<IEnumerable<int>> GetWarehouseIds()
+    {
+        // Replace with actual logic to fetch warehouse IDs
+        return await Task.FromResult(new List<int> { 1, 2, 3 });
+    }
+
+    public async Task<IEnumerable<int>> GetDestinationIds()
+    {
+        // Replace with actual logic to fetch destination IDs
+        return await Task.FromResult(new List<int> { 4, 5, 6 });
     }
 }
