@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, CircularProgress, TextField, Typography } from '@mui/material';
+import { Button, CircularProgress, Typography } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { getVesselById, updateVessel, deleteVessel } from '../../../api/vesselApi';
 import { VesselDetail, VesselRequest } from '../../../interfaces/vessel';
 import { getOwners } from '../../../api/ownerApi.ts';
+import VesselDetailForm from '../components/VesselDetailForm.tsx';
 
 
 const VesselDetailsPage: React.FC = () => {
@@ -18,10 +19,10 @@ const VesselDetailsPage: React.FC = () => {
     const [owners, setOwners] = useState<{ id: string; name: string }[]>([]);
 
     useEffect(() => {
-        // Fetch owners data from API or define it statically
+       
         const fetchOwners = async () => {
             try {
-                const data = await getOwners(); // Replace with actual API call
+                const data = await getOwners();
                 setOwners(data.map(owner => ({ id: owner.id.toString(), name: owner.name })));
             } catch (err) {
                 console.error('Error fetching owners:', err);
@@ -35,7 +36,7 @@ const VesselDetailsPage: React.FC = () => {
         const fetchVessel = async () => {
             try {
                 const data = await getVesselById(id!);
-                console.log('Fetched Vessel:', data);
+                
                 setVessel(data);
                 setOwnerId(data.owner?.id?.toString() || '');
             } catch (err) {
@@ -51,9 +52,7 @@ const VesselDetailsPage: React.FC = () => {
 
 
     const handleSave = async () => {
-        console.log('Vessel:', vessel);
-        console.log('Owner ID:', ownerId);
-
+       
         if (!vessel || !ownerId) {
             showSnackbar('Owner ID is required.', 'error');
             return;
@@ -66,11 +65,11 @@ const VesselDetailsPage: React.FC = () => {
             ownerId: ownerId
         };
 
-        console.log('Updated Vessel:', updatedVessel); // Debugging: log the payload
+        
         try {
-            console.log('Attempting to update vessel with ID:', vessel.id);
+         
             await updateVessel(vessel.id, updatedVessel);
-            console.log('Vessel updated successfully');
+          
             showSnackbar('Vessel updated successfully!', 'success');
             navigate('/vessels');
         } catch (err) {
@@ -104,48 +103,36 @@ const VesselDetailsPage: React.FC = () => {
 
     return (
         <div className="container mx-auto p-6">
-            <Typography variant="h4" className="text-2xl font-bold mb-6">
-                Vessel Details
-            </Typography>
+           
+            {error && <Typography color="error">{error}</Typography>}
 
-            <TextField
-                label="Vessel Name"
-                value={vessel.name}
-                onChange={(e) => setVessel({ ...vessel, name: e.target.value })}
-                fullWidth
-                className="mb-4"
-            />
-            <TextField
-                label="IMO Number"
-                value={vessel.imoNumber}
-                onChange={(e) => setVessel({ ...vessel, imoNumber: e.target.value })}
-                fullWidth
-                className="mb-4"
-            />
-            <TextField
-                label="Flag"
-                value={vessel.flag}
-                onChange={(e) => setVessel({ ...vessel, flag: e.target.value })}
-                fullWidth
-                className="mb-4"
-            />
-            <TextField
-            select
-            label="Owner"
-            value={ownerId}
-            onChange={(e) => setOwnerId(e.target.value)}
-            fullWidth
-            className="mb-4"
-            SelectProps={{
-                native: true,
-            }}
-        >
-        {owners.map((owner) => (
-            <option key={owner.id} value={owner.id}>
-                {owner.name}
-            </option>
-        ))}
-        </TextField>
+            <VesselDetailForm
+                title='Vessel Information'
+                fields={[
+                    {
+                        label: 'Vessel Name',
+                        value: vessel.name,
+                        onChange: (value: string) => setVessel({ ...vessel, name: value }),
+                    },
+                    {
+                        label: 'IMO Number',
+                        value: vessel.imoNumber,
+                        onChange: (value: string) => setVessel({ ...vessel, imoNumber: value }),
+                    },
+                    {
+                        label: 'Flag',
+                        value: vessel.flag,
+                        onChange: (value: string) => setVessel({ ...vessel, flag: value }),
+                    },
+                    {
+                        label: 'Owner',
+                        value: ownerId,
+                        onChange: (value: string) => setOwnerId(value),
+                        select: true,
+                        options: owners.map(owner => ({ value: owner.id, label: owner.name })),
+                    },
+                ]}
+                />
 
 
             <div className="mt-8 gap-2 flex">

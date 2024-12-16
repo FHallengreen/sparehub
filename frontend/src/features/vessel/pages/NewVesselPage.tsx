@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, CircularProgress, TextField, Typography } from '@mui/material';
+import { Button, CircularProgress, Typography } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { createVessel } from '../../../api/vesselApi';
 import { VesselRequest } from '../../../interfaces/vessel';
 import { getOwners } from '../../../api/ownerApi.ts';
 import axios from 'axios';
+import VesselDetailForm from '../components/VesselDetailForm.tsx';
 
 const NewVesselPage: React.FC = () => {
     const navigate = useNavigate();
@@ -22,28 +23,30 @@ const NewVesselPage: React.FC = () => {
     });
 
     useEffect(() => {
-            // Fetch owners data from API or define it statically
-            const fetchOwners = async () => {
-                try {
-                    const data = await getOwners(); // Replace with actual API call
-                    setOwners(data.map(owner => ({ id: owner.id.toString(), name: owner.name })));
-                } catch (err) {
-                    console.error('Error fetching owners:', err);
-                }
-            };
-    
-            fetchOwners();
-        }, []);
+        const fetchOwners = async () => {
+            try {
+                const data = await getOwners(); 
+                setOwners(data.map(owner => ({ id: owner.id.toString(), name: owner.name })));
+            } catch (err) {
+                console.error('Error fetching owners:', err);
+            }
+        };
+
+        fetchOwners();
+    }, []);
 
     const handleInputChange = (field: keyof VesselRequest, value: string) => {
         setVessel({ ...vessel, [field]: value });
     };
 
+    const handleOwnerChange = (value: string) => {
+        setOwnerId(value);
+        handleInputChange('ownerId', value);
+    };
+
     const handleSave = async () => {
         setLoading(true);
         setError(null);
-
-        console.log('Vessel data being sent:', vessel);
 
         try {
             await createVessel(vessel);
@@ -69,53 +72,23 @@ const NewVesselPage: React.FC = () => {
 
     return (
         <div className="container mx-auto p-6">
-            <Typography variant="h4" className="text-2xl font-bold mb-6">
-                Create New Vessel
-            </Typography>
-
             {error && <Typography color="error">{error}</Typography>}
 
-            <TextField
-                label="Vessel Name"
-                value={vessel.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                fullWidth
-                className="mb-4"
+            <VesselDetailForm
+                title="Create Vessel"
+                fields={[
+                    { label: 'Vessel Name', value: vessel.name, onChange: (value) => handleInputChange('name', value) },
+                    { label: 'IMO Number', value: vessel.imoNumber, onChange: (value) => handleInputChange('imoNumber', value) },
+                    { label: 'Flag', value: vessel.flag, onChange: (value) => handleInputChange('flag', value) },
+                    { 
+                        label: 'Owner', 
+                        value: ownerId || '', 
+                        onChange: handleOwnerChange,
+                        select: true,
+                        options: owners.map(owner => ({ value: owner.id, label: owner.name }))
+                    },
+                ]}
             />
-            <TextField
-                label="IMO Number"
-                value={vessel.imoNumber}
-                onChange={(e) => handleInputChange('imoNumber', e.target.value)}
-                fullWidth
-                className="mb-4"
-            />
-            <TextField
-                label="Flag"
-                value={vessel.flag}
-                onChange={(e) => handleInputChange('flag', e.target.value)}
-                fullWidth
-                className="mb-4"
-            />
-            <TextField
-                select
-                label="Owner"
-                value={ownerId}
-                onChange={(e) => setOwnerId(e.target.value)}
-                fullWidth
-                className="mb-4"
-                SelectProps={{
-                    native: true,
-                }}
-                InputLabelProps={{
-                    shrink: true,
-                }}
-            >
-                {owners.map((owner) => (
-                    <option key={owner.id} value={owner.id}>
-                        {owner.name}
-                    </option>
-                ))}
-            </TextField>
 
             <div className="mt-8 gap-2 flex">
                 <Button onClick={handleSave} variant="contained" color="primary" className="mr-2">
@@ -129,4 +102,4 @@ const NewVesselPage: React.FC = () => {
     );
 };
 
-export default NewVesselPage; 
+export default NewVesselPage;

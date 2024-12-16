@@ -3,9 +3,9 @@ import { Autocomplete, TextField, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 interface VesselFilterProps {
-    suggestions: string[]; // Suggestions for autocomplete
-    searchTerm: string; // Current search term
-    setSearchTerm: (term: string) => void; // Function to update search term
+    suggestions: string[];
+    searchTerm: string;
+    setSearchTerm: (term: string) => void;
 }
 
 const VesselFilter: React.FC<VesselFilterProps> = ({
@@ -31,7 +31,7 @@ const VesselFilter: React.FC<VesselFilterProps> = ({
                         fullWidth
                     />
                 )}
-                style={{ width: '40vw' }} // Adjust width as needed
+                style={{ width: '40vw' }}
             />
             <Button
                 onClick={() => navigate('/vessels/new')}
