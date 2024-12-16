@@ -32,7 +32,7 @@ const PortFilter: React.FC<PortFilterProps> = ({
                         fullWidth
                     />
                 )}
-                style={{ width: '40vw' }} // Adjust width as needed
+                style={{ width: '40vw' }}
             />
             <Button
                 onClick={() => navigate(`/ports/new`)}

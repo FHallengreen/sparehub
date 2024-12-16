@@ -67,10 +67,6 @@ const OwnerDetailsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <Typography variant="h4" className="text-2xl font-bold mb-6">
-        Owner Details
-      </Typography>
-
       <OwnerDetailForm
         title="Owner Information"
         fields={[

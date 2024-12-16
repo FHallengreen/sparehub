@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CircularProgress, Typography, Button, TextField } from '@mui/material';
+import { CircularProgress, Typography, Button } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { getVesselAtPort, updateVesselAtPort, deleteVesselAtPort } from '../../../api/vesselAtPortApi.ts';
 import { VesselAtPortDetail } from '../../../interfaces/vesselAtPort.ts';
 import { getPorts } from '../../../api/portApi.ts';
+import VesselAtPortDetailForm from '../components/VesselAtPortDetailForm.tsx';
 
 const VesselAtPortDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -89,55 +90,36 @@ const VesselAtPortDetailsPage: React.FC = () => {
 
     return (
         <div className="container mx-auto p-6">
-            <Typography variant="h4" className="text-2xl font-bold mb-6">
-                Vessel at Port Details
-            </Typography>
-
-            <TextField
-                label="Vessel"
-                value={vesselAtPort.vessels[0].name}
-                fullWidth
-                className="mb-4"
-                disabled
-            />
-
-            <TextField
-                select
-                label="Port Name"
-                value={vesselAtPort.portName}
-                onChange={(e) => handleInputChange('portId', e.target.value)}
-                fullWidth
-                className="mb-4"
-                SelectProps={{ native: true }}
-            >
-                {ports.map((port) => (
-                    <option key={port.id} value={port.id}>
-                        {port.name}
-                    </option>
-                ))}
-            </TextField>
-
-            <TextField
-                label="Arrival Date"
-                value={vesselAtPort.arrivalDate}
-                type="date"
-                onChange={(e) => handleInputChange('arrivalDate', e.target.value)}
-                fullWidth
-                className="mb-4"
-                InputLabelProps={{
-                    shrink: true,
-                }}
-            />
-            <TextField
-                label="Departure Date"
-                value={vesselAtPort.departureDate}
-                type="date"
-                onChange={(e) => handleInputChange('departureDate', e.target.value)}
-                fullWidth
-                className="mb-4"
-                InputLabelProps={{
-                    shrink: true,
-                }}
+            <VesselAtPortDetailForm
+                title='Vessel At Port Information'
+                fields={[
+                    {
+                        label: 'Vessel',
+                        value: vesselAtPort.vessels[0].name,
+                        select: false,
+                        InputLabelProps: { readOnly: true },
+                        onChange: () => {}
+                    },
+                    {
+                        label: 'Port Name',
+                        value: vesselAtPort.portId,
+                        select: true,
+                        options: ports.map(port => ({ label: port.name, value: port.id })),
+                        onChange: (value: string) => handleInputChange('portId', value)
+                    },
+                    {
+                        label: 'Arrival Date',
+                        value: vesselAtPort.arrivalDate,
+                        type: 'date',
+                        onChange: (value: string) => handleInputChange('arrivalDate', value)
+                    },
+                    {
+                        label: 'Departure Date',
+                        value: vesselAtPort.departureDate || '',
+                        type: 'date',
+                        onChange: (value: string) => handleInputChange('departureDate', value)
+                    }
+                ]}
             />
 
             <div className="mt-8 gap-2 flex">

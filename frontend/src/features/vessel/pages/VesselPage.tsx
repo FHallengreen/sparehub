@@ -44,9 +44,6 @@ const VesselPage: React.FC = () => {
 
     return (
         <div className="w-full">
-            <Typography variant="h4" className="text-2xl font-bold mb-4">
-                Vessels
-            </Typography>
             <VesselFilter
                 suggestions={rows.map(row => row.name)}
                 searchTerm={searchTerm}

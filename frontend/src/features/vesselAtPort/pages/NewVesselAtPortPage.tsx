@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, CircularProgress, TextField, Typography } from '@mui/material';
+import { Button, CircularProgress, Typography } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
-import { createVesselAtPort } from '../../../api/vesselAtPortApi.ts';
+import { createVesselAtPort, getVesselsAtPorts } from '../../../api/vesselAtPortApi.ts';
 import { VesselAtPortRequest } from '../../../interfaces/vesselAtPort.ts';
 import { getPorts } from '../../../api/portApi.ts';
 import { getVessels } from '../../../api/vesselApi.ts';
-import { getVesselsAtPorts } from '../../../api/vesselAtPortApi.ts';
+import VesselAtPortDetailForm from '../components/VesselAtPortDetailForm.tsx';
 
 const NewVesselAtPortPage: React.FC = () => {
     const navigate = useNavigate();
@@ -53,12 +53,16 @@ const NewVesselAtPortPage: React.FC = () => {
         fetchPorts();
     }, []);
 
-
     const handleInputChange = (field: keyof VesselAtPortRequest, value: string) => {
         setVesselAtPort({ ...vesselAtPort, [field]: value });
     };
 
     const handleSave = async () => {
+        if (!vesselAtPort.vesselId || !vesselAtPort.portId) {
+            setError('Vessel and Port must be selected.');
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -81,71 +85,41 @@ const NewVesselAtPortPage: React.FC = () => {
 
     return (
         <div className="container mx-auto p-6">
-            <Typography variant="h4" className="text-2xl font-bold mb-6">
-                Add Vessel To Port
-            </Typography>
 
             {error && <Typography color="error">{error}</Typography>}
 
-            <TextField
-                select
-                label="Vessel"
-                value={vesselAtPort.vesselId}
-                onChange={(e) => handleInputChange('vesselId', e.target.value)}
-                fullWidth
-                className="mb-4"
-                SelectProps={{ native: true }}
-                InputLabelProps={{
-                    shrink: true,
-                }}
-            >
-                {vessels.map((vessel) => (
-                    <option key={vessel.id} value={vessel.id}>
-                        {vessel.name}
-                    </option>
-                ))}
-            </TextField>
-
-            <TextField
-                select
-                label="Port"
-                value={vesselAtPort.portId}
-                onChange={(e) => handleInputChange('portId', e.target.value)}
-                fullWidth
-                className="mb-4"
-                SelectProps={{ native: true }}
-                InputLabelProps={{
-                    shrink: true,
-                }}
-            >
-                {ports.map((port) => (
-                    <option key={port.id} value={port.id}>
-                        {port.name}
-                    </option>
-                ))}
-
-            </TextField>
-            <TextField
-                label="Arrival Date"
-                value={vesselAtPort.arrivalDate}
-                type="date"
-                onChange={(e) => handleInputChange('arrivalDate', e.target.value)}
-                fullWidth
-                className="mb-4"
-                InputLabelProps={{
-                    shrink: true,
-                }}
-            />
-            <TextField
-                label="Departure Date"
-                value={vesselAtPort.departureDate}
-                type="date"
-                onChange={(e) => handleInputChange('departureDate', e.target.value)}
-                fullWidth
-                className="mb-4"
-                InputLabelProps={{
-                    shrink: true,
-                }}
+            <VesselAtPortDetailForm
+                title="Add Vessel To Port"
+                fields={[
+                    {
+                        label: 'Vessel',
+                        value: vesselAtPort.vesselId,
+                        onChange: (value) => handleInputChange('vesselId', value),
+                        select: true,
+                        options: vessels.map(vessel => ({ value: vessel.id, label: vessel.name })),
+                    },
+                    {
+                        label: 'Port',
+                        value: vesselAtPort.portId,
+                        onChange: (value) => handleInputChange('portId', value),
+                        select: true,
+                        options: ports.map(port => ({ value: port.id, label: port.name })),
+                    },
+                    {
+                        label: 'Arrival Date',
+                        value: vesselAtPort.arrivalDate,
+                        onChange: (value) => handleInputChange('arrivalDate', value),
+                        type: 'date',
+                        InputLabelProps: { shrink: true },
+                    },
+                    {
+                        label: 'Departure Date',
+                        value: vesselAtPort.departureDate || '',
+                        onChange: (value) => handleInputChange('departureDate', value),
+                        type: 'date',
+                        InputLabelProps: { shrink: true },
+                    },
+                ]}
             />
 
             <div className="mt-8 gap-2 flex">
@@ -160,4 +134,4 @@ const NewVesselAtPortPage: React.FC = () => {
     );
 };
 
-export default NewVesselAtPortPage; 
+export default NewVesselAtPortPage;

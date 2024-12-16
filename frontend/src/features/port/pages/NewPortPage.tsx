@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, CircularProgress, TextField, Typography } from '@mui/material';
+import { Button, CircularProgress, Typography } from '@mui/material';
 import { useSnackbar } from '../../../context/SnackbarContext.tsx';
 import { createPort } from '../../../api/portApi';
 import { PortRequest } from '../../../interfaces/port';
+import PortDetailForm from '../components/PortDetailForm.tsx';
 
 const NewPortPage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,18 +44,14 @@ const NewPortPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <Typography variant="h4" className="text-2xl font-bold mb-6">
-        Create New Port
-      </Typography>
-
+      
       {error && <Typography color="error">{error}</Typography>}
 
-      <TextField
-        label="Port Name"
-        value={port.name}
-        onChange={(e) => handleInputChange('name', e.target.value)}
-        fullWidth
-        className="mb-4"
+      <PortDetailForm
+      title = "Create Port"
+      fields = {[
+        {label: 'Name', value: port.name, onChange: (value) => handleInputChange('name', value)},
+      ]}
       />
 
       <div className="mt-8 gap-2 flex">
