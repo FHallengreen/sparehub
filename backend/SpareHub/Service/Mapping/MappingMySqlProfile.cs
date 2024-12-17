@@ -1,6 +1,7 @@
 using AutoMapper;
 using Domain.Models;
 using Persistence.MySql;
+using Persistence.MySql.SparehubDbContext;
 using Shared.DTOs.Order;
 using Shared.DTOs.User;
 using Shared.DTOs.Warehouse;
@@ -184,11 +185,6 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.DeliveryDate, opt => opt.MapFrom(src => src.DeliveryDate))
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.Orders, opt => opt.MapFrom(src => src.Orders)); // Removed OriginType and OriginId
-
-        CreateMap<Order, OrderEntity>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => int.Parse(src.Id)))
-            .ReverseMap()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()));
         
         // User mappings
         CreateMap<UserEntity, User>()

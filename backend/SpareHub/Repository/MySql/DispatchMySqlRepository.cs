@@ -22,69 +22,19 @@ public class DispatchMySqlRepository : IDispatchRepository
     {
         var dispatchEntity = _mapper.Map<DispatchEntity>(dispatch);
 
-        // Convert Orders to List for easier handling
-        var orders = dispatchEntity.Orders.ToList();
-
-        for (int i = 0; i < orders.Count; i++)
+        foreach (var order in dispatchEntity.Orders)
         {
-            var order = orders[i];
-
-            // Check if the OrderEntity is already tracked
-            var trackedOrder = _dbContext.ChangeTracker.Entries<OrderEntity>()
-                .FirstOrDefault(e => e.Entity.Id == order.Id);
-
+            var trackedOrder = _dbContext.Orders.Local.FirstOrDefault(o => o.Id == order.Id);
             if (trackedOrder == null)
             {
-                // Attach the OrderEntity if not tracked
                 _dbContext.Attach(order);
             }
             else
             {
-                // Reuse the tracked OrderEntity
-                orders[i] = trackedOrder.Entity;
-            }
-
-            // Handle SupplierEntity if present
-            if (order.Supplier != null)
-            {
-                var trackedSupplier = _dbContext.ChangeTracker.Entries<SupplierEntity>()
-                    .FirstOrDefault(e => e.Entity.Id == order.Supplier.Id);
-
-                if (trackedSupplier == null)
-                {
-                    // Attach SupplierEntity if not tracked
-                    _dbContext.Attach(order.Supplier);
-                }
-                else
-                {
-                    // Reuse the tracked SupplierEntity
-                    order.Supplier = trackedSupplier.Entity;
-                }
-            }
-
-            // Handle VesselEntity if present
-            if (order.Vessel != null)
-            {
-                var trackedVessel = _dbContext.ChangeTracker.Entries<VesselEntity>()
-                    .FirstOrDefault(e => e.Entity.Id == order.Vessel.Id);
-
-                if (trackedVessel == null)
-                {
-                    // Attach VesselEntity if not tracked
-                    _dbContext.Attach(order.Vessel);
-                }
-                else
-                {
-                    // Reuse the tracked VesselEntity
-                    order.Vessel = trackedVessel.Entity;
-                }
+                _dbContext.Entry(trackedOrder).State = EntityState.Unchanged;
             }
         }
 
-        // Replace Orders collection
-        dispatchEntity.Orders = orders;
-
-        // Add the DispatchEntity
         _dbContext.Dispatches.Add(dispatchEntity);
         await _dbContext.SaveChangesAsync();
 
