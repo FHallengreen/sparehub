@@ -26,7 +26,7 @@ Ensure you have an `.env` file in the root directory of the project with the fol
 ```bash
 # MYSQL
 MYSQL_DATABASE=sparehub
-MYSQL_USER=admin
+MYSQL_USER=app_user
 MYSQL_ROOT_PASSWORD=softE24
 MYSQL_PASSWORD=softE24
 MYSQL_PORT=3306
@@ -46,6 +46,15 @@ MONGODB_URI=mongodb://sparehubUser:softE24@mongodb-sparehub:27017
 NEO4J_URL=bolt://neo4j:7687
 NEO4J_USERNAME=neo4j
 NEO4J_PASSWORD=password
+
+# JWT
+JWT_SECRET_KEY=XXX
+JWT_ISSUER=XXX
+JWT_AUDIENCE=XXX
+
+# DHL
+DHL_API_KEY=XXX
+
 ```
 
 ## Running with Docker Compose
