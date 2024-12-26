@@ -32,12 +32,13 @@ public class BoxMongoDbRepository(IMongoCollection<BoxCollection> collection, IM
         foreach (var box in boxEntities)
         {
             box.OrderId = orderId;
-        }
 
-        foreach (var box in boxEntities)
-        {
-            var filter = Builders<BoxCollection>.Filter.Eq(b => b.Id, box.Id);
-            await collection.ReplaceOneAsync(filter, box, new ReplaceOptions { IsUpsert = true });
+            var filter = Builders<BoxCollection>.Filter.And(
+                Builders<BoxCollection>.Filter.Eq(b => b.Id, box.Id),
+                Builders<BoxCollection>.Filter.Eq(b => b.OrderId, orderId)
+            );
+
+            await collection.ReplaceOneAsync(filter, box, new ReplaceOptions { IsUpsert = false });
         }
     }
 
@@ -49,7 +50,12 @@ public class BoxMongoDbRepository(IMongoCollection<BoxCollection> collection, IM
             Builders<BoxCollection>.Filter.Eq(b => b.OrderId, orderId)
         );
 
-        await collection.DeleteOneAsync(filter);
+        var result = await collection.DeleteOneAsync(filter);
+
+        if (result.DeletedCount == 0)
+        {
+            throw new InvalidOperationException($"No box found with Id '{boxId}' and OrderId '{orderId}'.");
+        }
     }
 
     public Task UpdateBoxAsync(string orderId, Box box)

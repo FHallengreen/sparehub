@@ -1,0 +1,1 @@
+Follow the README from the SpareHub project (https://github.com/FHallengreen/sparehub/blob/master/README.md) on how to run using Docker. This will start up all databases including running scripts included in these folders.
