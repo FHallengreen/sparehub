@@ -74,7 +74,8 @@ public class OrderService(
         if (existingOrder == null)
             throw new NotFoundException($"No order found with id {orderId}");
 
-        orderRequest.Transporter = string.IsNullOrWhiteSpace(orderRequest.Transporter) ? null : orderRequest.Transporter;
+        orderRequest.Transporter =
+            string.IsNullOrWhiteSpace(orderRequest.Transporter) ? null : orderRequest.Transporter;
 
         mapper.Map(orderRequest, existingOrder);
         await orderRepository.UpdateOrderAsync(existingOrder);
@@ -163,12 +164,12 @@ public class OrderService(
     {
         if (memoryCache.TryGetValue(OrderStatusCacheKey, out List<string>? cachedStatuses))
         {
-            if (cachedStatuses == null || !cachedStatuses.Any())
+            if (cachedStatuses == null || cachedStatuses.Count == 0)
             {
                 cachedStatuses = await FetchAndCacheStatusesAsync();
             }
 
-            return cachedStatuses!;
+            return cachedStatuses;
         }
 
         return await FetchAndCacheStatusesAsync();
@@ -202,9 +203,10 @@ public class OrderService(
             WarehouseName = o.Warehouse.Name,
             OrderStatus = o.OrderStatus,
             Boxes = o.Boxes.Count,
-            TotalWeight = Math.Round(o.Boxes.Sum(b => b.Weight), 2),
-            TotalVolume = o.Boxes.Sum(b => b.Length * b.Width * b.Height),
-            TotalVolumetricWeight = o.Boxes.Sum(b => b.Length * b.Width * b.Height / 6000)
+            TotalWeight = o.Boxes.Sum(b => b.Weight),
+            TotalVolume = o.Boxes.Sum(b => b.Length * b.Width * b.Height / 1_000_000.0),
+            TotalVolumetricWeight = o.Boxes.Sum(b => b.Length * b.Width * b.Height / 6000.0)
+
         }).ToList();
     }
 
