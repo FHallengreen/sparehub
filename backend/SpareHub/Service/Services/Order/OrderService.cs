@@ -149,7 +149,6 @@ public class OrderService(
                     }
                     : null
             },
-            Owner = order.Vessel.Owner.Name,
             Boxes = boxes
         };
         return orderResponse;
@@ -190,25 +189,24 @@ public class OrderService(
         return statuses;
     }
 
-
     private static List<OrderTableResponse> MapOrdersToResponses(IEnumerable<Domain.Models.Order> orders)
     {
         return orders.Select(o => new OrderTableResponse
         {
             Id = o.Id,
             OrderNumber = o.OrderNumber,
-            SupplierName = o.Supplier.Name,
-            OwnerName = o.Vessel.Owner.Name,
-            VesselName = o.Vessel.Name,
-            WarehouseName = o.Warehouse.Name,
+            SupplierName = o.Supplier?.Name ?? "Unknown Supplier",
+            OwnerName = o.Vessel?.Owner?.Name ?? "Unknown Owner",
+            VesselName = o.Vessel?.Name ?? "Unknown Vessel",
+            WarehouseName = o.Warehouse?.Name ?? "Unknown Warehouse",
             OrderStatus = o.OrderStatus,
-            Boxes = o.Boxes.Count,
-            TotalWeight = o.Boxes.Sum(b => b.Weight),
-            TotalVolume = o.Boxes.Sum(b => b.Length * b.Width * b.Height / 1_000_000.0),
-            TotalVolumetricWeight = o.Boxes.Sum(b => b.Length * b.Width * b.Height / 6000.0)
-
+            Boxes = o.Boxes?.Count ?? 0,
+            TotalWeight = o.Boxes?.Sum(b => b.Weight) ?? 0,
+            TotalVolume = o.Boxes?.Sum(b => b.Length * b.Width * b.Height / 1_000_000.0) ?? 0,
+            TotalVolumetricWeight = o.Boxes?.Sum(b => b.Length * b.Width * b.Height / 6000.0) ?? 0
         }).ToList();
     }
+
 
     private static List<OrderTableResponse> FilterOrderResponses(
         List<OrderTableResponse> orderResponses, List<string> searchTerms, IEnumerable<string> availableStatuses)

@@ -104,6 +104,6 @@ public class BoxService(IBoxRepository boxRepository, IOrderRepository orderRepo
 
     public async Task DeleteBox(string orderId, string boxId)
     {
-        await boxRepository.DeleteBoxAsync(orderId, boxId);
+        await boxRepository.DeleteBoxAsync(boxId);
     }
 }

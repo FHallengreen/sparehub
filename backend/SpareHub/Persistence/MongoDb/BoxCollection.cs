@@ -14,5 +14,5 @@ public class BoxCollection
     public int Height { get; set; }
     public double Weight { get; set; }
 
-    public string OrderId { get; set; } = null!;
+    public ObjectId OrderId { get; set; }
 }

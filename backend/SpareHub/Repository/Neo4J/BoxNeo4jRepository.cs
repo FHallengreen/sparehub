@@ -8,11 +8,11 @@ public class BoxNeo4JRepository(IDriver driver) : IBoxRepository
 {
     public async Task<Box> CreateBoxAsync(Box box)
     {
-        var query = @"
-            MATCH (o:Order {id: $orderId})
-            CREATE (b:Box {id: $id, length: $length, width: $width, height: $height, weight: $weight})
-            CREATE (o)-[:CONTAINS]->(b)
-            RETURN b";
+        const string query = @"
+          MATCH (o:Order {id: $orderId})
+          CREATE (b:Box {id: $id, length: $length, width: $width, height: $height, weight: $weight})
+          CREATE (b)-[:BELONGS_TO]->(o)
+          RETURN b";
 
         var session = driver.AsyncSession();
         try
@@ -78,18 +78,88 @@ public class BoxNeo4JRepository(IDriver driver) : IBoxRepository
         }
     }
 
-    public Task UpdateBoxesAsync(string orderId, List<Box> boxRequests)
+    public async Task UpdateBoxesAsync(string orderId, List<Box> boxRequests)
     {
-        throw new NotImplementedException();
+        const string queryTemplate = @"
+        MATCH (o:Order {id: $orderId})<-[:BELONGS_TO]-(b:Box {id: $boxId})
+        SET b.length = $length,
+            b.width = $width,
+            b.height = $height,
+            b.weight = $weight
+        RETURN b";
+
+        var session = driver.AsyncSession();
+        try
+        {
+            var tasks = boxRequests.Select(boxRequest =>
+            {
+                return session.RunAsync(queryTemplate, new
+                {
+                    orderId,
+                    boxId = boxRequest.Id,
+                    length = boxRequest.Length,
+                    width = boxRequest.Width,
+                    height = boxRequest.Height,
+                    weight = boxRequest.Weight
+                });
+            });
+
+            await Task.WhenAll(tasks);
+        }
+        finally
+        {
+            await session.CloseAsync();
+        }
     }
 
-    public Task DeleteBoxAsync(string orderId, string boxId)
+
+    public async Task DeleteBoxAsync(string boxId)
     {
-        throw new NotImplementedException();
+        const string query = @"
+        MATCH (o:Order {id: $orderId})<-[:BELONGS_TO]-(b:Box {id: $boxId})
+        DELETE b";
+
+        var session = driver.AsyncSession();
+        try
+        {
+            await session.RunAsync(query, boxId);
+        }
+        finally
+        {
+            await session.CloseAsync();
+        }
     }
 
-    public Task UpdateBoxAsync(string orderId, Box box)
+
+    public async Task UpdateBoxAsync(string orderId, Box box)
     {
-        throw new NotImplementedException();
+        const string query = @"
+        MATCH (o:Order {id: $orderId})<-[:BELONGS_TO]-(b:Box {id: $boxId})
+        SET b.length = $length,
+            b.width = $width,
+            b.height = $height,
+            b.weight = $weight
+        RETURN b";
+
+        var session = driver.AsyncSession();
+        try
+        {
+            var result = await session.RunAsync(query, new
+            {
+                orderId,
+                boxId = box.Id,
+                length = box.Length,
+                width = box.Width,
+                height = box.Height,
+                weight = box.Weight
+            });
+
+            var record = await result.SingleAsync();
+            var updatedBoxNode = record["b"].As<INode>();
+        }
+        finally
+        {
+            await session.CloseAsync();
+        }
     }
 }

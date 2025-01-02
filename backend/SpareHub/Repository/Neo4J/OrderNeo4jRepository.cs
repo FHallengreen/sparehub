@@ -20,36 +20,29 @@ public class OrderNeo4JRepository(IDriver driver) : IOrderRepository
     }
 
 
-    public Task<Order?> GetOrderByIdAsync(string orderId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<IEnumerable<Order>> GetNotActiveOrders()
+    public async Task<Order?> GetOrderByIdAsync(string orderId)
     {
         const string query = @"
-    MATCH (o:Order)-[:HAS_STATUS]->(s:Status), 
+    MATCH (o:Order)-[:HAS_STATUS]->(s:Status),
           (o)-[:SUPPLIED_BY]->(sup:Supplier),
           (o)-[:FOR_VESSEL]->(v:Vessel)-[:OWNED_BY]->(own:Owner),
           (o)-[:STORED_AT]->(w:Warehouse)
     OPTIONAL MATCH (o)<-[:BELONGS_TO]-(b:Box)
-    WHERE NOT s.name IN ['Cancelled', 'Delivered']
-    RETURN o, sup, v, w, s, own, collect(b) AS boxes";
+    WHERE o.id = $orderId
+    RETURN o, s, sup, v, w, own, collect(b) AS boxes
+    LIMIT 1";
 
-        return await FetchOrders(query);
-    }
-
-
-    private async Task<IEnumerable<Order>> FetchOrders(string query)
-{
-    var session = driver.AsyncSession();
-    try
-    {
-        var result = await session.RunAsync(query);
-        var orders = new List<Order>();
-
-        await result.ForEachAsync(record =>
+        var session = driver.AsyncSession();
+        try
         {
+            var result = await session.RunAsync(query, new { orderId });
+            var record = await result.SingleAsync();
+
+            if (record == null)
+            {
+                return null;
+            }
+
             var orderNode = record["o"]?.As<INode>();
             var statusNode = record["s"]?.As<INode>();
             var supplierNode = record["sup"]?.As<INode>();
@@ -65,9 +58,9 @@ public class OrderNeo4JRepository(IDriver driver) : IOrderRepository
                 Width = b.Properties.ContainsKey("width") ? b["width"]?.As<int>() ?? 0 : 0,
                 Height = b.Properties.ContainsKey("height") ? b["height"]?.As<int>() ?? 0 : 0,
                 Weight = b.Properties.ContainsKey("weight") ? b["weight"]?.As<double>() ?? 0 : 0
-            }).ToList() ?? [];
+            }).ToList() ?? new List<Box>();
 
-            orders.Add(new Order
+            return new Order
             {
                 Id = orderNode?["id"]?.As<string>() ?? string.Empty,
                 OrderNumber = orderNode?["orderNumber"]?.As<string>() ?? string.Empty,
@@ -88,8 +81,8 @@ public class OrderNeo4JRepository(IDriver driver) : IOrderRepository
                     Owner = ownerNode != null
                         ? new Owner
                         {
-                            Id = ownerNode.Properties.ContainsKey("id") ? ownerNode["id"]?.As<string>() ?? "Unknown Owner ID" : "Missing ID",
-                            Name = ownerNode.Properties.ContainsKey("name") ? ownerNode["name"]?.As<string>() ?? "Unknown Owner Name" : "Missing Name"
+                            Id = ownerNode["id"]?.As<string>() ?? string.Empty,
+                            Name = ownerNode["name"]?.As<string>() ?? "Unknown Owner"
                         }
                         : new Owner { Id = string.Empty, Name = "Unknown Owner" }
                 },
@@ -119,18 +112,122 @@ public class OrderNeo4JRepository(IDriver driver) : IOrderRepository
                     ? orderNode["transporter"].As<string>()
                     : null,
                 Boxes = boxes
-            });
-        });
-
-        return orders;
+            };
+        }
+        finally
+        {
+            await session.CloseAsync();
+        }
     }
-    finally
+
+    public async Task<IEnumerable<Order>> GetNotActiveOrders()
     {
-        await session.CloseAsync();
+        const string query = @"
+    MATCH (o:Order)-[:HAS_STATUS]->(s:Status), 
+          (o)-[:SUPPLIED_BY]->(sup:Supplier),
+          (o)-[:FOR_VESSEL]->(v:Vessel)-[:OWNED_BY]->(own:Owner),
+          (o)-[:STORED_AT]->(w:Warehouse)
+    OPTIONAL MATCH (o)<-[:BELONGS_TO]-(b:Box)
+    WHERE NOT s.name IN ['Cancelled', 'Delivered']
+    RETURN o, sup, v, w, s, own, collect(b) AS boxes";
+
+        return await FetchOrders(query);
     }
-}
 
 
+    private async Task<IEnumerable<Order>> FetchOrders(string query)
+    {
+        var session = driver.AsyncSession();
+        try
+        {
+            var result = await session.RunAsync(query);
+            var orders = new List<Order>();
+
+            await result.ForEachAsync(record =>
+            {
+                var orderNode = record["o"]?.As<INode>();
+                var statusNode = record["s"]?.As<INode>();
+                var supplierNode = record["sup"]?.As<INode>();
+                var vesselNode = record["v"]?.As<INode>();
+                var warehouseNode = record["w"]?.As<INode>();
+                var ownerNode = record.ContainsKey("own") ? record["own"]?.As<INode>() : null;
+                var boxNodes = record["boxes"]?.As<List<INode>>();
+
+                var boxes = boxNodes?.Select(b => new Box
+                {
+                    Id = b.Properties.ContainsKey("id") ? b["id"]?.As<string>() ?? string.Empty : string.Empty,
+                    Length = b.Properties.ContainsKey("length") ? b["length"]?.As<int>() ?? 0 : 0,
+                    Width = b.Properties.ContainsKey("width") ? b["width"]?.As<int>() ?? 0 : 0,
+                    Height = b.Properties.ContainsKey("height") ? b["height"]?.As<int>() ?? 0 : 0,
+                    Weight = b.Properties.ContainsKey("weight") ? b["weight"]?.As<double>() ?? 0 : 0
+                }).ToList() ?? [];
+
+                orders.Add(new Order
+                {
+                    Id = orderNode?["id"]?.As<string>() ?? string.Empty,
+                    OrderNumber = orderNode?["orderNumber"]?.As<string>() ?? string.Empty,
+                    SupplierOrderNumber = orderNode?["supplierOrderNumber"]?.As<string>(),
+                    SupplierId = supplierNode?["id"]?.As<string>() ?? string.Empty,
+                    Supplier = new Supplier
+                    {
+                        Id = supplierNode?["id"]?.As<string>() ?? string.Empty,
+                        Name = supplierNode?["name"]?.As<string>() ?? "Unknown Supplier"
+                    },
+                    VesselId = vesselNode?["id"]?.As<string>() ?? string.Empty,
+                    Vessel = new Vessel
+                    {
+                        Id = vesselNode?["id"]?.As<string>() ?? string.Empty,
+                        Name = vesselNode?["name"]?.As<string>() ?? "Unknown Vessel",
+                        ImoNumber = vesselNode?["imoNumber"]?.As<string>() ?? string.Empty,
+                        Flag = vesselNode?["flag"]?.As<string>() ?? string.Empty,
+                        Owner = ownerNode != null
+                            ? new Owner
+                            {
+                                Id = ownerNode.Properties.ContainsKey("id")
+                                    ? ownerNode["id"]?.As<string>() ?? "Unknown Owner ID"
+                                    : "Missing ID",
+                                Name = ownerNode.Properties.ContainsKey("name")
+                                    ? ownerNode["name"]?.As<string>() ?? "Unknown Owner Name"
+                                    : "Missing Name"
+                            }
+                            : new Owner { Id = string.Empty, Name = "Unknown Owner" }
+                    },
+                    WarehouseId = warehouseNode?["id"]?.As<string>() ?? string.Empty,
+                    Warehouse = new Warehouse
+                    {
+                        Id = warehouseNode?["id"]?.As<string>() ?? string.Empty,
+                        Name = warehouseNode?["name"]?.As<string>() ?? "Unknown Warehouse"
+                    },
+                    OrderStatus = statusNode?["name"]?.As<string>() ?? "Unknown Status",
+                    ExpectedReadiness = orderNode != null && orderNode.Properties.ContainsKey("expectedReadiness")
+                        ? DateTime.Parse(orderNode["expectedReadiness"].As<string>())
+                        : default,
+                    ActualReadiness = orderNode != null && orderNode.Properties.ContainsKey("actualReadiness")
+                        ? DateTime.Parse(orderNode["actualReadiness"].As<string>())
+                        : null,
+                    ExpectedArrival = orderNode != null && orderNode.Properties.ContainsKey("expectedArrival")
+                        ? DateTime.Parse(orderNode["expectedArrival"].As<string>())
+                        : default,
+                    ActualArrival = orderNode != null && orderNode.Properties.ContainsKey("actualArrival")
+                        ? DateTime.Parse(orderNode["actualArrival"].As<string>())
+                        : null,
+                    TrackingNumber = orderNode != null && orderNode.Properties.ContainsKey("trackingNumber")
+                        ? orderNode["trackingNumber"].As<string>()
+                        : null,
+                    Transporter = orderNode != null && orderNode.Properties.ContainsKey("transporter")
+                        ? orderNode["transporter"].As<string>()
+                        : null,
+                    Boxes = boxes
+                });
+            });
+
+            return orders;
+        }
+        finally
+        {
+            await session.CloseAsync();
+        }
+    }
 
     public Task CreateOrderAsync(Order order)
     {
