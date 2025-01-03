@@ -3,20 +3,19 @@ using Service.Interfaces;
 using Service.Utils;
 using Shared.DTOs.Order;
 
-namespace Service.Services.Order;
+namespace Service.Services.Tracking;
 
 public class TrackingService(HttpClient httpClient) : ITrackingService
 {
-        private readonly string _dhlApiKey = Environment.GetEnvironmentVariable("DHL_API_KEY")
-                                         ?? throw new ValidationException("DhlApiKey is not set.");
+    private readonly string? _dhlApiKey = Environment.GetEnvironmentVariable("DHL_API_KEY");
 
-    public async Task<TrackingResponse> GetTrackingStatusAsync(string trackingNumber, string transporter)
+    public async Task<TrackingResponse> GetTrackingStatusAsync(string trackingNumber)
     {
         if (string.IsNullOrWhiteSpace(trackingNumber))
             throw new ValidationException("Tracking number cannot be null or empty.");
 
-        if (transporter.ToLower() != "dhl")
-            throw new NotSupportedException($"Transporter '{transporter}' is not supported.");
+        if (trackingNumber.Length != 10)
+            throw new ValidationException("Tracking number must be 10 characters long.");
 
         var url = $"https://api-eu.dhl.com/track/shipments?trackingNumber={trackingNumber}&service=express";
 
@@ -33,7 +32,6 @@ public class TrackingService(HttpClient httpClient) : ITrackingService
 
         var content = await response.Content.ReadAsStringAsync();
 
-        var extractor = new TrackingDataExtractor();
-        return extractor.ExtractLatestTrackingData(content);
+        return TrackingDataExtractor.ExtractLatestTrackingData(content);
     }
 }

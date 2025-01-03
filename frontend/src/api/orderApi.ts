@@ -92,7 +92,7 @@ export const fetchTrackingStatus = async (
     throw new Error('Order ID is required.');
   }
   const response = await api.get(
-    `${import.meta.env.VITE_API_URL}/api/order/${orderId}/tracking/${trackingNumber}`
+    `${import.meta.env.VITE_API_URL}/api/tracking/${trackingNumber}`
   );
   return response.data;
 };

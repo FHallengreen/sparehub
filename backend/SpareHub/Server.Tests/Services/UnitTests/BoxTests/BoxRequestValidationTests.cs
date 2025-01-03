@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Shared.DTOs.Order;
 using Xunit;
 
-namespace Server.Tests.Unit_Tests.BoxTests;
+namespace Server.Tests.Services.UnitTests.BoxTests;
 
 public class BoxRequestValidationTests
 {
