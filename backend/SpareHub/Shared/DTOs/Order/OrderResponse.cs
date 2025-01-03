@@ -19,6 +19,5 @@ public record OrderResponse
     public SupplierResponse Supplier { get; set; } = null!;
     public VesselResponse Vessel { get; set; } = null!;
     public WarehouseResponse Warehouse { get; set; } = null!;
-    public string Owner { get; set; } = null!;
     public List<BoxResponse> Boxes { get; set; } = new();
 }

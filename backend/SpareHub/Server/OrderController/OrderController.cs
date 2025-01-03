@@ -46,7 +46,7 @@ public class OrderController(IOrderService orderService, ITrackingService tracki
     }
 
     [HttpGet("{orderId}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderStatus>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<ActionResult<OrderResponse>> GetOrderById(string orderId)
     {
@@ -75,7 +75,7 @@ public class OrderController(IOrderService orderService, ITrackingService tracki
     }
 
     [HttpGet("{orderId}/tracking/{trackingNumber}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<IActionResult> GetOrderTrackingStatus(string orderId, string trackingNumber)

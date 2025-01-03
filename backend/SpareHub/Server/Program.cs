@@ -184,7 +184,8 @@ builder.Services.AddScoped<VesselAtPortNeo4jRepository>();
 builder.Services.AddScoped<PortNeo4jRepository>();
 builder.Services.AddScoped<VesselNeo4jRepository>();
 builder.Services.AddScoped<OwnerNeo4jRepository>();
-
+builder.Services.AddScoped<OrderNeo4JRepository>();
+builder.Services.AddScoped<BoxNeo4JRepository>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(cfg =>

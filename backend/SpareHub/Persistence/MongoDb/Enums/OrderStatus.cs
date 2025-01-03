@@ -6,5 +6,6 @@ public enum OrderStatus
     Ready,
     Inbound,
     Stock,
-    Cancelled
+    Cancelled,
+    Delivered
 }
