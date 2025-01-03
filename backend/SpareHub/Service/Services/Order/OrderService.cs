@@ -74,7 +74,8 @@ public class OrderService(
         if (existingOrder == null)
             throw new NotFoundException($"No order found with id {orderId}");
 
-        orderRequest.Transporter = string.IsNullOrWhiteSpace(orderRequest.Transporter) ? null : orderRequest.Transporter;
+        orderRequest.Transporter =
+            string.IsNullOrWhiteSpace(orderRequest.Transporter) ? null : orderRequest.Transporter;
 
         mapper.Map(orderRequest, existingOrder);
         await orderRepository.UpdateOrderAsync(existingOrder);
@@ -148,7 +149,6 @@ public class OrderService(
                     }
                     : null
             },
-            Owner = order.Vessel.Owner.Name,
             Boxes = boxes
         };
         return orderResponse;
@@ -163,12 +163,12 @@ public class OrderService(
     {
         if (memoryCache.TryGetValue(OrderStatusCacheKey, out List<string>? cachedStatuses))
         {
-            if (cachedStatuses == null || !cachedStatuses.Any())
+            if (cachedStatuses == null || cachedStatuses.Count == 0)
             {
                 cachedStatuses = await FetchAndCacheStatusesAsync();
             }
 
-            return cachedStatuses!;
+            return cachedStatuses;
         }
 
         return await FetchAndCacheStatusesAsync();
@@ -189,24 +189,24 @@ public class OrderService(
         return statuses;
     }
 
-
     private static List<OrderTableResponse> MapOrdersToResponses(IEnumerable<Domain.Models.Order> orders)
     {
         return orders.Select(o => new OrderTableResponse
         {
             Id = o.Id,
             OrderNumber = o.OrderNumber,
-            SupplierName = o.Supplier.Name,
-            OwnerName = o.Vessel.Owner.Name,
-            VesselName = o.Vessel.Name,
-            WarehouseName = o.Warehouse.Name,
+            SupplierName = o.Supplier?.Name ?? "Unknown Supplier",
+            OwnerName = o.Vessel?.Owner?.Name ?? "Unknown Owner",
+            VesselName = o.Vessel?.Name ?? "Unknown Vessel",
+            WarehouseName = o.Warehouse?.Name ?? "Unknown Warehouse",
             OrderStatus = o.OrderStatus,
-            Boxes = o.Boxes.Count,
-            TotalWeight = Math.Round(o.Boxes.Sum(b => b.Weight), 2),
-            TotalVolume = o.Boxes.Sum(b => b.Length * b.Width * b.Height),
-            TotalVolumetricWeight = o.Boxes.Sum(b => b.Length * b.Width * b.Height / 6000)
+            Boxes = o.Boxes?.Count ?? 0,
+            TotalWeight = o.Boxes?.Sum(b => b.Weight) ?? 0,
+            TotalVolume = o.Boxes?.Sum(b => b.Length * b.Width * b.Height / 1_000_000.0) ?? 0,
+            TotalVolumetricWeight = o.Boxes?.Sum(b => b.Length * b.Width * b.Height / 6000.0) ?? 0
         }).ToList();
     }
+
 
     private static List<OrderTableResponse> FilterOrderResponses(
         List<OrderTableResponse> orderResponses, List<string> searchTerms, IEnumerable<string> availableStatuses)

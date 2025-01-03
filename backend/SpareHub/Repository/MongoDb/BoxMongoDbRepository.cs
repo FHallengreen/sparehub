@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Persistence.MongoDb;
 using Repository.Interfaces;
@@ -20,7 +21,8 @@ public class BoxMongoDbRepository(IMongoCollection<BoxCollection> collection, IM
 
     public async Task<List<Box>> GetBoxesByOrderIdAsync(string orderId)
     {
-        var filter = Builders<BoxCollection>.Filter.Eq(b => b.OrderId, orderId);
+        var objectId = new ObjectId(orderId);
+        var filter = Builders<BoxCollection>.Filter.Eq(b => b.OrderId, objectId);
         var boxCollections = await collection.Find(filter).ToListAsync();
         return mapper.Map<List<Box>>(boxCollections);
     }
@@ -31,35 +33,27 @@ public class BoxMongoDbRepository(IMongoCollection<BoxCollection> collection, IM
 
         foreach (var box in boxEntities)
         {
-            box.OrderId = orderId;
-
-            var filter = Builders<BoxCollection>.Filter.And(
-                Builders<BoxCollection>.Filter.Eq(b => b.Id, box.Id),
-                Builders<BoxCollection>.Filter.Eq(b => b.OrderId, orderId)
-            );
-
+            box.OrderId = ObjectId.Parse(orderId);
+            var filter = Builders<BoxCollection>.Filter.Eq(b => b.Id, box.Id);
             await collection.ReplaceOneAsync(filter, box, new ReplaceOptions { IsUpsert = false });
         }
     }
 
 
-    public async Task DeleteBoxAsync(string orderId, string boxId)
+
+    public async Task DeleteBoxAsync(string boxId)
     {
-        var filter = Builders<BoxCollection>.Filter.And(
-            Builders<BoxCollection>.Filter.Eq(b => b.Id, boxId),
-            Builders<BoxCollection>.Filter.Eq(b => b.OrderId, orderId)
-        );
-
-        var result = await collection.DeleteOneAsync(filter);
-
-        if (result.DeletedCount == 0)
-        {
-            throw new InvalidOperationException($"No box found with Id '{boxId}' and OrderId '{orderId}'.");
-        }
+        var filter = Builders<BoxCollection>.Filter.Eq(b => b.Id, boxId);
+        await collection.DeleteOneAsync(filter);
     }
 
-    public Task UpdateBoxAsync(string orderId, Box box)
+    public async Task UpdateBoxAsync(string orderId, Box box)
     {
-        throw new NotImplementedException();
+        var boxEntity = mapper.Map<BoxCollection>(box);
+        boxEntity.OrderId = ObjectId.Parse(orderId);
+
+        var filter = Builders<BoxCollection>.Filter.Eq(b => b.Id, box.Id);
+        await collection.ReplaceOneAsync(filter, boxEntity, new ReplaceOptions { IsUpsert = false });
     }
+
 }

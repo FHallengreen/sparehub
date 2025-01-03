@@ -46,7 +46,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     [HttpGet("{orderId}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderStatus>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
     public async Task<ActionResult<OrderResponse>> GetOrderById(string orderId)
     {
@@ -73,6 +73,5 @@ public class OrderController(IOrderService orderService) : ControllerBase
         await orderService.DeleteOrder(orderId);
         return Ok("Order deleted successfully");
     }
-
 
 }

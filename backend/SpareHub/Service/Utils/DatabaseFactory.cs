@@ -15,10 +15,12 @@ public class DatabaseFactory(IServiceProvider serviceProvider, IOptionsMonitor<D
         //Box
         { (typeof(IBoxRepository), DatabaseType.MySql), typeof(BoxMySqlRepository) },
         { (typeof(IBoxRepository), DatabaseType.MongoDb), typeof(BoxMongoDbRepository) },
+        {(typeof(IBoxRepository), DatabaseType.Neo4j), typeof(BoxNeo4JRepository) },
 
         //Order
         { (typeof(IOrderRepository), DatabaseType.MySql), typeof(OrderMySqlRepository) },
         { (typeof(IOrderRepository), DatabaseType.MongoDb), typeof(OrderMongoDbRepository) },
+        { (typeof(IOrderRepository), DatabaseType.Neo4j), typeof(OrderNeo4JRepository) },
 
         //Dispatch
         { (typeof(IDispatchRepository), DatabaseType.MySql), typeof(DispatchMySqlRepository) },
