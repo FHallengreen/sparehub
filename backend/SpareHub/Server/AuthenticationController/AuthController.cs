@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -7,7 +6,7 @@ using Persistence.MySql.SparehubDbContext;
 using Service.Services.Login;
 using Shared.DTOs.User;
 
-namespace Server;
+namespace Server.AuthenticationController;
 
 [ApiController]
 [Route("api/auth")]

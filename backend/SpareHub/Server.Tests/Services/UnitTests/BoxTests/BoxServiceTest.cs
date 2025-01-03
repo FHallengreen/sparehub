@@ -7,7 +7,7 @@ using Service.Services.Box;
 using Shared.DTOs.Order;
 using Xunit;
 
-namespace Server.Tests.Unit_Tests.BoxServiceTest;
+namespace Server.Tests.Services.UnitTests.BoxTests;
 
 public class BoxServiceTest
 {

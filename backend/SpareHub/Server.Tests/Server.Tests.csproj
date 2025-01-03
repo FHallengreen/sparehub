@@ -22,10 +22,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Server\Server.csproj" />
+    <ProjectReference Include="..\Service\Service.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Unit Tests\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   
 </Project>

@@ -4,5 +4,5 @@ namespace Service.Interfaces;
 
 public interface ITrackingService
 {
-    Task<TrackingResponse> GetTrackingStatusAsync(string trackingNumber, string transporter);
+    Task<TrackingResponse> GetTrackingStatusAsync(string trackingNumber);
 }
