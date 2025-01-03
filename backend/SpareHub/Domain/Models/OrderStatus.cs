@@ -1,7 +1,15 @@
 
+using System.Text.Json.Serialization;
+
 namespace Domain.Models;
 
-public class OrderStatus
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum OrderStatus
 {
-    public required string Status { get; init; }
+    Pending,
+    Ready,
+    Inbound,
+    Stock,
+    Cancelled,
+    Delivered
 }

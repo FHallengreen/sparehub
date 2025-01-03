@@ -70,15 +70,12 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            new string[] { }
+            []
         }
     });
 });
 
 builder.Configuration.AddUserSecrets<Program>();
-
-// Add memory caching
-builder.Services.AddMemoryCache();
 
 builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("DatabaseSettings"));
 

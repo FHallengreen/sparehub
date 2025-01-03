@@ -17,6 +17,6 @@ public class Order
     public DateTime? ActualArrival { get; set; }
     public string? TrackingNumber { get; set; }
     public string? Transporter { get; set; }
-    public string OrderStatus { get; set; } = null!;
+    public OrderStatus OrderStatus { get; set; }
     public List<Box> Boxes { get; set; } = new();
 }

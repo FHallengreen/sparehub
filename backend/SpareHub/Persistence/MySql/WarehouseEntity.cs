@@ -1,8 +1,21 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Persistence.MySql;
 public class WarehouseEntity
 {
+    public WarehouseEntity()
+    {
+    }
+
+    [SetsRequiredMembers]
+    public WarehouseEntity(string name, AgentEntity agent, AddressEntity address)
+    {
+        Name = name;
+        Agent = agent;
+        Address = address;
+    }
+
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; init; }
     public required string Name { get; init; }

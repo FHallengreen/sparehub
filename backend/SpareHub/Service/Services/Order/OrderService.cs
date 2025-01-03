@@ -1,5 +1,5 @@
 using AutoMapper;
-using Microsoft.Extensions.Caching.Memory;
+using Domain.Models;
 using Repository.Interfaces;
 using Service.Interfaces;
 using Shared.DTOs.Order;
@@ -14,13 +14,10 @@ namespace Service.Services.Order;
 
 public class OrderService(
     IOrderRepository orderRepository,
-    IMemoryCache memoryCache,
     IBoxService boxService,
     IMapper mapper)
     : IOrderService
 {
-    private const string OrderStatusCacheKey = "OrderStatuses";
-
     public async Task<IEnumerable<OrderTableResponse>> GetOrders(List<string>? searchTerms = null)
     {
         var availableStatuses = await GetAllOrderStatusesAsync();
@@ -32,14 +29,7 @@ public class OrderService(
             throw new NotFoundException("No orders found matching the search criteria.");
         }
 
-        var orderResponses = MapOrdersToResponses(enumerable);
-
-        if (searchTerms is { Count: > 0 })
-        {
-            orderResponses = FilterOrderResponses(orderResponses, searchTerms, availableStatuses);
-        }
-
-        return orderResponses;
+        return MapOrdersToResponses(enumerable);
     }
 
 
@@ -161,32 +151,8 @@ public class OrderService(
 
     public async Task<List<string>> GetAllOrderStatusesAsync()
     {
-        if (memoryCache.TryGetValue(OrderStatusCacheKey, out List<string>? cachedStatuses))
-        {
-            if (cachedStatuses == null || cachedStatuses.Count == 0)
-            {
-                cachedStatuses = await FetchAndCacheStatusesAsync();
-            }
-
-            return cachedStatuses;
-        }
-
-        return await FetchAndCacheStatusesAsync();
-    }
-
-    private async Task<List<string>> FetchAndCacheStatusesAsync()
-    {
-        var statuses = await orderRepository.GetAllOrderStatusesAsync();
-
-        if (statuses.Count != 0)
-        {
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromHours(24));
-
-            memoryCache.Set(OrderStatusCacheKey, statuses, cacheEntryOptions);
-        }
-
-        return statuses;
+        var statuses = Enum.GetNames(typeof(OrderStatus)).ToList();
+        return await Task.FromResult(statuses);
     }
 
     private static List<OrderTableResponse> MapOrdersToResponses(IEnumerable<Domain.Models.Order> orders)
@@ -207,21 +173,6 @@ public class OrderService(
         }).ToList();
     }
 
-
-    private static List<OrderTableResponse> FilterOrderResponses(
-        List<OrderTableResponse> orderResponses, List<string> searchTerms, IEnumerable<string> availableStatuses)
-    {
-        var nonStatusTerms = searchTerms
-            .Where(t => !availableStatuses.Contains(t, StringComparer.OrdinalIgnoreCase))
-            .ToList();
-
-        return nonStatusTerms.Aggregate(orderResponses, (current, term) => current.Where(o =>
-            o.WarehouseName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-            o.VesselName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-            o.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-            o.SupplierName.Contains(term, StringComparison.OrdinalIgnoreCase)).ToList());
-    }
-
     private async Task<IEnumerable<Domain.Models.Order>> FetchOrdersBasedOnSearchTerms(
         List<string>? searchTerms, IEnumerable<string> availableStatuses)
     {
@@ -229,9 +180,22 @@ public class OrderService(
             searchTerms.Any(term => availableStatuses.Contains(term, StringComparer.OrdinalIgnoreCase)))
         {
             return (await orderRepository.GetOrdersAsync())
-                .Where(o => searchTerms.Contains(o.OrderStatus, StringComparer.OrdinalIgnoreCase));
+                .Where(o => searchTerms.Contains(o.OrderStatus.ToString(), StringComparer.OrdinalIgnoreCase));
         }
 
-        return await orderRepository.GetNotActiveOrders();
+        var activeOrders = await orderRepository.GetActiveOrders();
+
+        if (searchTerms != null && searchTerms.Count > 0)
+        {
+            activeOrders = activeOrders.Where(o =>
+                searchTerms.Any(term =>
+                    (o.Warehouse?.Name?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (o.Supplier?.Name?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (o.OrderNumber?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (o.Vessel?.Name?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false)
+                ));
+        }
+
+        return activeOrders;
     }
 }

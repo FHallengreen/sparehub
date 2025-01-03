@@ -92,7 +92,11 @@ public class OrderNeo4JRepository(IDriver driver) : IOrderRepository
                     Id = warehouseNode?["id"]?.As<string>() ?? string.Empty,
                     Name = warehouseNode?["name"]?.As<string>() ?? "Unknown Warehouse"
                 },
-                OrderStatus = statusNode?["name"]?.As<string>() ?? "Unknown Status",
+                OrderStatus = statusNode?["name"] != null
+                    ? Enum.TryParse<OrderStatus>(statusNode["name"]?.As<string>(), out var status)
+                        ? status
+                        : OrderStatus.Pending
+                    : OrderStatus.Pending,
                 ExpectedReadiness = orderNode != null && orderNode.Properties.ContainsKey("expectedReadiness")
                     ? DateTime.Parse(orderNode["expectedReadiness"].As<string>())
                     : default,
@@ -120,7 +124,7 @@ public class OrderNeo4JRepository(IDriver driver) : IOrderRepository
         }
     }
 
-    public async Task<IEnumerable<Order>> GetNotActiveOrders()
+    public async Task<IEnumerable<Order>> GetActiveOrders()
     {
         const string query = @"
     MATCH (o:Order)-[:HAS_STATUS]->(s:Status), 
@@ -198,7 +202,11 @@ public class OrderNeo4JRepository(IDriver driver) : IOrderRepository
                         Id = warehouseNode?["id"]?.As<string>() ?? string.Empty,
                         Name = warehouseNode?["name"]?.As<string>() ?? "Unknown Warehouse"
                     },
-                    OrderStatus = statusNode?["name"]?.As<string>() ?? "Unknown Status",
+                    OrderStatus = statusNode?["name"] != null
+                        ? Enum.TryParse<OrderStatus>(statusNode["name"]?.As<string>(), out var status)
+                            ? status
+                            : OrderStatus.Pending
+                        : OrderStatus.Pending,
                     ExpectedReadiness = orderNode != null && orderNode.Properties.ContainsKey("expectedReadiness")
                         ? DateTime.Parse(orderNode["expectedReadiness"].As<string>())
                         : default,

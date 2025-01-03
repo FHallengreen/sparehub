@@ -25,10 +25,10 @@ public class OrderMySqlRepository(SpareHubDbContext dbContext, IMapper mapper) :
         return orders;
     }
 
-    public async Task<IEnumerable<Order>> GetNotActiveOrders()
+    public async Task<IEnumerable<Order>> GetActiveOrders()
     {
         var notActiveOrderEntities = await dbContext.Orders
-            .FromSqlRaw("SELECT * FROM not_active_orders")
+            .FromSqlRaw("SELECT * FROM active_orders")
             .Include(o => o.Supplier)
             .Include(o => o.Vessel)
             .ThenInclude(v => v.Owner)

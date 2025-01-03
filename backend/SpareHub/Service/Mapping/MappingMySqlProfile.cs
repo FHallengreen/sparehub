@@ -58,7 +58,8 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.ActualReadiness, opt => opt.MapFrom(src => src.ActualReadiness))
             .ForMember(dest => dest.ExpectedArrival, opt => opt.MapFrom(src => src.ExpectedArrival))
             .ForMember(dest => dest.ActualArrival, opt => opt.MapFrom(src => src.ActualArrival))
-            .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.OrderStatus))
+            .ForMember(dest => dest.OrderStatus,
+                opt => opt.MapFrom(src => src.OrderStatus.ToString()))
             .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
             .ForMember(dest => dest.Transporter, opt => opt.MapFrom(src => src.Transporter))
             .ForMember(dest => dest.Boxes, opt => opt.Ignore())
@@ -81,7 +82,8 @@ public class MappingMySqlProfile : Profile
             .ForMember(dest => dest.ActualReadiness, opt => opt.MapFrom(src => src.ActualReadiness))
             .ForMember(dest => dest.ExpectedArrival, opt => opt.MapFrom(src => src.ExpectedArrival))
             .ForMember(dest => dest.ActualArrival, opt => opt.MapFrom(src => src.ActualArrival))
-            .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.OrderStatus))
+            .ForMember(dest => dest.OrderStatus,
+                opt => opt.MapFrom(src => Enum.Parse<OrderStatus>(src.OrderStatus)))
             .ForMember(dest => dest.TrackingNumber, opt => opt.MapFrom(src => src.TrackingNumber))
             .ForMember(dest => dest.Transporter, opt => opt.MapFrom(src => src.Transporter))
             .ForMember(dest => dest.Boxes, opt => opt.MapFrom(src => src.Boxes));

@@ -38,7 +38,7 @@ public class OrderMongoDbRepository(
         return order;
     }
 
-    public async Task<IEnumerable<Order>> GetNotActiveOrders()
+    public async Task<IEnumerable<Order>> GetActiveOrders()
     {
         var filter = Builders<OrderCollection>.Filter.Nin(order => order.OrderStatus,
             [OrderStatus.Cancelled, OrderStatus.Delivered]);

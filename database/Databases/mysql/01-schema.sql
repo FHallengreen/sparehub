@@ -505,16 +505,16 @@ ENGINE = InnoDB;
 USE `sparehub` ;
 
 -- -----------------------------------------------------
--- Placeholder table for view `sparehub`.`not_active_orders`
+-- Placeholder table for view `sparehub`.`active_orders`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sparehub`.`not_active_orders` (`id` INT, `order_number` INT, `supplier_order_number` INT, `supplier_id` INT, `vessel_id` INT, `warehouse_id` INT, `expected_readiness` INT, `actual_readiness` INT, `expected_arrival` INT, `actual_arrival` INT, `order_status` INT, `transporter` INT, `tracking_number` INT);
+CREATE TABLE IF NOT EXISTS `sparehub`.`active_orders` (`id` INT, `order_number` INT, `supplier_order_number` INT, `supplier_id` INT, `vessel_id` INT, `warehouse_id` INT, `expected_readiness` INT, `actual_readiness` INT, `expected_arrival` INT, `actual_arrival` INT, `order_status` INT, `transporter` INT, `tracking_number` INT);
 
 -- -----------------------------------------------------
--- View `sparehub`.`not_active_orders`
+-- View `sparehub`.`active_orders`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `sparehub`.`not_active_orders`;
+DROP TABLE IF EXISTS `sparehub`.`active_orders`;
 USE `sparehub`;
-CREATE  OR REPLACE VIEW `not_active_orders` AS
+CREATE  OR REPLACE VIEW `active_orders` AS
     SELECT 
         *
     FROM

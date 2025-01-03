@@ -1,3 +1,4 @@
+using Domain.Models;
 using Shared.DTOs.Supplier;
 using Shared.DTOs.Vessel;
 using Shared.DTOs.Warehouse;
@@ -13,7 +14,7 @@ public record OrderResponse
     public DateTime? ActualReadiness { get; set; }
     public DateTime? ExpectedArrival { get; set; }
     public DateTime? ActualArrival { get; set; }
-    public string OrderStatus { get; set; } = null!;
+    public OrderStatus OrderStatus { get; set; }
     public string? TrackingNumber { get; set; } // New property
     public string? Transporter { get; set; } // New property
     public SupplierResponse Supplier { get; set; } = null!;

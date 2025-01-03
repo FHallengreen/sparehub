@@ -6,7 +6,7 @@ public interface IOrderRepository
 {
     Task<IEnumerable<Order>> GetOrdersAsync();
     Task<Order?> GetOrderByIdAsync(string orderId);
-    Task<IEnumerable<Order>> GetNotActiveOrders();
+    Task<IEnumerable<Order>> GetActiveOrders();
     Task CreateOrderAsync(Order order);
     Task UpdateOrderAsync(Order order);
     Task DeleteOrderAsync(string orderId);
